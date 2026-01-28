@@ -50,7 +50,7 @@ Future<void> _initializeDependencies() async {
     ),
     anonKey: const String.fromEnvironment(
       'SUPABASE_ANON_KEY',
-      defaultValue: 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...', // Placeholder
+      defaultValue: '[YOUR-ANON-KEY]',
     ),
   );
 }

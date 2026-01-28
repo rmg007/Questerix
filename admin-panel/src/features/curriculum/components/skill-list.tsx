@@ -5,6 +5,7 @@ import { useDomains } from '../hooks/use-domains';
 import { useState, useEffect } from 'react';
 import { useToast } from '@/components/ui/toast';
 import { Pagination } from '@/components/ui/pagination';
+import { SortableHeader } from '@/components/ui/sortable-header';
 import { Plus, Pencil, Trash, Layers, CheckSquare, Square, Eye, EyeOff, Search, X, Copy } from 'lucide-react';
 
 const DEFAULT_PAGE_SIZE = 10;
@@ -17,6 +18,8 @@ export function SkillList() {
     const [selectedIds, setSelectedIds] = useState<Set<string>>(new Set());
     const [page, setPage] = useState(1);
     const [pageSize, setPageSize] = useState(DEFAULT_PAGE_SIZE);
+    const [sortBy, setSortBy] = useState<string>('sort_order');
+    const [sortOrder, setSortOrder] = useState<'asc' | 'desc'>('asc');
 
     const { data: paginatedData, isLoading } = usePaginatedSkills({
         page,
@@ -24,6 +27,8 @@ export function SkillList() {
         search: debouncedSearch,
         status: statusFilter,
         domainId: selectedDomainId,
+        sortBy,
+        sortOrder,
     });
     const { data: domains } = useDomains();
     const deleteSkill = useDeleteSkill();
@@ -48,6 +53,16 @@ export function SkillList() {
     const skills = paginatedData?.data ?? [];
     const totalCount = paginatedData?.totalCount ?? 0;
     const totalPages = paginatedData?.totalPages ?? 1;
+
+    const handleSort = (column: string) => {
+        if (sortBy === column) {
+            setSortOrder(sortOrder === 'asc' ? 'desc' : 'asc');
+        } else {
+            setSortBy(column);
+            setSortOrder('asc');
+        }
+        setPage(1);
+    };
 
     const handleSelectAll = () => {
         if (selectedIds.size === skills.length) {
@@ -262,10 +277,34 @@ export function SkillList() {
                                         {isAllSelected && skills.length > 0 ? <CheckSquare className="h-5 w-5 text-purple-600" /> : <Square className="h-5 w-5" />}
                                     </button>
                                 </th>
-                                <th className="text-left px-6 py-4 text-sm font-semibold text-gray-600">Title</th>
+                                <th className="text-left px-6 py-4">
+                                    <SortableHeader
+                                        label="Title"
+                                        column="title"
+                                        currentSortBy={sortBy}
+                                        currentSortOrder={sortOrder}
+                                        onSort={handleSort}
+                                    />
+                                </th>
                                 <th className="text-left px-6 py-4 text-sm font-semibold text-gray-600">Domain</th>
-                                <th className="text-left px-6 py-4 text-sm font-semibold text-gray-600">Difficulty</th>
-                                <th className="text-left px-6 py-4 text-sm font-semibold text-gray-600">Status</th>
+                                <th className="text-left px-6 py-4">
+                                    <SortableHeader
+                                        label="Difficulty"
+                                        column="difficulty_level"
+                                        currentSortBy={sortBy}
+                                        currentSortOrder={sortOrder}
+                                        onSort={handleSort}
+                                    />
+                                </th>
+                                <th className="text-left px-6 py-4">
+                                    <SortableHeader
+                                        label="Status"
+                                        column="is_published"
+                                        currentSortBy={sortBy}
+                                        currentSortOrder={sortOrder}
+                                        onSort={handleSort}
+                                    />
+                                </th>
                                 <th className="text-right px-6 py-4 text-sm font-semibold text-gray-600">Actions</th>
                             </tr>
                         </thead>

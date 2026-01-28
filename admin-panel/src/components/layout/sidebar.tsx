@@ -1,5 +1,5 @@
 import { Link, useLocation, useNavigate } from 'react-router-dom'
-import { LayoutDashboard, Book, Layers, FileText, Upload, LogOut, Settings, Key } from 'lucide-react'
+import { LayoutDashboard, Book, Layers, FileText, Upload, LogOut, Settings, Key, History, Users } from 'lucide-react'
 import { cn } from '@/lib/utils'
 import { supabase } from '@/lib/supabase'
 import { useState, useEffect } from 'react'
@@ -10,10 +10,12 @@ const baseNavigation = [
   { name: 'Skills', href: '/skills', icon: Layers },
   { name: 'Questions', href: '/questions', icon: FileText },
   { name: 'Publish', href: '/publish', icon: Upload },
+  { name: 'Version History', href: '/versions', icon: History },
 ]
 
 const superAdminNavigation = [
   { name: 'Invitation Codes', href: '/invitation-codes', icon: Key },
+  { name: 'User Management', href: '/users', icon: Users },
 ]
 
 const bottomNavigation = [

@@ -110,3 +110,79 @@ export function useDeleteSkill() {
         },
     });
 }
+
+export function useBulkDeleteSkills() {
+    const queryClient = useQueryClient();
+
+    return useMutation({
+        mutationFn: async (ids: string[]) => {
+            const { error } = await (supabase
+                .from('skills') as any)
+                .update({ deleted_at: new Date().toISOString() })
+                .in('id', ids);
+
+            if (error) throw error;
+        },
+        onSuccess: () => {
+            queryClient.invalidateQueries({ queryKey: ['skills'] });
+            queryClient.invalidateQueries({ queryKey: ['dashboard-stats'] });
+        },
+    });
+}
+
+export function useBulkUpdateSkillsStatus() {
+    const queryClient = useQueryClient();
+
+    return useMutation({
+        mutationFn: async ({ ids, is_published }: { ids: string[]; is_published: boolean }) => {
+            const { error } = await (supabase
+                .from('skills') as any)
+                .update({ is_published })
+                .in('id', ids);
+
+            if (error) throw error;
+        },
+        onSuccess: () => {
+            queryClient.invalidateQueries({ queryKey: ['skills'] });
+            queryClient.invalidateQueries({ queryKey: ['dashboard-stats'] });
+        },
+    });
+}
+
+export function useDuplicateSkill() {
+    const queryClient = useQueryClient();
+
+    return useMutation({
+        mutationFn: async (id: string) => {
+            const { data: original, error: fetchError } = await supabase
+                .from('skills')
+                .select('*')
+                .eq('id', id)
+                .single();
+
+            if (fetchError) throw fetchError;
+            if (!original) throw new Error('Skill not found');
+
+            const { id: _, created_at, updated_at, ...rest } = original as any;
+            const duplicate = {
+                ...rest,
+                title: `${rest.title} (Copy)`,
+                slug: `${rest.slug}_copy_${Date.now()}`,
+                is_published: false,
+            };
+
+            const { data, error } = await (supabase
+                .from('skills') as any)
+                .insert(duplicate)
+                .select()
+                .single();
+
+            if (error) throw error;
+            return data as Skill;
+        },
+        onSuccess: () => {
+            queryClient.invalidateQueries({ queryKey: ['skills'] });
+            queryClient.invalidateQueries({ queryKey: ['dashboard-stats'] });
+        },
+    });
+}

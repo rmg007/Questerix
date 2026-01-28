@@ -99,3 +99,41 @@ export function useDeleteDomain() {
         },
     });
 }
+
+export function useBulkDeleteDomains() {
+    const queryClient = useQueryClient();
+
+    return useMutation({
+        mutationFn: async (ids: string[]) => {
+            const { error } = await (supabase
+                .from('domains') as any)
+                .update({ deleted_at: new Date().toISOString() })
+                .in('id', ids);
+
+            if (error) throw error;
+        },
+        onSuccess: () => {
+            queryClient.invalidateQueries({ queryKey: ['domains'] });
+            queryClient.invalidateQueries({ queryKey: ['dashboard-stats'] });
+        },
+    });
+}
+
+export function useBulkUpdateDomainsStatus() {
+    const queryClient = useQueryClient();
+
+    return useMutation({
+        mutationFn: async ({ ids, is_published }: { ids: string[]; is_published: boolean }) => {
+            const { error } = await (supabase
+                .from('domains') as any)
+                .update({ is_published })
+                .in('id', ids);
+
+            if (error) throw error;
+        },
+        onSuccess: () => {
+            queryClient.invalidateQueries({ queryKey: ['domains'] });
+            queryClient.invalidateQueries({ queryKey: ['dashboard-stats'] });
+        },
+    });
+}

@@ -1,4 +1,4 @@
-import { useEffect, useState, useCallback } from 'react'
+import { useEffect, useState } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { supabase } from '@/lib/supabase'
 
@@ -6,53 +6,43 @@ export function AuthGuard({ children }: { children: React.ReactNode }) {
   const navigate = useNavigate()
   const [loading, setLoading] = useState(true)
 
-  const checkUser = useCallback(async () => {
-    try {
-      const { data: { session } } = await supabase.auth.getSession()
-      if (!session) {
-        navigate('/login')
-        return
-      }
-
-      // Check admin role
-      const { data, error } = await supabase
-        .from('profiles')
-        .select('role')
-        .eq('id', session.user.id)
-        .single()
-      
-      const profile = data as { role: string } | null
-
-      if (error || profile?.role !== 'admin') {
-        console.error('Access denied: Not an admin', error)
-        await supabase.auth.signOut()
-        navigate('/login')
-        return
-      }
-
-      setLoading(false)
-    } catch (e) {
-      console.error(e)
-      navigate('/login')
-    }
-  }, [navigate])
-
   useEffect(() => {
-    checkUser()
+    const checkSession = async () => {
+      try {
+        const { data: { session } } = await supabase.auth.getSession()
+        if (!session) {
+          navigate('/login')
+          return
+        }
+        setLoading(false)
+      } catch (e) {
+        console.error(e)
+        navigate('/login')
+      }
+    }
 
-    const { data: { subscription } } = supabase.auth.onAuthStateChange(async (event, session) => {
+    checkSession()
+
+    const { data: { subscription } } = supabase.auth.onAuthStateChange((event, session) => {
       if (event === 'SIGNED_OUT' || !session) {
         navigate('/login')
       } else if (event === 'SIGNED_IN') {
-        await checkUser()
+        setLoading(false)
       }
     })
 
     return () => subscription.unsubscribe()
-  }, [checkUser, navigate])
+  }, [navigate])
 
   if (loading) {
-    return <div className="flex h-screen items-center justify-center">Loading...</div>
+    return (
+      <div className="flex h-screen items-center justify-center bg-gray-50">
+        <div className="text-center">
+          <div className="inline-block h-8 w-8 animate-spin rounded-full border-4 border-purple-600 border-r-transparent"></div>
+          <p className="mt-4 text-gray-600">Loading...</p>
+        </div>
+      </div>
+    )
   }
 
   return <>{children}</>

@@ -4,6 +4,7 @@ import { usePaginatedDomains, useDeleteDomain, useBulkDeleteDomains, useBulkUpda
 import { useState, useEffect } from 'react'
 import { useToast } from '@/components/ui/toast'
 import { Pagination } from '@/components/ui/pagination'
+import { SortableHeader } from '@/components/ui/sortable-header'
 
 const DEFAULT_PAGE_SIZE = 10
 
@@ -14,12 +15,16 @@ export function DomainList() {
   const [debouncedSearch, setDebouncedSearch] = useState<string>('')
   const [page, setPage] = useState(1)
   const [pageSize, setPageSize] = useState(DEFAULT_PAGE_SIZE)
+  const [sortBy, setSortBy] = useState<string>('sort_order')
+  const [sortOrder, setSortOrder] = useState<'asc' | 'desc'>('asc')
 
   const { data: paginatedData, isLoading, error } = usePaginatedDomains({
     page,
     pageSize,
     search: debouncedSearch,
     status: statusFilter,
+    sortBy,
+    sortOrder,
   })
 
   const deleteDomain = useDeleteDomain()
@@ -43,6 +48,16 @@ export function DomainList() {
   const domains = paginatedData?.data ?? []
   const totalCount = paginatedData?.totalCount ?? 0
   const totalPages = paginatedData?.totalPages ?? 1
+
+  const handleSort = (column: string) => {
+    if (sortBy === column) {
+      setSortOrder(sortOrder === 'asc' ? 'desc' : 'asc')
+    } else {
+      setSortBy(column)
+      setSortOrder('asc')
+    }
+    setPage(1)
+  }
 
   const handleSelectAll = () => {
     if (selectedIds.size === domains.length) {
@@ -243,10 +258,42 @@ export function DomainList() {
                     {isAllSelected && domains.length > 0 ? <CheckSquare className="h-5 w-5 text-purple-600" /> : <Square className="h-5 w-5" />}
                   </button>
                 </th>
-                <th className="text-left px-6 py-4 text-sm font-semibold text-gray-600">Order</th>
-                <th className="text-left px-6 py-4 text-sm font-semibold text-gray-600">Title</th>
-                <th className="text-left px-6 py-4 text-sm font-semibold text-gray-600">Slug</th>
-                <th className="text-left px-6 py-4 text-sm font-semibold text-gray-600">Status</th>
+                <th className="text-left px-6 py-4">
+                  <SortableHeader
+                    label="Order"
+                    column="sort_order"
+                    currentSortBy={sortBy}
+                    currentSortOrder={sortOrder}
+                    onSort={handleSort}
+                  />
+                </th>
+                <th className="text-left px-6 py-4">
+                  <SortableHeader
+                    label="Title"
+                    column="title"
+                    currentSortBy={sortBy}
+                    currentSortOrder={sortOrder}
+                    onSort={handleSort}
+                  />
+                </th>
+                <th className="text-left px-6 py-4">
+                  <SortableHeader
+                    label="Slug"
+                    column="slug"
+                    currentSortBy={sortBy}
+                    currentSortOrder={sortOrder}
+                    onSort={handleSort}
+                  />
+                </th>
+                <th className="text-left px-6 py-4">
+                  <SortableHeader
+                    label="Status"
+                    column="is_published"
+                    currentSortBy={sortBy}
+                    currentSortOrder={sortOrder}
+                    onSort={handleSort}
+                  />
+                </th>
                 <th className="text-right px-6 py-4 text-sm font-semibold text-gray-600">Actions</th>
               </tr>
             </thead>

@@ -13,6 +13,8 @@ export interface PaginationParams {
   search?: string;
   status?: 'all' | 'published' | 'draft';
   skillId?: string;
+  sortBy?: string;
+  sortOrder?: 'asc' | 'desc';
 }
 
 export interface PaginatedResponse<T> {
@@ -55,7 +57,7 @@ export function usePaginatedQuestions(params: PaginationParams) {
   return useQuery({
     queryKey: ['questions-paginated', params],
     queryFn: async (): Promise<PaginatedResponse<Question & { skills: { title: string, domains: { title: string } | null } | null }>> => {
-      const { page, pageSize, search, status, skillId } = params;
+      const { page, pageSize, search, status, skillId, sortBy = 'created_at', sortOrder = 'desc' } = params;
       const from = (page - 1) * pageSize;
       const to = from + pageSize - 1;
 
@@ -68,8 +70,7 @@ export function usePaginatedQuestions(params: PaginationParams) {
             domains ( title )
           )
         `, { count: 'exact' })
-        .is('deleted_at', null)
-        .order('created_at', { ascending: false });
+        .is('deleted_at', null);
 
       if (search) {
         query = query.ilike('content', `%${search}%`);
@@ -85,6 +86,7 @@ export function usePaginatedQuestions(params: PaginationParams) {
         query = query.eq('skill_id', skillId);
       }
 
+      query = query.order(sortBy, { ascending: sortOrder === 'asc' });
       query = query.range(from, to);
 
       const { data, error, count } = await query;

@@ -12,6 +12,8 @@ export interface PaginationParams {
   pageSize: number;
   search?: string;
   status?: 'all' | 'published' | 'draft';
+  sortBy?: string;
+  sortOrder?: 'asc' | 'desc';
 }
 
 export interface PaginatedResponse<T> {
@@ -42,15 +44,14 @@ export function usePaginatedDomains(params: PaginationParams) {
   return useQuery({
     queryKey: ['domains-paginated', params],
     queryFn: async (): Promise<PaginatedResponse<Domain>> => {
-      const { page, pageSize, search, status } = params;
+      const { page, pageSize, search, status, sortBy = 'sort_order', sortOrder = 'asc' } = params;
       const from = (page - 1) * pageSize;
       const to = from + pageSize - 1;
 
       let query = supabase
         .from('domains')
         .select('*', { count: 'exact' })
-        .is('deleted_at', null)
-        .order('sort_order');
+        .is('deleted_at', null);
 
       if (search) {
         query = query.or(`title.ilike.%${search}%,slug.ilike.%${search}%`);
@@ -62,6 +63,7 @@ export function usePaginatedDomains(params: PaginationParams) {
         query = query.eq('is_published', false);
       }
 
+      query = query.order(sortBy, { ascending: sortOrder === 'asc' });
       query = query.range(from, to);
 
       const { data, error, count } = await query;

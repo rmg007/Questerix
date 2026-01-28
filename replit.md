@@ -36,6 +36,7 @@ Preferred communication style: Simple, everyday language.
   - Bulk operations (select all, delete, publish, unpublish) for Questions, Skills, and Domains
   - Server-side pagination with configurable page sizes (10/25/50/100 items per page)
   - Debounced search (300ms) for real-time filtering without excessive queries
+  - Clickable table headers for server-side sorting (ascending/descending toggle)
   - Advanced search and multi-criteria filtering on all content lists
   - Version History page for past published curriculum versions
   - User Management page (super admin only) for managing admin accounts

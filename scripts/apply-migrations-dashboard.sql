@@ -219,15 +219,25 @@ END;
 $$ LANGUAGE plpgsql;
 
 -- Auto-create profile for new auth users (including anonymous)
+-- If user_metadata contains role='admin', create as admin; otherwise create as student
 CREATE OR REPLACE FUNCTION public.handle_new_user()
 RETURNS TRIGGER AS $$
+DECLARE
+  user_role public.user_role;
 BEGIN
+  -- Check if user should be admin (set via signup metadata)
+  IF NEW.raw_user_meta_data->>'role' = 'admin' THEN
+    user_role := 'admin'::public.user_role;
+  ELSE
+    user_role := 'student'::public.user_role;
+  END IF;
+
   INSERT INTO public.profiles (id, role, email, full_name)
   VALUES (
     NEW.id,
-    'student',
+    user_role,
     COALESCE(NEW.email, 'anonymous-' || NEW.id::text || '@device.local'),
-    COALESCE(NEW.raw_user_meta_data->>'full_name', 'Student')
+    COALESCE(NEW.raw_user_meta_data->>'full_name', 'User')
   );
   RETURN NEW;
 END;

@@ -12,7 +12,7 @@ import {
   FormMessage,
 } from '@/components/ui/form';
 import { Input } from '@/components/ui/input';
-import { Textarea } from '@/components/ui/textarea';
+import { RichTextEditor } from '@/components/ui/rich-text-editor';
 import { Checkbox } from '@/components/ui/checkbox';
 import { RadioGroup, RadioGroupItem } from '@/components/ui/radio-group';
 import { useCreateQuestion, useUpdateQuestion } from '../hooks/use-questions';
@@ -221,10 +221,10 @@ export function QuestionForm({ initialData }: QuestionFormProps) {
             <FormItem>
               <FormLabel>Question Text</FormLabel>
               <FormControl>
-                <Textarea 
-                  placeholder="What is 2 + 2?" 
-                  className="resize-none" 
-                  {...field} 
+                <RichTextEditor 
+                  value={field.value}
+                  onChange={field.onChange}
+                  placeholder="What is 2 + 2?"
                 />
               </FormControl>
               <FormMessage />
@@ -310,12 +310,12 @@ export function QuestionForm({ initialData }: QuestionFormProps) {
           name="explanation"
           render={({ field }) => (
             <FormItem>
-              <FormLabel>Explanation (Markdown support)</FormLabel>
+              <FormLabel>Explanation</FormLabel>
               <FormControl>
-                <Textarea 
-                  placeholder="Explain why the answer is correct..." 
-                  className="resize-none" 
-                  {...field} 
+                <RichTextEditor 
+                  value={field.value || ''}
+                  onChange={field.onChange}
+                  placeholder="Explain why the answer is correct..."
                 />
               </FormControl>
               <FormMessage />

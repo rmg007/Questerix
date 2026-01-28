@@ -1,8 +1,6 @@
-import 'dart:io';
 import 'package:drift/drift.dart';
-import 'package:drift/native.dart';
+import 'package:drift_flutter/drift_flutter.dart';
 import 'package:path_provider/path_provider.dart';
-import 'package:path/path.dart' as p;
 
 import 'tables.dart';
 
@@ -38,10 +36,21 @@ class AppDatabase extends _$AppDatabase {
   }
 }
 
-LazyDatabase _openConnection() {
-  return LazyDatabase(() async {
-    final dbFolder = await getApplicationDocumentsDirectory();
-    final file = File(p.join(dbFolder.path, 'math7.db'));
-    return NativeDatabase(file);
-  });
+QueryExecutor _openConnection() {
+  return driftDatabase(
+    name: 'math7',
+    native: DriftNativeOptions(
+      databaseDirectory: getApplicationDocumentsDirectory,
+    ),
+    web: DriftWebOptions(
+      sqlite3Wasm: Uri.parse('sqlite3.wasm'),
+      driftWorker: Uri.parse('drift_worker.js'),
+      onResult: (result) {
+        if (result.missingFeatures.isNotEmpty) {
+          print('Drift Web: Missing features: ${result.missingFeatures}');
+          print('Drift Web: Using implementation: ${result.chosenImplementation}');
+        }
+      },
+    ),
+  );
 }

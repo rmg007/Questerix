@@ -1,15 +1,105 @@
 import { Link } from 'react-router-dom'
-import { Plus, Edit, Book, Trash } from 'lucide-react'
-import { useDomains, useDeleteDomain } from '../hooks/use-domains'
+import { Plus, Edit, Book, Trash, CheckSquare, Square, Eye, EyeOff, Search, X } from 'lucide-react'
+import { useDomains, useDeleteDomain, useBulkDeleteDomains, useBulkUpdateDomainsStatus } from '../hooks/use-domains'
+import { useState, useMemo, useEffect } from 'react'
+import { useToast } from '@/components/ui/toast'
 
 export function DomainList() {
+  const [selectedIds, setSelectedIds] = useState<Set<string>>(new Set())
+  const [statusFilter, setStatusFilter] = useState<string>("all")
+  const [searchQuery, setSearchQuery] = useState<string>("")
+
   const { data: domains, isLoading, error } = useDomains()
   const deleteDomain = useDeleteDomain()
+  const bulkDelete = useBulkDeleteDomains()
+  const bulkUpdateStatus = useBulkUpdateDomainsStatus()
+  const { showToast } = useToast()
+
+  useEffect(() => {
+    setSelectedIds(new Set())
+  }, [statusFilter, searchQuery])
+
+  const filteredDomains = useMemo(() => {
+    if (!domains) return []
+    return domains.filter((d) => {
+      if (searchQuery && !d.title.toLowerCase().includes(searchQuery.toLowerCase()) && !d.slug.toLowerCase().includes(searchQuery.toLowerCase())) {
+        return false
+      }
+      if (statusFilter === "published" && !d.is_published) return false
+      if (statusFilter === "draft" && d.is_published) return false
+      return true
+    })
+  }, [domains, searchQuery, statusFilter])
+
+  const handleSelectAll = () => {
+    if (selectedIds.size === filteredDomains.length) {
+      setSelectedIds(new Set())
+    } else {
+      setSelectedIds(new Set(filteredDomains.map(d => d.id)))
+    }
+  }
+
+  const handleSelectOne = (id: string) => {
+    const newSelected = new Set(selectedIds)
+    if (newSelected.has(id)) {
+      newSelected.delete(id)
+    } else {
+      newSelected.add(id)
+    }
+    setSelectedIds(newSelected)
+  }
+
+  const handleBulkDelete = async () => {
+    if (selectedIds.size === 0) return
+    if (confirm(`Are you sure you want to delete ${selectedIds.size} domain(s)?`)) {
+      try {
+        await bulkDelete.mutateAsync(Array.from(selectedIds))
+        showToast(`${selectedIds.size} domain(s) deleted`, 'success')
+        setSelectedIds(new Set())
+      } catch {
+        showToast('Failed to delete domains', 'error')
+      }
+    }
+  }
+
+  const handleBulkPublish = async () => {
+    if (selectedIds.size === 0) return
+    try {
+      await bulkUpdateStatus.mutateAsync({ ids: Array.from(selectedIds), is_published: true })
+      showToast(`${selectedIds.size} domain(s) published`, 'success')
+      setSelectedIds(new Set())
+    } catch {
+      showToast('Failed to publish domains', 'error')
+    }
+  }
+
+  const handleBulkUnpublish = async () => {
+    if (selectedIds.size === 0) return
+    try {
+      await bulkUpdateStatus.mutateAsync({ ids: Array.from(selectedIds), is_published: false })
+      showToast(`${selectedIds.size} domain(s) unpublished`, 'success')
+      setSelectedIds(new Set())
+    } catch {
+      showToast('Failed to unpublish domains', 'error')
+    }
+  }
 
   const handleDelete = async (id: string) => {
     if (confirm('Are you sure you want to delete this domain?')) {
-      await deleteDomain.mutateAsync(id)
+      try {
+        await deleteDomain.mutateAsync(id)
+        showToast('Domain deleted', 'success')
+      } catch {
+        showToast('Failed to delete domain', 'error')
+      }
     }
+  }
+
+  const hasActiveFilters = searchQuery || statusFilter !== "all"
+
+  const clearFilters = () => {
+    setSearchQuery("")
+    setStatusFilter("all")
   }
 
   if (isLoading) {
@@ -31,6 +121,8 @@ export function DomainList() {
     )
   }
 
+  const isAllSelected = filteredDomains.length ? selectedIds.size === filteredDomains.length : false
+
   return (
     <div className="space-y-6">
       <div className="flex items-center justify-between">
@@ -47,87 +139,187 @@ export function DomainList() {
         </Link>
       </div>
 
-      <div className="bg-white rounded-2xl shadow-sm border border-gray-100 overflow-hidden">
-        <table className="w-full">
-          <thead>
-            <tr className="bg-gray-50 border-b border-gray-100">
-              <th className="text-left px-6 py-4 text-sm font-semibold text-gray-600">Order</th>
-              <th className="text-left px-6 py-4 text-sm font-semibold text-gray-600">Title</th>
-              <th className="text-left px-6 py-4 text-sm font-semibold text-gray-600">Slug</th>
-              <th className="text-left px-6 py-4 text-sm font-semibold text-gray-600">Status</th>
-              <th className="text-right px-6 py-4 text-sm font-semibold text-gray-600">Actions</th>
-            </tr>
-          </thead>
-          <tbody className="divide-y divide-gray-100">
-            {domains?.map((domain) => (
-              <tr key={domain.id} className="hover:bg-gray-50 transition-colors">
-                <td className="px-6 py-4">
-                  <span className="inline-flex items-center justify-center w-8 h-8 rounded-lg bg-purple-100 text-purple-700 font-semibold text-sm">
-                    {domain.sort_order}
-                  </span>
-                </td>
-                <td className="px-6 py-4">
-                  <div className="flex items-center gap-3">
-                    <div className="flex items-center justify-center w-10 h-10 rounded-xl bg-purple-50">
-                      <Book className="w-5 h-5 text-purple-600" />
-                    </div>
-                    <span className="font-medium text-gray-900">{domain.title}</span>
-                  </div>
-                </td>
-                <td className="px-6 py-4">
-                  <code className="px-2 py-1 bg-gray-100 rounded text-sm text-gray-600">{domain.slug}</code>
-                </td>
-                <td className="px-6 py-4">
-                  {domain.is_published ? (
-                    <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-green-100 text-green-800">
-                      Published
-                    </span>
-                  ) : (
-                    <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-gray-100 text-gray-600">
-                      Draft
-                    </span>
-                  )}
-                </td>
-                <td className="px-6 py-4 text-right">
-                  <div className="flex items-center justify-end gap-2">
-                    <Link
-                      to={`/domains/${domain.id}/edit`}
-                      className="inline-flex items-center gap-1 px-3 py-2 text-sm font-medium text-purple-600 hover:text-purple-700 hover:bg-purple-50 rounded-lg transition-colors"
-                    >
-                      <Edit className="h-4 w-4" />
-                      Edit
-                    </Link>
-                    <button
-                      onClick={() => handleDelete(domain.id)}
-                      className="inline-flex items-center gap-1 px-3 py-2 text-sm font-medium text-red-600 hover:text-red-700 hover:bg-red-50 rounded-lg transition-colors"
-                    >
-                      <Trash className="h-4 w-4" />
-                    </button>
-                  </div>
-                </td>
-              </tr>
-            ))}
-            {domains?.length === 0 && (
-              <tr>
-                <td colSpan={5} className="px-6 py-12 text-center">
-                  <div className="flex flex-col items-center">
-                    <div className="flex items-center justify-center w-16 h-16 rounded-full bg-gray-100 mb-4">
-                      <Book className="w-8 h-8 text-gray-400" />
-                    </div>
-                    <p className="text-gray-500 mb-4">No domains found. Create one to get started.</p>
-                    <Link
-                      to="/domains/new"
-                      className="inline-flex items-center gap-2 px-4 py-2 bg-purple-600 hover:bg-purple-700 text-white font-medium rounded-lg transition-colors"
-                    >
-                      <Plus className="h-4 w-4" />
-                      Create Domain
-                    </Link>
-                  </div>
-                </td>
-              </tr>
+      <div className="bg-white rounded-2xl shadow-sm border border-gray-100 p-4">
+        <div className="space-y-4 mb-4">
+          <div className="flex items-center gap-3">
+            <div className="relative flex-1 max-w-md">
+              <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-5 w-5 text-gray-400" />
+              <input
+                type="text"
+                placeholder="Search domains..."
+                value={searchQuery}
+                onChange={(e) => setSearchQuery(e.target.value)}
+                className="w-full pl-10 pr-4 py-2 rounded-lg border border-gray-200 bg-white text-gray-700 focus:border-purple-500 focus:ring-2 focus:ring-purple-200 transition-colors"
+              />
+            </div>
+            {hasActiveFilters && (
+              <button
+                onClick={clearFilters}
+                className="inline-flex items-center gap-1 px-3 py-2 text-sm font-medium text-gray-600 hover:text-gray-700 hover:bg-gray-100 rounded-lg transition-colors"
+              >
+                <X className="h-4 w-4" />
+                Clear filters
+              </button>
             )}
-          </tbody>
-        </table>
+          </div>
+
+          <div className="flex flex-wrap items-center gap-3">
+            <div className="flex items-center gap-2">
+              <label className="text-sm font-medium text-gray-600">Status:</label>
+              <select
+                value={statusFilter}
+                onChange={(e) => setStatusFilter(e.target.value)}
+                className="px-3 py-2 rounded-lg border border-gray-200 bg-white text-gray-700 focus:border-purple-500 focus:ring-2 focus:ring-purple-200 transition-colors text-sm"
+              >
+                <option value="all">All Status</option>
+                <option value="published">Published</option>
+                <option value="draft">Draft</option>
+              </select>
+            </div>
+
+            {selectedIds.size > 0 && (
+              <div className="flex items-center gap-2 ml-auto">
+                <span className="text-sm text-gray-600">{selectedIds.size} selected</span>
+                <button
+                  onClick={handleBulkPublish}
+                  disabled={bulkUpdateStatus.isPending}
+                  className="inline-flex items-center gap-1 px-3 py-2 text-sm font-medium text-green-600 hover:text-green-700 hover:bg-green-50 rounded-lg transition-colors"
+                >
+                  <Eye className="h-4 w-4" />
+                  Publish
+                </button>
+                <button
+                  onClick={handleBulkUnpublish}
+                  disabled={bulkUpdateStatus.isPending}
+                  className="inline-flex items-center gap-1 px-3 py-2 text-sm font-medium text-gray-600 hover:text-gray-700 hover:bg-gray-100 rounded-lg transition-colors"
+                >
+                  <EyeOff className="h-4 w-4" />
+                  Unpublish
+                </button>
+                <button
+                  onClick={handleBulkDelete}
+                  disabled={bulkDelete.isPending}
+                  className="inline-flex items-center gap-1 px-3 py-2 text-sm font-medium text-red-600 hover:text-red-700 hover:bg-red-50 rounded-lg transition-colors"
+                >
+                  <Trash className="h-4 w-4" />
+                  Delete
+                </button>
+              </div>
+            )}
+          </div>
+        </div>
+
+        <div className="overflow-hidden rounded-xl border border-gray-100">
+          <table className="w-full">
+            <thead>
+              <tr className="bg-gray-50 border-b border-gray-100">
+                <th className="text-left px-4 py-4 w-10">
+                  <button onClick={handleSelectAll} className="text-gray-400 hover:text-gray-600">
+                    {isAllSelected && filteredDomains.length > 0 ? <CheckSquare className="h-5 w-5 text-purple-600" /> : <Square className="h-5 w-5" />}
+                  </button>
+                </th>
+                <th className="text-left px-6 py-4 text-sm font-semibold text-gray-600">Order</th>
+                <th className="text-left px-6 py-4 text-sm font-semibold text-gray-600">Title</th>
+                <th className="text-left px-6 py-4 text-sm font-semibold text-gray-600">Slug</th>
+                <th className="text-left px-6 py-4 text-sm font-semibold text-gray-600">Status</th>
+                <th className="text-right px-6 py-4 text-sm font-semibold text-gray-600">Actions</th>
+              </tr>
+            </thead>
+            <tbody className="divide-y divide-gray-100">
+              {!filteredDomains.length ? (
+                <tr>
+                  <td colSpan={6} className="px-6 py-12 text-center">
+                    <div className="flex flex-col items-center">
+                      <div className="flex items-center justify-center w-16 h-16 rounded-full bg-gray-100 mb-4">
+                        <Book className="w-8 h-8 text-gray-400" />
+                      </div>
+                      <p className="text-gray-500 mb-4">
+                        {hasActiveFilters ? "No domains match your filters." : "No domains found. Create one to get started."}
+                      </p>
+                      {hasActiveFilters ? (
+                        <button
+                          onClick={clearFilters}
+                          className="inline-flex items-center gap-2 px-4 py-2 bg-gray-100 hover:bg-gray-200 text-gray-700 font-medium rounded-lg transition-colors"
+                        >
+                          <X className="h-4 w-4" />
+                          Clear filters
+                        </button>
+                      ) : (
+                        <Link
+                          to="/domains/new"
+                          className="inline-flex items-center gap-2 px-4 py-2 bg-purple-600 hover:bg-purple-700 text-white font-medium rounded-lg transition-colors"
+                        >
+                          <Plus className="h-4 w-4" />
+                          Create Domain
+                        </Link>
+                      )}
+                    </div>
+                  </td>
+                </tr>
+              ) : (
+                filteredDomains.map((domain) => (
+                  <tr key={domain.id} className="hover:bg-gray-50 transition-colors">
+                    <td className="px-4 py-4">
+                      <button onClick={() => handleSelectOne(domain.id)} className="text-gray-400 hover:text-gray-600">
+                        {selectedIds.has(domain.id) ? <CheckSquare className="h-5 w-5 text-purple-600" /> : <Square className="h-5 w-5" />}
+                      </button>
+                    </td>
+                    <td className="px-6 py-4">
+                      <span className="inline-flex items-center justify-center w-8 h-8 rounded-lg bg-purple-100 text-purple-700 font-semibold text-sm">
+                        {domain.sort_order}
+                      </span>
+                    </td>
+                    <td className="px-6 py-4">
+                      <div className="flex items-center gap-3">
+                        <div className="flex items-center justify-center w-10 h-10 rounded-xl bg-purple-50">
+                          <Book className="w-5 h-5 text-purple-600" />
+                        </div>
+                        <span className="font-medium text-gray-900">{domain.title}</span>
+                      </div>
+                    </td>
+                    <td className="px-6 py-4">
+                      <code className="px-2 py-1 bg-gray-100 rounded text-sm text-gray-600">{domain.slug}</code>
+                    </td>
+                    <td className="px-6 py-4">
+                      {domain.is_published ? (
+                        <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-green-100 text-green-800">
+                          Published
+                        </span>
+                      ) : (
+                        <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-gray-100 text-gray-600">
+                          Draft
+                        </span>
+                      )}
+                    </td>
+                    <td className="px-6 py-4 text-right">
+                      <div className="flex items-center justify-end gap-2">
+                        <Link
+                          to={`/domains/${domain.id}/edit`}
+                          className="inline-flex items-center gap-1 px-3 py-2 text-sm font-medium text-purple-600 hover:text-purple-700 hover:bg-purple-50 rounded-lg transition-colors"
+                        >
+                          <Edit className="h-4 w-4" />
+                          Edit
+                        </Link>
+                        <button
+                          onClick={() => handleDelete(domain.id)}
+                          className="inline-flex items-center gap-1 px-3 py-2 text-sm font-medium text-red-600 hover:text-red-700 hover:bg-red-50 rounded-lg transition-colors"
+                        >
+                          <Trash className="h-4 w-4" />
+                        </button>
+                      </div>
+                    </td>
+                  </tr>
+                ))
+              )}
+            </tbody>
+          </table>
+        </div>
+
+        {filteredDomains.length > 0 && (
+          <div className="mt-4 text-sm text-gray-500">
+            Showing {filteredDomains.length} of {domains?.length ?? 0} domains
+          </div>
+        )}
       </div>
     </div>
   )

@@ -1,15 +1,100 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 import { Link } from 'react-router-dom';
-import { useQuestions, useDeleteQuestion } from '../hooks/use-questions';
+import { useQuestions, useDeleteQuestion, useBulkDeleteQuestions, useBulkUpdateQuestionsStatus, useDuplicateQuestion } from '../hooks/use-questions';
 import { useSkills } from '../hooks/use-skills';
-import { useState } from 'react';
-import { Plus, Pencil, Trash, FileText } from 'lucide-react';
+import { useDomains } from '../hooks/use-domains';
+import { useState, useMemo, useEffect } from 'react';
+import { useToast } from '@/components/ui/toast';
+import { Plus, Pencil, Trash, FileText, CheckSquare, Square, Eye, EyeOff, Search, X, Copy } from 'lucide-react';
 
 export function QuestionList() {
     const [selectedSkillId, setSelectedSkillId] = useState<string>("all");
+    const [selectedDomainId, setSelectedDomainId] = useState<string>("all");
+    const [statusFilter, setStatusFilter] = useState<string>("all");
+    const [searchQuery, setSearchQuery] = useState<string>("");
+    const [selectedIds, setSelectedIds] = useState<Set<string>>(new Set());
+
     const { data: skills } = useSkills();
-    const { data: questions, isLoading } = useQuestions(selectedSkillId);
+    const { data: domains } = useDomains();
+    const { data: questions, isLoading } = useQuestions(selectedSkillId === "all" ? undefined : selectedSkillId);
     const deleteQuestion = useDeleteQuestion();
+    const bulkDelete = useBulkDeleteQuestions();
+    const bulkUpdateStatus = useBulkUpdateQuestionsStatus();
+    const duplicateQuestion = useDuplicateQuestion();
+    const { showToast } = useToast();
+
+    useEffect(() => {
+        setSelectedIds(new Set());
+    }, [selectedSkillId, selectedDomainId, statusFilter, searchQuery]);
+
+    const filteredQuestions = useMemo(() => {
+        if (!questions) return [];
+        return questions.filter((q: any) => {
+            if (searchQuery && !q.content.toLowerCase().includes(searchQuery.toLowerCase())) {
+                return false;
+            }
+            if (statusFilter === "published" && !q.is_published) return false;
+            if (statusFilter === "draft" && q.is_published) return false;
+            if (selectedDomainId !== "all") {
+                const skill = skills?.find(s => s.id === q.skill_id);
+                if (skill && (skill as any).domain_id !== selectedDomainId) return false;
+            }
+            return true;
+        });
+    }, [questions, searchQuery, statusFilter, selectedDomainId, skills]);
+
+    const handleSelectAll = () => {
+        if (selectedIds.size === filteredQuestions.length) {
+            setSelectedIds(new Set());
+        } else {
+            setSelectedIds(new Set(filteredQuestions.map((q: any) => q.id)));
+        }
+    };
+
+    const handleSelectOne = (id: string) => {
+        const newSelected = new Set(selectedIds);
+        if (newSelected.has(id)) {
+            newSelected.delete(id);
+        } else {
+            newSelected.add(id);
+        }
+        setSelectedIds(newSelected);
+    };
+
+    const handleBulkDelete = async () => {
+        if (selectedIds.size === 0) return;
+        if (confirm(`Are you sure you want to delete ${selectedIds.size} question(s)?`)) {
+            try {
+                await bulkDelete.mutateAsync(Array.from(selectedIds));
+                showToast(`${selectedIds.size} question(s) deleted`, 'success');
+                setSelectedIds(new Set());
+            } catch {
+                showToast('Failed to delete questions', 'error');
+            }
+        }
+    };
+
+    const handleBulkPublish = async () => {
+        if (selectedIds.size === 0) return;
+        try {
+            await bulkUpdateStatus.mutateAsync({ ids: Array.from(selectedIds), is_published: true });
+            showToast(`${selectedIds.size} question(s) published`, 'success');
+            setSelectedIds(new Set());
+        } catch {
+            showToast('Failed to publish questions', 'error');
+        }
+    };
+
+    const handleBulkUnpublish = async () => {
+        if (selectedIds.size === 0) return;
+        try {
+            await bulkUpdateStatus.mutateAsync({ ids: Array.from(selectedIds), is_published: false });
+            showToast(`${selectedIds.size} question(s) unpublished`, 'success');
+            setSelectedIds(new Set());
+        } catch {
+            showToast('Failed to unpublish questions', 'error');
+        }
+    };
 
     if (isLoading) {
         return (
@@ -24,8 +109,32 @@ export function QuestionList() {
 
     const handleDelete = async (id: string) => {
         if (confirm('Are you sure you want to delete this question?')) {
-            await deleteQuestion.mutateAsync(id);
+            try {
+                await deleteQuestion.mutateAsync(id);
+                showToast('Question deleted', 'success');
+            } catch {
+                showToast('Failed to delete question', 'error');
+            }
         }
+    };
+
+    const handleDuplicate = async (id: string) => {
+        try {
+            await duplicateQuestion.mutateAsync(id);
+            showToast('Question duplicated', 'success');
+        } catch {
+            showToast('Failed to duplicate question', 'error');
+        }
+    };
+
+    const isAllSelected = filteredQuestions.length ? selectedIds.size === filteredQuestions.length : false;
+    const hasActiveFilters = searchQuery || statusFilter !== "all" || selectedSkillId !== "all" || selectedDomainId !== "all";
+
+    const clearFilters = () => {
+        setSearchQuery("");
+        setStatusFilter("all");
+        setSelectedSkillId("all");
+        setSelectedDomainId("all");
     };
 
     return (
@@ -45,26 +154,112 @@ export function QuestionList() {
             </div>
 
             <div className="bg-white rounded-2xl shadow-sm border border-gray-100 p-4">
-                <div className="flex items-center gap-3 mb-4">
-                    <label className="text-sm font-medium text-gray-600">Filter by Skill:</label>
-                    <select
-                        value={selectedSkillId}
-                        onChange={(e) => setSelectedSkillId(e.target.value)}
-                        className="px-4 py-2 rounded-lg border border-gray-200 bg-white text-gray-700 focus:border-purple-500 focus:ring-2 focus:ring-purple-200 transition-colors min-w-[250px]"
-                    >
-                        <option value="all">All Skills</option>
-                        {skills?.map(skill => (
-                            <option key={skill.id} value={skill.id}>
-                                {skill.title} ({(skill as any).domains?.title})
-                            </option>
-                        ))}
-                    </select>
+                <div className="space-y-4 mb-4">
+                    <div className="flex items-center gap-3">
+                        <div className="relative flex-1 max-w-md">
+                            <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-5 w-5 text-gray-400" />
+                            <input
+                                type="text"
+                                placeholder="Search questions..."
+                                value={searchQuery}
+                                onChange={(e) => setSearchQuery(e.target.value)}
+                                className="w-full pl-10 pr-4 py-2 rounded-lg border border-gray-200 bg-white text-gray-700 focus:border-purple-500 focus:ring-2 focus:ring-purple-200 transition-colors"
+                            />
+                        </div>
+                        {hasActiveFilters && (
+                            <button
+                                onClick={clearFilters}
+                                className="inline-flex items-center gap-1 px-3 py-2 text-sm font-medium text-gray-600 hover:text-gray-700 hover:bg-gray-100 rounded-lg transition-colors"
+                            >
+                                <X className="h-4 w-4" />
+                                Clear filters
+                            </button>
+                        )}
+                    </div>
+
+                    <div className="flex flex-wrap items-center gap-3">
+                        <div className="flex items-center gap-2">
+                            <label className="text-sm font-medium text-gray-600">Domain:</label>
+                            <select
+                                value={selectedDomainId}
+                                onChange={(e) => setSelectedDomainId(e.target.value)}
+                                className="px-3 py-2 rounded-lg border border-gray-200 bg-white text-gray-700 focus:border-purple-500 focus:ring-2 focus:ring-purple-200 transition-colors text-sm"
+                            >
+                                <option value="all">All Domains</option>
+                                {domains?.map(domain => (
+                                    <option key={domain.id} value={domain.id}>{domain.title}</option>
+                                ))}
+                            </select>
+                        </div>
+                        <div className="flex items-center gap-2">
+                            <label className="text-sm font-medium text-gray-600">Skill:</label>
+                            <select
+                                value={selectedSkillId}
+                                onChange={(e) => setSelectedSkillId(e.target.value)}
+                                className="px-3 py-2 rounded-lg border border-gray-200 bg-white text-gray-700 focus:border-purple-500 focus:ring-2 focus:ring-purple-200 transition-colors text-sm min-w-[200px]"
+                            >
+                                <option value="all">All Skills</option>
+                                {skills?.map(skill => (
+                                    <option key={skill.id} value={skill.id}>
+                                        {skill.title}
+                                    </option>
+                                ))}
+                            </select>
+                        </div>
+                        <div className="flex items-center gap-2">
+                            <label className="text-sm font-medium text-gray-600">Status:</label>
+                            <select
+                                value={statusFilter}
+                                onChange={(e) => setStatusFilter(e.target.value)}
+                                className="px-3 py-2 rounded-lg border border-gray-200 bg-white text-gray-700 focus:border-purple-500 focus:ring-2 focus:ring-purple-200 transition-colors text-sm"
+                            >
+                                <option value="all">All Status</option>
+                                <option value="published">Published</option>
+                                <option value="draft">Draft</option>
+                            </select>
+                        </div>
+
+                        {selectedIds.size > 0 && (
+                            <div className="flex items-center gap-2 ml-auto">
+                                <span className="text-sm text-gray-600">{selectedIds.size} selected</span>
+                                <button
+                                    onClick={handleBulkPublish}
+                                    disabled={bulkUpdateStatus.isPending}
+                                    className="inline-flex items-center gap-1 px-3 py-2 text-sm font-medium text-green-600 hover:text-green-700 hover:bg-green-50 rounded-lg transition-colors"
+                                >
+                                    <Eye className="h-4 w-4" />
+                                    Publish
+                                </button>
+                                <button
+                                    onClick={handleBulkUnpublish}
+                                    disabled={bulkUpdateStatus.isPending}
+                                    className="inline-flex items-center gap-1 px-3 py-2 text-sm font-medium text-gray-600 hover:text-gray-700 hover:bg-gray-50 rounded-lg transition-colors"
+                                >
+                                    <EyeOff className="h-4 w-4" />
+                                    Unpublish
+                                </button>
+                                <button
+                                    onClick={handleBulkDelete}
+                                    disabled={bulkDelete.isPending}
+                                    className="inline-flex items-center gap-1 px-3 py-2 text-sm font-medium text-red-600 hover:text-red-700 hover:bg-red-50 rounded-lg transition-colors"
+                                >
+                                    <Trash className="h-4 w-4" />
+                                    Delete
+                                </button>
+                            </div>
+                        )}
+                    </div>
                 </div>
 
                 <div className="overflow-hidden rounded-xl border border-gray-100">
                     <table className="w-full">
                         <thead>
                             <tr className="bg-gray-50 border-b border-gray-100">
+                                <th className="text-left px-4 py-4 w-10">
+                                    <button onClick={handleSelectAll} className="text-gray-400 hover:text-gray-600">
+                                        {isAllSelected && filteredQuestions.length > 0 ? <CheckSquare className="h-5 w-5 text-purple-600" /> : <Square className="h-5 w-5" />}
+                                    </button>
+                                </th>
                                 <th className="text-left px-6 py-4 text-sm font-semibold text-gray-600">Content</th>
                                 <th className="text-left px-6 py-4 text-sm font-semibold text-gray-600">Type</th>
                                 <th className="text-left px-6 py-4 text-sm font-semibold text-gray-600">Skill</th>
@@ -74,27 +269,44 @@ export function QuestionList() {
                             </tr>
                         </thead>
                         <tbody className="divide-y divide-gray-100">
-                            {!questions?.length ? (
+                            {!filteredQuestions.length ? (
                                 <tr>
-                                    <td colSpan={6} className="px-6 py-12 text-center">
+                                    <td colSpan={7} className="px-6 py-12 text-center">
                                         <div className="flex flex-col items-center">
                                             <div className="flex items-center justify-center w-16 h-16 rounded-full bg-gray-100 mb-4">
                                                 <FileText className="w-8 h-8 text-gray-400" />
                                             </div>
-                                            <p className="text-gray-500 mb-4">No questions found. Create one to get started.</p>
-                                            <Link
-                                                to="/questions/new"
-                                                className="inline-flex items-center gap-2 px-4 py-2 bg-purple-600 hover:bg-purple-700 text-white font-medium rounded-lg transition-colors"
-                                            >
-                                                <Plus className="h-4 w-4" />
-                                                Create Question
-                                            </Link>
+                                            <p className="text-gray-500 mb-4">
+                                                {hasActiveFilters ? "No questions match your filters." : "No questions found. Create one to get started."}
+                                            </p>
+                                            {hasActiveFilters ? (
+                                                <button
+                                                    onClick={clearFilters}
+                                                    className="inline-flex items-center gap-2 px-4 py-2 bg-gray-100 hover:bg-gray-200 text-gray-700 font-medium rounded-lg transition-colors"
+                                                >
+                                                    <X className="h-4 w-4" />
+                                                    Clear filters
+                                                </button>
+                                            ) : (
+                                                <Link
+                                                    to="/questions/new"
+                                                    className="inline-flex items-center gap-2 px-4 py-2 bg-purple-600 hover:bg-purple-700 text-white font-medium rounded-lg transition-colors"
+                                                >
+                                                    <Plus className="h-4 w-4" />
+                                                    Create Question
+                                                </Link>
+                                            )}
                                         </div>
                                     </td>
                                 </tr>
                             ) : (
-                                questions.map((question: any) => (
+                                filteredQuestions.map((question: any) => (
                                     <tr key={question.id} className="hover:bg-gray-50 transition-colors">
+                                        <td className="px-4 py-4">
+                                            <button onClick={() => handleSelectOne(question.id)} className="text-gray-400 hover:text-gray-600">
+                                                {selectedIds.has(question.id) ? <CheckSquare className="h-5 w-5 text-purple-600" /> : <Square className="h-5 w-5" />}
+                                            </button>
+                                        </td>
                                         <td className="px-6 py-4 max-w-[300px]">
                                             <div className="flex items-center gap-3">
                                                 <div className="flex items-center justify-center w-10 h-10 rounded-xl bg-green-50 flex-shrink-0">
@@ -137,6 +349,14 @@ export function QuestionList() {
                                                     Edit
                                                 </Link>
                                                 <button
+                                                    onClick={() => handleDuplicate(question.id)}
+                                                    disabled={duplicateQuestion.isPending}
+                                                    className="inline-flex items-center gap-1 px-3 py-2 text-sm font-medium text-gray-600 hover:text-gray-700 hover:bg-gray-50 rounded-lg transition-colors"
+                                                    title="Duplicate"
+                                                >
+                                                    <Copy className="h-4 w-4" />
+                                                </button>
+                                                <button
                                                     onClick={() => handleDelete(question.id)}
                                                     className="inline-flex items-center gap-1 px-3 py-2 text-sm font-medium text-red-600 hover:text-red-700 hover:bg-red-50 rounded-lg transition-colors"
                                                 >
@@ -150,6 +370,12 @@ export function QuestionList() {
                         </tbody>
                     </table>
                 </div>
+                
+                {filteredQuestions.length > 0 && (
+                    <div className="mt-4 text-sm text-gray-500">
+                        Showing {filteredQuestions.length} of {questions?.length ?? 0} questions
+                    </div>
+                )}
             </div>
         </div>
     );

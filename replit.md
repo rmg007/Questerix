@@ -31,6 +31,14 @@ Preferred communication style: Simple, everyday language.
 - UI Components: shadcn/ui (Radix-based) with Tailwind CSS
 - Forms: react-hook-form with Zod validation
 - Auth: Supabase Auth with email/password login
+- Features:
+  - Dashboard with real-time metrics (domains, skills, questions counts) and recent activity
+  - Bulk operations (select all, delete, publish, unpublish) for Questions, Skills, and Domains
+  - Advanced search and multi-criteria filtering on all content lists
+  - Version History page for past published curriculum versions
+  - User Management page (super admin only) for managing admin accounts
+  - Toast notification system for success/error feedback
+  - Content duplication for questions and skills
 
 ### Backend Architecture
 

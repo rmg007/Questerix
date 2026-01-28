@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:student_app/src/core/sync/sync_service.dart';
+import 'package:student_app/src/features/auth/providers/auth_provider.dart';
 import 'package:student_app/src/features/curriculum/repositories/domain_repository.dart';
 import 'package:student_app/src/features/curriculum/screens/skills_screen.dart';
 
@@ -11,11 +12,43 @@ class DomainsScreen extends ConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final domainsStream = ref.watch(domainRepositoryProvider).watchAllPublished();
+    final currentUser = ref.watch(currentUserProvider);
+    final userName = currentUser?.userMetadata?['full_name'] as String? ?? 
+                     currentUser?.email?.split('@').first ?? 
+                     'Student';
 
     return Scaffold(
       appBar: AppBar(
-        title: const Text('Learning Domains'),
+        title: Text('Welcome, $userName'),
         backgroundColor: Theme.of(context).colorScheme.inversePrimary,
+        actions: [
+          IconButton(
+            icon: const Icon(Icons.logout),
+            tooltip: 'Sign Out',
+            onPressed: () async {
+              final confirmed = await showDialog<bool>(
+                context: context,
+                builder: (context) => AlertDialog(
+                  title: const Text('Sign Out'),
+                  content: const Text('Are you sure you want to sign out?'),
+                  actions: [
+                    TextButton(
+                      onPressed: () => Navigator.pop(context, false),
+                      child: const Text('Cancel'),
+                    ),
+                    TextButton(
+                      onPressed: () => Navigator.pop(context, true),
+                      child: const Text('Sign Out'),
+                    ),
+                  ],
+                ),
+              );
+              if (confirmed == true) {
+                await ref.read(authServiceProvider).signOut();
+              }
+            },
+          ),
+        ],
       ),
       body: StreamBuilder(
         stream: domainsStream,

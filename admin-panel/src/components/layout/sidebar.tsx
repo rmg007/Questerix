@@ -1,20 +1,53 @@
 import { Link, useLocation, useNavigate } from 'react-router-dom'
-import { LayoutDashboard, Book, Layers, FileText, Upload, LogOut, Settings } from 'lucide-react'
+import { LayoutDashboard, Book, Layers, FileText, Upload, LogOut, Settings, Key } from 'lucide-react'
 import { cn } from '@/lib/utils'
 import { supabase } from '@/lib/supabase'
+import { useState, useEffect } from 'react'
 
-const navigation = [
+const baseNavigation = [
   { name: 'Dashboard', href: '/', icon: LayoutDashboard },
   { name: 'Domains', href: '/domains', icon: Book },
   { name: 'Skills', href: '/skills', icon: Layers },
   { name: 'Questions', href: '/questions', icon: FileText },
   { name: 'Publish', href: '/publish', icon: Upload },
+]
+
+const superAdminNavigation = [
+  { name: 'Invitation Codes', href: '/invitation-codes', icon: Key },
+]
+
+const bottomNavigation = [
   { name: 'Settings', href: '/settings', icon: Settings },
 ]
 
 export function Sidebar() {
   const location = useLocation()
   const navigate = useNavigate()
+  const [isSuperAdmin, setIsSuperAdmin] = useState(false)
+
+  useEffect(() => {
+    const checkRole = async () => {
+      const { data: { user } } = await supabase.auth.getUser()
+      if (user) {
+        const { data: profile } = await supabase
+          .from('profiles' as never)
+          .select('role')
+          .eq('id', user.id)
+          .single()
+        
+        if (profile && (profile as { role: string }).role === 'super_admin') {
+          setIsSuperAdmin(true)
+        }
+      }
+    }
+    checkRole()
+  }, [])
+
+  const navigation = [
+    ...baseNavigation,
+    ...(isSuperAdmin ? superAdminNavigation : []),
+    ...bottomNavigation,
+  ]
 
   const handleLogout = async () => {
     await supabase.auth.signOut()

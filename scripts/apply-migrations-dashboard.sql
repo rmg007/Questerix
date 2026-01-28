@@ -12,10 +12,16 @@
 -- Migration: 20260127000001_create_extensions_and_enums.sql
 -- Description: Create enum types for user roles and question types
 
--- User Roles
+-- User Roles (includes super_admin for invitation code management)
 DO $$ BEGIN
-  CREATE TYPE public.user_role AS ENUM ('admin', 'student');
+  CREATE TYPE public.user_role AS ENUM ('super_admin', 'admin', 'student');
 EXCEPTION WHEN duplicate_object THEN NULL;
+END $$;
+
+-- If user_role already exists, add super_admin value
+DO $$ BEGIN
+  ALTER TYPE public.user_role ADD VALUE IF NOT EXISTS 'super_admin' BEFORE 'admin';
+EXCEPTION WHEN others THEN NULL;
 END $$;
 
 -- Question Types
@@ -573,6 +579,153 @@ GRANT EXECUTE ON FUNCTION public.delete_own_account() TO authenticated;
 
 REVOKE EXECUTE ON FUNCTION public.deactivate_own_account() FROM public, anon;
 GRANT EXECUTE ON FUNCTION public.deactivate_own_account() TO authenticated;
+
+-- =============================================================================
+-- INVITATION CODES TABLE
+-- =============================================================================
+
+CREATE TABLE IF NOT EXISTS public.invitation_codes (
+  id UUID DEFAULT gen_random_uuid() PRIMARY KEY,
+  code TEXT UNIQUE NOT NULL,
+  created_by UUID REFERENCES public.profiles(id) ON DELETE SET NULL,
+  expires_at TIMESTAMPTZ,
+  max_uses INTEGER DEFAULT 1,
+  times_used INTEGER DEFAULT 0,
+  is_active BOOLEAN DEFAULT TRUE,
+  created_at TIMESTAMPTZ DEFAULT NOW() NOT NULL,
+  updated_at TIMESTAMPTZ DEFAULT NOW() NOT NULL
+);
+
+-- RLS for invitation_codes
+ALTER TABLE public.invitation_codes ENABLE ROW LEVEL SECURITY;
+
+-- Super admins can manage all codes (full CRUD)
+CREATE POLICY "Super admins can manage invitation codes" ON public.invitation_codes
+  FOR ALL USING (
+    EXISTS (
+      SELECT 1 FROM public.profiles
+      WHERE profiles.id = auth.uid()
+      AND profiles.role = 'super_admin'
+      AND profiles.deleted_at IS NULL
+    )
+  );
+
+-- =============================================================================
+-- INVITATION CODE RPC FUNCTIONS
+-- =============================================================================
+
+-- Validate an invitation code (used during registration)
+CREATE OR REPLACE FUNCTION public.validate_invitation_code(p_code TEXT)
+RETURNS BOOLEAN AS $$
+DECLARE
+  v_code_record RECORD;
+BEGIN
+  SELECT * INTO v_code_record
+  FROM public.invitation_codes
+  WHERE code = p_code
+    AND is_active = TRUE
+    AND (expires_at IS NULL OR expires_at > NOW())
+    AND (max_uses IS NULL OR times_used < max_uses);
+  
+  IF v_code_record.id IS NULL THEN
+    RETURN FALSE;
+  END IF;
+  
+  RETURN TRUE;
+END;
+$$ LANGUAGE plpgsql SECURITY DEFINER SET search_path = public;
+
+-- Use an invitation code (increment usage count)
+CREATE OR REPLACE FUNCTION public.use_invitation_code(p_code TEXT)
+RETURNS BOOLEAN AS $$
+DECLARE
+  v_code_record RECORD;
+BEGIN
+  SELECT * INTO v_code_record
+  FROM public.invitation_codes
+  WHERE code = p_code
+    AND is_active = TRUE
+    AND (expires_at IS NULL OR expires_at > NOW())
+    AND (max_uses IS NULL OR times_used < max_uses)
+  FOR UPDATE;
+  
+  IF v_code_record.id IS NULL THEN
+    RETURN FALSE;
+  END IF;
+  
+  UPDATE public.invitation_codes
+  SET times_used = times_used + 1,
+      updated_at = NOW()
+  WHERE id = v_code_record.id;
+  
+  RETURN TRUE;
+END;
+$$ LANGUAGE plpgsql SECURITY DEFINER SET search_path = public;
+
+-- Generate a new invitation code (super admin only)
+CREATE OR REPLACE FUNCTION public.generate_invitation_code(
+  p_max_uses INTEGER DEFAULT 1,
+  p_expires_days INTEGER DEFAULT NULL
+)
+RETURNS TEXT AS $$
+DECLARE
+  v_code TEXT;
+  v_expires_at TIMESTAMPTZ;
+  v_user_role public.user_role;
+BEGIN
+  -- Check if user is super_admin
+  SELECT role INTO v_user_role
+  FROM public.profiles
+  WHERE id = auth.uid() AND deleted_at IS NULL;
+  
+  IF v_user_role != 'super_admin' THEN
+    RAISE EXCEPTION 'Only super admins can generate invitation codes';
+  END IF;
+  
+  -- Generate random 12-character code
+  v_code := upper(substring(md5(random()::text || clock_timestamp()::text) from 1 for 12));
+  
+  -- Calculate expiration
+  IF p_expires_days IS NOT NULL THEN
+    v_expires_at := NOW() + (p_expires_days || ' days')::interval;
+  END IF;
+  
+  -- Insert the code
+  INSERT INTO public.invitation_codes (code, created_by, expires_at, max_uses)
+  VALUES (v_code, auth.uid(), v_expires_at, p_max_uses);
+  
+  RETURN v_code;
+END;
+$$ LANGUAGE plpgsql SECURITY DEFINER SET search_path = public;
+
+-- Deactivate an invitation code (super admin only)
+CREATE OR REPLACE FUNCTION public.deactivate_invitation_code(p_code_id UUID)
+RETURNS BOOLEAN AS $$
+DECLARE
+  v_user_role public.user_role;
+BEGIN
+  -- Check if user is super_admin
+  SELECT role INTO v_user_role
+  FROM public.profiles
+  WHERE id = auth.uid() AND deleted_at IS NULL;
+  
+  IF v_user_role != 'super_admin' THEN
+    RAISE EXCEPTION 'Only super admins can deactivate invitation codes';
+  END IF;
+  
+  UPDATE public.invitation_codes
+  SET is_active = FALSE, updated_at = NOW()
+  WHERE id = p_code_id;
+  
+  RETURN TRUE;
+END;
+$$ LANGUAGE plpgsql SECURITY DEFINER SET search_path = public;
+
+-- Grant execute permissions
+GRANT EXECUTE ON FUNCTION public.validate_invitation_code(TEXT) TO anon, authenticated;
+GRANT EXECUTE ON FUNCTION public.use_invitation_code(TEXT) TO anon, authenticated;
+GRANT EXECUTE ON FUNCTION public.generate_invitation_code(INTEGER, INTEGER) TO authenticated;
+GRANT EXECUTE ON FUNCTION public.deactivate_invitation_code(UUID) TO authenticated;
 
 -- =============================================================================
 -- SEED DATA

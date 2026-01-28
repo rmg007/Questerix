@@ -52,9 +52,14 @@ export function LoginPage() {
   const onRegister = async (data: RegisterFormValues) => {
     setError(null)
     
-    const expectedCode = import.meta.env.VITE_ADMIN_INVITE_CODE || 'math7admin2024'
-    if (data.inviteCode !== expectedCode) {
-      setError("Invalid invitation code")
+    // Validate invitation code against database
+    const { data: isValid, error: validateError } = await supabase.rpc(
+      'validate_invitation_code' as never,
+      { p_code: data.inviteCode } as never
+    )
+    
+    if (validateError || !isValid) {
+      setError("Invalid or expired invitation code")
       return
     }
     
@@ -74,6 +79,9 @@ export function LoginPage() {
       setError(signUpError.message)
       return
     }
+
+    // Mark invitation code as used
+    await supabase.rpc('use_invitation_code' as never, { p_code: data.inviteCode } as never)
 
     navigate("/")
   }

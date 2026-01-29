@@ -10,10 +10,10 @@ import { DataToolbar } from '@/components/ui/data-toolbar'
 import type { DataColumn } from '@/lib/data-utils'
 
 const DOMAIN_COLUMNS: DataColumn[] = [
-  { key: 'title', header: 'Title' },
-  { key: 'slug', header: 'Slug' },
-  { key: 'sort_order', header: 'Sort Order' },
-  { key: 'status', header: 'Status' },
+  { key: 'title', header: 'title' },
+  { key: 'slug', header: 'slug' },
+  { key: 'sort_order', header: 'sort_order' },
+  { key: 'status', header: 'status' },
 ]
 import {
   DndContext,

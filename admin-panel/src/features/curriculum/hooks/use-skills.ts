@@ -7,11 +7,13 @@ type Skill = Database['public']['Tables']['skills']['Row'];
 type SkillInsert = Database['public']['Tables']['skills']['Insert'];
 type SkillUpdate = Database['public']['Tables']['skills']['Update'];
 
+export type CurriculumStatus = 'draft' | 'published' | 'live';
+
 export interface PaginationParams {
   page: number;
   pageSize: number;
   search?: string;
-  status?: 'all' | 'published' | 'draft';
+  status?: 'all' | 'draft' | 'published' | 'live';
   domainId?: string;
   sortBy?: string;
   sortOrder?: 'asc' | 'desc';
@@ -74,10 +76,8 @@ export function usePaginatedSkills(params: PaginationParams) {
         query = query.or(`title.ilike.%${search}%,slug.ilike.%${search}%`);
       }
 
-      if (status === 'published') {
-        query = query.eq('is_published', true);
-      } else if (status === 'draft') {
-        query = query.eq('is_published', false);
+      if (status && status !== 'all') {
+        query = query.eq('status', status);
       }
 
       if (domainId && domainId !== 'all') {
@@ -209,10 +209,10 @@ export function useBulkUpdateSkillsStatus() {
     const queryClient = useQueryClient();
 
     return useMutation({
-        mutationFn: async ({ ids, is_published }: { ids: string[]; is_published: boolean }) => {
+        mutationFn: async ({ ids, status }: { ids: string[]; status: CurriculumStatus }) => {
             const { error } = await (supabase
                 .from('skills') as any)
-                .update({ is_published })
+                .update({ status })
                 .in('id', ids);
 
             if (error) throw error;
@@ -221,6 +221,7 @@ export function useBulkUpdateSkillsStatus() {
             queryClient.invalidateQueries({ queryKey: ['skills'] });
             queryClient.invalidateQueries({ queryKey: ['skills-paginated'] });
             queryClient.invalidateQueries({ queryKey: ['dashboard-stats'] });
+            queryClient.invalidateQueries({ queryKey: ['publish-preview'] });
         },
     });
 }
@@ -244,7 +245,7 @@ export function useDuplicateSkill() {
                 ...rest,
                 title: `${rest.title} (Copy)`,
                 slug: `${rest.slug}_copy_${Date.now()}`,
-                is_published: false,
+                status: 'draft',
             };
 
             const { data, error } = await (supabase

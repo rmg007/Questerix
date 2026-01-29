@@ -1,5 +1,5 @@
 import { Link } from 'react-router-dom'
-import { Plus, CheckSquare, Square, Eye, EyeOff, Search, X, Trash, Book } from 'lucide-react'
+import { Plus, CheckSquare, Square, Search, X, Trash, Book } from 'lucide-react'
 import { usePaginatedDomains, useDeleteDomain, useBulkDeleteDomains, useBulkUpdateDomainsStatus } from '../hooks/use-domains'
 import { useState, useEffect } from 'react'
 import { useToast } from '@/components/ui/toast'
@@ -10,7 +10,7 @@ const DEFAULT_PAGE_SIZE = 10
 
 export function DomainList() {
   const [selectedIds, setSelectedIds] = useState<Set<string>>(new Set())
-  const [statusFilter, setStatusFilter] = useState<'all' | 'published' | 'draft'>('all')
+  const [statusFilter, setStatusFilter] = useState<'all' | 'draft' | 'published' | 'live'>('all')
   const [searchQuery, setSearchQuery] = useState<string>('')
   const [debouncedSearch, setDebouncedSearch] = useState<string>('')
   const [page, setPage] = useState(1)
@@ -90,25 +90,25 @@ export function DomainList() {
     }
   }
 
-  const handleBulkPublish = async () => {
+  const handleMarkPublished = async () => {
     if (selectedIds.size === 0) return
     try {
-      await bulkUpdateStatus.mutateAsync({ ids: Array.from(selectedIds), is_published: true })
-      showToast(`${selectedIds.size} domain(s) published`, 'success')
+      await bulkUpdateStatus.mutateAsync({ ids: Array.from(selectedIds), status: 'published' })
+      showToast(`${selectedIds.size} domain(s) marked as published`, 'success')
       setSelectedIds(new Set())
     } catch {
-      showToast('Failed to publish domains', 'error')
+      showToast('Failed to update domains', 'error')
     }
   }
 
-  const handleBulkUnpublish = async () => {
+  const handleMarkDraft = async () => {
     if (selectedIds.size === 0) return
     try {
-      await bulkUpdateStatus.mutateAsync({ ids: Array.from(selectedIds), is_published: false })
-      showToast(`${selectedIds.size} domain(s) unpublished`, 'success')
+      await bulkUpdateStatus.mutateAsync({ ids: Array.from(selectedIds), status: 'draft' })
+      showToast(`${selectedIds.size} domain(s) marked as draft`, 'success')
       setSelectedIds(new Set())
     } catch {
-      showToast('Failed to unpublish domains', 'error')
+      showToast('Failed to update domains', 'error')
     }
   }
 
@@ -140,6 +140,29 @@ export function DomainList() {
     setSearchQuery('')
     setStatusFilter('all')
     setPage(1)
+  }
+
+  const renderStatusBadge = (status: string) => {
+    switch (status) {
+      case 'live':
+        return (
+          <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-green-100 text-green-800">
+            Live
+          </span>
+        )
+      case 'published':
+        return (
+          <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-amber-100 text-amber-800">
+            Published
+          </span>
+        )
+      default:
+        return (
+          <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-gray-100 text-gray-600">
+            Draft
+          </span>
+        )
+    }
   }
 
   if (isLoading) {
@@ -208,12 +231,13 @@ export function DomainList() {
               <label className="text-sm font-medium text-gray-600">Status:</label>
               <select
                 value={statusFilter}
-                onChange={(e) => setStatusFilter(e.target.value as 'all' | 'published' | 'draft')}
+                onChange={(e) => setStatusFilter(e.target.value as 'all' | 'draft' | 'published' | 'live')}
                 className="px-3 py-2 rounded-lg border border-gray-200 bg-white text-gray-700 focus:border-purple-500 focus:ring-2 focus:ring-purple-200 transition-colors text-sm"
               >
                 <option value="all">All Status</option>
-                <option value="published">Published</option>
                 <option value="draft">Draft</option>
+                <option value="published">Published (Ready to go live)</option>
+                <option value="live">Live</option>
               </select>
             </div>
 
@@ -221,20 +245,18 @@ export function DomainList() {
               <div className="flex items-center gap-2 ml-auto">
                 <span className="text-sm text-gray-600">{selectedIds.size} selected</span>
                 <button
-                  onClick={handleBulkPublish}
+                  onClick={handleMarkPublished}
                   disabled={bulkUpdateStatus.isPending}
-                  className="inline-flex items-center gap-1 px-3 py-2 text-sm font-medium text-green-600 hover:text-green-700 hover:bg-green-50 rounded-lg transition-colors"
+                  className="inline-flex items-center gap-1 px-3 py-2 text-sm font-medium text-amber-600 hover:text-amber-700 hover:bg-amber-50 rounded-lg transition-colors"
                 >
-                  <Eye className="h-4 w-4" />
-                  Publish
+                  Mark Published
                 </button>
                 <button
-                  onClick={handleBulkUnpublish}
+                  onClick={handleMarkDraft}
                   disabled={bulkUpdateStatus.isPending}
                   className="inline-flex items-center gap-1 px-3 py-2 text-sm font-medium text-gray-600 hover:text-gray-700 hover:bg-gray-100 rounded-lg transition-colors"
                 >
-                  <EyeOff className="h-4 w-4" />
-                  Unpublish
+                  Mark Draft
                 </button>
                 <button
                   onClick={handleBulkDelete}
@@ -288,7 +310,7 @@ export function DomainList() {
                 <th className="text-left px-6 py-4">
                   <SortableHeader
                     label="Status"
-                    column="is_published"
+                    column="status"
                     currentSortBy={sortBy}
                     currentSortOrder={sortOrder}
                     onSort={handleSort}
@@ -348,15 +370,7 @@ export function DomainList() {
                       <code className="px-2 py-1 bg-gray-100 rounded text-sm text-gray-600">{domain.slug}</code>
                     </td>
                     <td className="px-6 py-4">
-                      {domain.is_published ? (
-                        <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-green-100 text-green-800">
-                          Published
-                        </span>
-                      ) : (
-                        <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-gray-100 text-gray-600">
-                          Draft
-                        </span>
-                      )}
+                      {renderStatusBadge((domain as any).status || 'draft')}
                     </td>
                     <td className="px-6 py-4 text-right">
                       <div className="flex items-center justify-end gap-2">

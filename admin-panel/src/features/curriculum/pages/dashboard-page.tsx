@@ -81,7 +81,7 @@ export function DashboardPage() {
           iconColor="text-purple-600"
           value={statsLoading ? '...' : stats?.totalDomains ?? 0}
           label="Domains"
-          subValue={statsLoading ? undefined : `${stats?.publishedDomains ?? 0} published`}
+          subValue={statsLoading ? undefined : `${stats?.liveDomains ?? 0} live`}
         />
         <StatCard
           icon={FlaskConical}
@@ -89,7 +89,7 @@ export function DashboardPage() {
           iconColor="text-blue-600"
           value={statsLoading ? '...' : stats?.totalSkills ?? 0}
           label="Skills"
-          subValue={statsLoading ? undefined : `${stats?.publishedSkills ?? 0} published`}
+          subValue={statsLoading ? undefined : `${stats?.liveSkills ?? 0} live`}
         />
         <StatCard
           icon={HelpCircle}
@@ -97,7 +97,7 @@ export function DashboardPage() {
           iconColor="text-green-600"
           value={statsLoading ? '...' : stats?.totalQuestions ?? 0}
           label="Questions"
-          subValue={statsLoading ? undefined : `${stats?.publishedQuestions ?? 0} published`}
+          subValue={statsLoading ? undefined : `${stats?.liveQuestions ?? 0} live`}
         />
         <StatCard
           icon={Upload}
@@ -192,9 +192,10 @@ export function DashboardPage() {
             <h3 className="text-lg font-semibold text-white mb-1">Content Overview</h3>
             <p className="text-purple-100 text-sm">
               {statsLoading ? 'Loading...' : (
-                `${stats?.publishedDomains ?? 0} of ${stats?.totalDomains ?? 0} domains, ` +
-                `${stats?.publishedSkills ?? 0} of ${stats?.totalSkills ?? 0} skills, and ` +
-                `${stats?.publishedQuestions ?? 0} of ${stats?.totalQuestions ?? 0} questions are published`
+                `${stats?.liveDomains ?? 0} of ${stats?.totalDomains ?? 0} domains, ` +
+                `${stats?.liveSkills ?? 0} of ${stats?.totalSkills ?? 0} skills, and ` +
+                `${stats?.liveQuestions ?? 0} of ${stats?.totalQuestions ?? 0} questions are live` +
+                (stats?.readyToPublish ? ` (${stats.readyToPublish} ready to publish)` : '')
               )}
             </p>
           </div>

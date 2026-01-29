@@ -6,6 +6,12 @@ import { useNavigate, useParams } from 'react-router-dom'
 import { Button } from '@/components/ui/button'
 import { useCreateDomain, useUpdateDomain, useDomains } from '../hooks/use-domains' 
 
+const STATUS_OPTIONS: { value: 'draft' | 'published' | 'live'; label: string; description?: string }[] = [
+  { value: 'draft', label: 'Draft' },
+  { value: 'published', label: 'Published', description: 'Ready to go live' },
+  { value: 'live', label: 'Live' },
+];
+
 const domainSchema = z.object({
   title: z.string().min(1, 'Title is required').max(200),
   slug: z.string()
@@ -14,7 +20,7 @@ const domainSchema = z.object({
     .regex(/^[a-z0-9_]+$/, 'Slug must contain only lowercase letters, numbers, and underscores'),
   description: z.string().optional(),
   sort_order: z.number().int().default(0),
-  is_published: z.boolean().default(false),
+  status: z.enum(['draft', 'published', 'live']).default('draft'),
 })
 
 type DomainFormData = z.infer<typeof domainSchema>
@@ -33,8 +39,6 @@ export function DomainForm() {
     register,
     handleSubmit,
     reset,
-    watch,
-    setValue,
     formState: { errors, isSubmitting }
   } = useForm<DomainFormData>({
     resolver: zodResolver(domainSchema),
@@ -43,11 +47,9 @@ export function DomainForm() {
       slug: '',
       description: '',
       sort_order: 0,
-      is_published: false,
+      status: 'draft',
     }
   })
-
-  const isPublished = watch('is_published')
 
   useEffect(() => {
     if (existingDomain) {
@@ -56,7 +58,7 @@ export function DomainForm() {
         slug: existingDomain.slug,
         description: existingDomain.description || '',
         sort_order: existingDomain.sort_order,
-        is_published: existingDomain.is_published || false,
+        status: (existingDomain as any).status || 'draft',
       })
     }
   }, [existingDomain, reset])
@@ -132,22 +134,22 @@ export function DomainForm() {
           />
         </div>
 
-        <div className="flex items-center space-x-3 rounded-md border p-4">
-          <input
-            type="checkbox"
-            id="is_published"
-            checked={isPublished}
-            onChange={(e) => setValue('is_published', e.target.checked)}
-            className="h-4 w-4 rounded border-gray-300 text-purple-600 focus:ring-purple-500"
-          />
-          <div>
-            <label htmlFor="is_published" className="text-sm font-medium cursor-pointer">
-              Published
-            </label>
-            <p className="text-sm text-gray-500">
-              When published, this domain and its content will be visible to students
-            </p>
-          </div>
+        <div className="space-y-2">
+          <label htmlFor="status" className="text-sm font-medium">Status</label>
+          <select
+            id="status"
+            {...register('status')}
+            className="flex h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background"
+          >
+            {STATUS_OPTIONS.map((option) => (
+              <option key={option.value} value={option.value}>
+                {option.label}{option.description ? ` - ${option.description}` : ''}
+              </option>
+            ))}
+          </select>
+          {errors.status && (
+            <p className="text-sm text-red-500">{errors.status.message}</p>
+          )}
         </div>
 
         <div className="flex justify-end gap-4 pt-4">

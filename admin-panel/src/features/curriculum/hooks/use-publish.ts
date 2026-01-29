@@ -9,13 +9,10 @@ interface CurriculumMeta {
 
 interface PublishStats {
   draftDomains: number;
-  publishedDomains: number;
   liveDomains: number;
   draftSkills: number;
-  publishedSkills: number;
   liveSkills: number;
   draftQuestions: number;
-  publishedQuestions: number;
   liveQuestions: number;
 }
 
@@ -57,24 +54,18 @@ export function usePublishPreview() {
       const [
         metaResult,
         draftDomainsResult,
-        publishedDomainsResult,
         liveDomainsResult,
         draftSkillsResult,
-        publishedSkillsResult,
         liveSkillsResult,
         draftQuestionsResult,
-        publishedQuestionsResult,
         liveQuestionsResult,
       ] = await Promise.all([
         supabase.from('curriculum_meta').select('version, last_published_at').eq('id', 'singleton').single(),
         supabase.from('domains').select('*', { count: 'exact', head: true }).is('deleted_at', null).eq('status', 'draft'),
-        supabase.from('domains').select('*', { count: 'exact', head: true }).is('deleted_at', null).eq('status', 'published'),
         supabase.from('domains').select('*', { count: 'exact', head: true }).is('deleted_at', null).eq('status', 'live'),
         supabase.from('skills').select('*', { count: 'exact', head: true }).is('deleted_at', null).eq('status', 'draft'),
-        supabase.from('skills').select('*', { count: 'exact', head: true }).is('deleted_at', null).eq('status', 'published'),
         supabase.from('skills').select('*', { count: 'exact', head: true }).is('deleted_at', null).eq('status', 'live'),
         supabase.from('questions').select('*', { count: 'exact', head: true }).is('deleted_at', null).eq('status', 'draft'),
-        supabase.from('questions').select('*', { count: 'exact', head: true }).is('deleted_at', null).eq('status', 'published'),
         supabase.from('questions').select('*', { count: 'exact', head: true }).is('deleted_at', null).eq('status', 'live'),
       ]);
 
@@ -82,29 +73,27 @@ export function usePublishPreview() {
 
       const stats: PublishStats = {
         draftDomains: draftDomainsResult.count ?? 0,
-        publishedDomains: publishedDomainsResult.count ?? 0,
         liveDomains: liveDomainsResult.count ?? 0,
         draftSkills: draftSkillsResult.count ?? 0,
-        publishedSkills: publishedSkillsResult.count ?? 0,
         liveSkills: liveSkillsResult.count ?? 0,
         draftQuestions: draftQuestionsResult.count ?? 0,
-        publishedQuestions: publishedQuestionsResult.count ?? 0,
         liveQuestions: liveQuestionsResult.count ?? 0,
       };
 
-      const readyToPublishCount = stats.publishedDomains + stats.publishedSkills + stats.publishedQuestions;
+      const liveCount = stats.liveDomains + stats.liveSkills + stats.liveQuestions;
+      const draftCount = stats.draftDomains + stats.draftSkills + stats.draftQuestions;
 
-      if (readyToPublishCount === 0) {
+      if (liveCount === 0) {
         validationIssues.push({
-          type: 'error',
-          message: 'Nothing to publish. Mark content as "Published" first to make it ready for release.',
+          type: 'warning',
+          message: 'No content is currently live. Mark content as "Live" to make it visible to students.',
         });
       }
 
-      if (stats.liveDomains === 0 && stats.liveSkills === 0 && stats.liveQuestions === 0) {
+      if (draftCount > 0) {
         validationIssues.push({
           type: 'warning',
-          message: 'No content is currently live. This will be the first release.',
+          message: `${draftCount} item(s) are in draft status and not visible to students.`,
         });
       }
 
@@ -112,8 +101,8 @@ export function usePublishPreview() {
         meta: metaResult.data as CurriculumMeta,
         stats,
         validationIssues,
-        canPublish: readyToPublishCount > 0,
-        readyToPublishCount,
+        canPublish: liveCount > 0,
+        readyToPublishCount: liveCount,
       };
     },
     refetchInterval: 30000,

@@ -6,10 +6,9 @@ import { useNavigate, useParams } from 'react-router-dom'
 import { Button } from '@/components/ui/button'
 import { useCreateDomain, useUpdateDomain, useDomains } from '../hooks/use-domains' 
 
-const STATUS_OPTIONS: { value: 'draft' | 'published' | 'live'; label: string; description?: string }[] = [
-  { value: 'draft', label: 'Draft' },
-  { value: 'published', label: 'Published', description: 'Ready to go live' },
-  { value: 'live', label: 'Live' },
+const STATUS_OPTIONS: { value: 'draft' | 'live'; label: string; description?: string }[] = [
+  { value: 'draft', label: 'Draft', description: 'Not visible to students' },
+  { value: 'live', label: 'Live', description: 'Visible to students' },
 ];
 
 const domainSchema = z.object({
@@ -20,7 +19,7 @@ const domainSchema = z.object({
     .regex(/^[a-z0-9_]+$/, 'Slug must contain only lowercase letters, numbers, and underscores'),
   description: z.string().optional(),
   sort_order: z.number().int().default(0),
-  status: z.enum(['draft', 'published', 'live']).default('draft'),
+  status: z.enum(['draft', 'live']).default('draft'),
 })
 
 type DomainFormData = z.infer<typeof domainSchema>

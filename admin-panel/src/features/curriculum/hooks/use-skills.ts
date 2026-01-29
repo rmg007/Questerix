@@ -7,13 +7,13 @@ type Skill = Database['public']['Tables']['skills']['Row'];
 type SkillInsert = Database['public']['Tables']['skills']['Insert'];
 type SkillUpdate = Database['public']['Tables']['skills']['Update'];
 
-export type CurriculumStatus = 'draft' | 'published' | 'live';
+export type CurriculumStatus = 'draft' | 'live';
 
 export interface PaginationParams {
   page: number;
   pageSize: number;
   search?: string;
-  status?: 'all' | 'draft' | 'published' | 'live';
+  status?: 'all' | 'draft' | 'live';
   domainId?: string;
   sortBy?: string;
   sortOrder?: 'asc' | 'desc';

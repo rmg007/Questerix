@@ -204,3 +204,27 @@ export function useBulkUpdateDomainsStatus() {
         },
     });
 }
+
+export function useUpdateDomainOrder() {
+    const queryClient = useQueryClient();
+
+    return useMutation({
+        mutationFn: async (updates: { id: string; sort_order: number }[]) => {
+            const promises = updates.map(({ id, sort_order }) =>
+                (supabase.from('domains') as any)
+                    .update({ sort_order })
+                    .eq('id', id)
+            );
+
+            const results = await Promise.all(promises);
+            const errors = results.filter(r => r.error);
+            if (errors.length > 0) {
+                throw errors[0].error;
+            }
+        },
+        onSuccess: () => {
+            queryClient.invalidateQueries({ queryKey: ['domains'] });
+            queryClient.invalidateQueries({ queryKey: ['domains-paginated'] });
+        },
+    });
+}

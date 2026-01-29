@@ -7,11 +7,13 @@ type Domain = Database['public']['Tables']['domains']['Row'];
 type DomainInsert = Database['public']['Tables']['domains']['Insert'];
 type DomainUpdate = Database['public']['Tables']['domains']['Update'];
 
+export type CurriculumStatus = 'draft' | 'published' | 'live';
+
 export interface PaginationParams {
   page: number;
   pageSize: number;
   search?: string;
-  status?: 'all' | 'published' | 'draft';
+  status?: 'all' | 'draft' | 'published' | 'live';
   sortBy?: string;
   sortOrder?: 'asc' | 'desc';
 }
@@ -57,10 +59,8 @@ export function usePaginatedDomains(params: PaginationParams) {
         query = query.or(`title.ilike.%${search}%,slug.ilike.%${search}%`);
       }
 
-      if (status === 'published') {
-        query = query.eq('is_published', true);
-      } else if (status === 'draft') {
-        query = query.eq('is_published', false);
+      if (status && status !== 'all') {
+        query = query.eq('status', status);
       }
 
       query = query.order(sortBy, { ascending: sortOrder === 'asc' });
@@ -188,10 +188,10 @@ export function useBulkUpdateDomainsStatus() {
     const queryClient = useQueryClient();
 
     return useMutation({
-        mutationFn: async ({ ids, is_published }: { ids: string[]; is_published: boolean }) => {
+        mutationFn: async ({ ids, status }: { ids: string[]; status: CurriculumStatus }) => {
             const { error } = await (supabase
                 .from('domains') as any)
-                .update({ is_published })
+                .update({ status })
                 .in('id', ids);
 
             if (error) throw error;
@@ -200,6 +200,7 @@ export function useBulkUpdateDomainsStatus() {
             queryClient.invalidateQueries({ queryKey: ['domains'] });
             queryClient.invalidateQueries({ queryKey: ['domains-paginated'] });
             queryClient.invalidateQueries({ queryKey: ['dashboard-stats'] });
+            queryClient.invalidateQueries({ queryKey: ['publish-preview'] });
         },
     });
 }

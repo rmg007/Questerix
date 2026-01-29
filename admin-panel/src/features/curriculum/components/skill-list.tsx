@@ -6,13 +6,13 @@ import { useState, useEffect } from 'react';
 import { useToast } from '@/components/ui/toast';
 import { Pagination } from '@/components/ui/pagination';
 import { SortableHeader } from '@/components/ui/sortable-header';
-import { Plus, CheckSquare, Square, Eye, EyeOff, Search, X, Trash, Layers } from 'lucide-react';
+import { Plus, CheckSquare, Square, Search, X, Trash, Layers } from 'lucide-react';
 
 const DEFAULT_PAGE_SIZE = 10;
 
 export function SkillList() {
     const [selectedDomainId, setSelectedDomainId] = useState<string>('all');
-    const [statusFilter, setStatusFilter] = useState<'all' | 'published' | 'draft'>('all');
+    const [statusFilter, setStatusFilter] = useState<'all' | 'draft' | 'published' | 'live'>('all');
     const [searchQuery, setSearchQuery] = useState<string>('');
     const [debouncedSearch, setDebouncedSearch] = useState<string>('');
     const [selectedIds, setSelectedIds] = useState<Set<string>>(new Set());
@@ -95,25 +95,25 @@ export function SkillList() {
         }
     };
 
-    const handleBulkPublish = async () => {
+    const handleMarkPublished = async () => {
         if (selectedIds.size === 0) return;
         try {
-            await bulkUpdateStatus.mutateAsync({ ids: Array.from(selectedIds), is_published: true });
-            showToast(`${selectedIds.size} skill(s) published`, 'success');
+            await bulkUpdateStatus.mutateAsync({ ids: Array.from(selectedIds), status: 'published' });
+            showToast(`${selectedIds.size} skill(s) marked as published`, 'success');
             setSelectedIds(new Set());
         } catch {
-            showToast('Failed to publish skills', 'error');
+            showToast('Failed to update skills', 'error');
         }
     };
 
-    const handleBulkUnpublish = async () => {
+    const handleMarkDraft = async () => {
         if (selectedIds.size === 0) return;
         try {
-            await bulkUpdateStatus.mutateAsync({ ids: Array.from(selectedIds), is_published: false });
-            showToast(`${selectedIds.size} skill(s) unpublished`, 'success');
+            await bulkUpdateStatus.mutateAsync({ ids: Array.from(selectedIds), status: 'draft' });
+            showToast(`${selectedIds.size} skill(s) marked as draft`, 'success');
             setSelectedIds(new Set());
         } catch {
-            showToast('Failed to unpublish skills', 'error');
+            showToast('Failed to update skills', 'error');
         }
     };
 
@@ -156,6 +156,29 @@ export function SkillList() {
         setStatusFilter('all');
         setSelectedDomainId('all');
         setPage(1);
+    };
+
+    const renderStatusBadge = (status: string) => {
+        switch (status) {
+            case 'live':
+                return (
+                    <span className="px-3 py-1 bg-green-100 text-green-800 rounded-full text-sm font-medium">
+                        Live
+                    </span>
+                );
+            case 'published':
+                return (
+                    <span className="px-3 py-1 bg-amber-100 text-amber-800 rounded-full text-sm font-medium">
+                        Published
+                    </span>
+                );
+            default:
+                return (
+                    <span className="px-3 py-1 bg-gray-100 text-gray-600 rounded-full text-sm font-medium">
+                        Draft
+                    </span>
+                );
+        }
     };
 
     if (isLoading) {
@@ -227,12 +250,13 @@ export function SkillList() {
                             <label className="text-sm font-medium text-gray-600">Status:</label>
                             <select
                                 value={statusFilter}
-                                onChange={(e) => setStatusFilter(e.target.value as 'all' | 'published' | 'draft')}
+                                onChange={(e) => setStatusFilter(e.target.value as 'all' | 'draft' | 'published' | 'live')}
                                 className="px-3 py-2 rounded-lg border border-gray-200 bg-white text-gray-700 focus:border-purple-500 focus:ring-2 focus:ring-purple-200 transition-colors text-sm"
                             >
                                 <option value="all">All Status</option>
-                                <option value="published">Published</option>
                                 <option value="draft">Draft</option>
+                                <option value="published">Published (Ready to go live)</option>
+                                <option value="live">Live</option>
                             </select>
                         </div>
 
@@ -240,20 +264,18 @@ export function SkillList() {
                             <div className="flex items-center gap-2 ml-auto">
                                 <span className="text-sm text-gray-600">{selectedIds.size} selected</span>
                                 <button
-                                    onClick={handleBulkPublish}
+                                    onClick={handleMarkPublished}
                                     disabled={bulkUpdateStatus.isPending}
-                                    className="inline-flex items-center gap-1 px-3 py-2 text-sm font-medium text-green-600 hover:text-green-700 hover:bg-green-50 rounded-lg transition-colors"
+                                    className="inline-flex items-center gap-1 px-3 py-2 text-sm font-medium text-amber-600 hover:text-amber-700 hover:bg-amber-50 rounded-lg transition-colors"
                                 >
-                                    <Eye className="h-4 w-4" />
-                                    Publish
+                                    Mark Published
                                 </button>
                                 <button
-                                    onClick={handleBulkUnpublish}
+                                    onClick={handleMarkDraft}
                                     disabled={bulkUpdateStatus.isPending}
                                     className="inline-flex items-center gap-1 px-3 py-2 text-sm font-medium text-gray-600 hover:text-gray-700 hover:bg-gray-50 rounded-lg transition-colors"
                                 >
-                                    <EyeOff className="h-4 w-4" />
-                                    Unpublish
+                                    Mark Draft
                                 </button>
                                 <button
                                     onClick={handleBulkDelete}
@@ -299,7 +321,7 @@ export function SkillList() {
                                 <th className="text-left px-6 py-4">
                                     <SortableHeader
                                         label="Status"
-                                        column="is_published"
+                                        column="status"
                                         currentSortBy={sortBy}
                                         currentSortOrder={sortOrder}
                                         onSort={handleSort}
@@ -365,15 +387,7 @@ export function SkillList() {
                                             </span>
                                         </td>
                                         <td className="px-6 py-4">
-                                            {skill.is_published ? (
-                                                <span className="px-3 py-1 bg-green-100 text-green-700 rounded-full text-sm font-medium">
-                                                    Published
-                                                </span>
-                                            ) : (
-                                                <span className="px-3 py-1 bg-gray-100 text-gray-600 rounded-full text-sm font-medium">
-                                                    Draft
-                                                </span>
-                                            )}
+                                            {renderStatusBadge(skill.status || 'draft')}
                                         </td>
                                         <td className="px-6 py-4">
                                             {!skill.domains ? (

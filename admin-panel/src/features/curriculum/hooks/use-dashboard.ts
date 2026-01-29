@@ -6,9 +6,10 @@ interface DashboardStats {
   totalDomains: number;
   totalSkills: number;
   totalQuestions: number;
-  publishedDomains: number;
-  publishedSkills: number;
-  publishedQuestions: number;
+  liveDomains: number;
+  liveSkills: number;
+  liveQuestions: number;
+  readyToPublish: number;
   currentVersion: number;
   lastPublishedAt: string | null;
 }
@@ -27,36 +28,42 @@ export function useDashboardStats() {
     queryFn: async (): Promise<DashboardStats> => {
       const [
         domainsResult,
+        liveDomainsResult,
         publishedDomainsResult,
         skillsResult,
+        liveSkillsResult,
         publishedSkillsResult,
         questionsResult,
+        liveQuestionsResult,
         publishedQuestionsResult,
         metaResult,
       ] = await Promise.all([
         supabase.from('domains').select('*', { count: 'exact', head: true }).is('deleted_at', null),
-        supabase.from('domains').select('*', { count: 'exact', head: true }).is('deleted_at', null).eq('is_published', true),
+        supabase.from('domains').select('*', { count: 'exact', head: true }).is('deleted_at', null).eq('status', 'live'),
+        supabase.from('domains').select('*', { count: 'exact', head: true }).is('deleted_at', null).eq('status', 'published'),
         supabase.from('skills').select('*', { count: 'exact', head: true }).is('deleted_at', null),
-        supabase.from('skills').select('*', { count: 'exact', head: true }).is('deleted_at', null).eq('is_published', true),
+        supabase.from('skills').select('*', { count: 'exact', head: true }).is('deleted_at', null).eq('status', 'live'),
+        supabase.from('skills').select('*', { count: 'exact', head: true }).is('deleted_at', null).eq('status', 'published'),
         supabase.from('questions').select('*', { count: 'exact', head: true }).is('deleted_at', null),
-        supabase.from('questions').select('*', { count: 'exact', head: true }).is('deleted_at', null).eq('is_published', true),
+        supabase.from('questions').select('*', { count: 'exact', head: true }).is('deleted_at', null).eq('status', 'live'),
+        supabase.from('questions').select('*', { count: 'exact', head: true }).is('deleted_at', null).eq('status', 'published'),
         supabase.from('curriculum_meta').select('version, last_published_at').eq('id', 'singleton').single(),
       ]);
 
       if (domainsResult.error) throw domainsResult.error;
       if (skillsResult.error) throw skillsResult.error;
       if (questionsResult.error) throw questionsResult.error;
-      if (publishedDomainsResult.error) throw publishedDomainsResult.error;
-      if (publishedSkillsResult.error) throw publishedSkillsResult.error;
-      if (publishedQuestionsResult.error) throw publishedQuestionsResult.error;
+
+      const readyToPublish = (publishedDomainsResult.count ?? 0) + (publishedSkillsResult.count ?? 0) + (publishedQuestionsResult.count ?? 0);
 
       return {
         totalDomains: domainsResult.count ?? 0,
         totalSkills: skillsResult.count ?? 0,
         totalQuestions: questionsResult.count ?? 0,
-        publishedDomains: publishedDomainsResult.count ?? 0,
-        publishedSkills: publishedSkillsResult.count ?? 0,
-        publishedQuestions: publishedQuestionsResult.count ?? 0,
+        liveDomains: liveDomainsResult.count ?? 0,
+        liveSkills: liveSkillsResult.count ?? 0,
+        liveQuestions: liveQuestionsResult.count ?? 0,
+        readyToPublish,
         currentVersion: (metaResult.data as any)?.version ?? 0,
         lastPublishedAt: (metaResult.data as any)?.last_published_at ?? null,
       };

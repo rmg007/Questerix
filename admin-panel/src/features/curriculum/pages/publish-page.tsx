@@ -1,6 +1,6 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 import { usePublishCurriculum, usePublishPreview } from '../hooks/use-publish';
-import { CheckCircle, AlertTriangle, Upload, BookOpen, Layers, HelpCircle, AlertCircle, Info } from 'lucide-react';
+import { CheckCircle, AlertTriangle, Upload, BookOpen, Layers, HelpCircle, AlertCircle, Info, Rocket } from 'lucide-react';
 import { useState } from 'react';
 
 export function PublishPage() {
@@ -29,11 +29,11 @@ export function PublishPage() {
     };
 
     return (
-        <div className="space-y-6 max-w-3xl">
+        <div className="space-y-6 max-w-4xl">
             <div>
                 <h2 className="text-3xl font-bold text-gray-900">Publish Curriculum</h2>
                 <p className="mt-1 text-gray-500">
-                    Validate integrity and release the latest version to students.
+                    Release approved content to make it visible to students.
                 </p>
             </div>
 
@@ -45,7 +45,7 @@ export function PublishPage() {
                         </div>
                         <div>
                             <h3 className="font-semibold text-gray-900">Current Version</h3>
-                            <p className="text-sm text-gray-500">Published to students</p>
+                            <p className="text-sm text-gray-500">Live to students</p>
                         </div>
                     </div>
                     {isLoadingPreview ? (
@@ -53,9 +53,13 @@ export function PublishPage() {
                     ) : (
                         <div className="space-y-2">
                             <div className="flex items-baseline gap-2">
-                                <span className="text-4xl font-bold text-purple-600">v{preview?.meta.version || 1}</span>
-                                <span className="text-gray-400">→</span>
-                                <span className="text-2xl font-semibold text-green-600">v{(preview?.meta.version || 0) + 1}</span>
+                                <span className="text-4xl font-bold text-purple-600">v{preview?.meta.version || 0}</span>
+                                {preview?.canPublish && (
+                                    <>
+                                        <span className="text-gray-400">→</span>
+                                        <span className="text-2xl font-semibold text-green-600">v{(preview?.meta.version || 0) + 1}</span>
+                                    </>
+                                )}
                             </div>
                             <p className="text-sm text-gray-500">
                                 Last published: {formatDate(preview?.meta.last_published_at || null)}
@@ -66,63 +70,120 @@ export function PublishPage() {
 
                 <div className="bg-white rounded-2xl shadow-sm border border-gray-100 p-6">
                     <div className="flex items-center gap-3 mb-4">
-                        <div className="flex items-center justify-center w-10 h-10 rounded-xl bg-blue-100">
-                            <Layers className="w-5 h-5 text-blue-600" />
+                        <div className="flex items-center justify-center w-10 h-10 rounded-xl bg-amber-100">
+                            <Rocket className="w-5 h-5 text-amber-600" />
                         </div>
                         <div>
-                            <h3 className="font-semibold text-gray-900">Content Overview</h3>
-                            <p className="text-sm text-gray-500">What students will see</p>
+                            <h3 className="font-semibold text-gray-900">Ready to Publish</h3>
+                            <p className="text-sm text-gray-500">Content awaiting release</p>
                         </div>
                     </div>
                     {isLoadingPreview ? (
-                        <div className="animate-pulse h-20 bg-gray-100 rounded"></div>
+                        <div className="animate-pulse h-12 bg-gray-100 rounded"></div>
                     ) : (
-                        <div className="space-y-2">
-                            <div className="flex items-center justify-between">
-                                <div className="flex items-center gap-2">
-                                    <BookOpen className="w-4 h-4 text-gray-400" />
-                                    <span className="text-gray-700">Domains</span>
-                                </div>
-                                <div className="flex items-center gap-2">
-                                    <span className="px-2 py-0.5 bg-green-100 text-green-700 rounded text-sm font-medium">
-                                        {preview?.stats.publishedDomains || 0} published
-                                    </span>
-                                    <span className="text-gray-400 text-sm">
-                                        {preview?.stats.unpublishedDomains || 0} draft
-                                    </span>
-                                </div>
+                        <div className="space-y-1">
+                            <div className="text-4xl font-bold text-amber-600">
+                                {preview?.readyToPublishCount || 0}
                             </div>
-                            <div className="flex items-center justify-between">
-                                <div className="flex items-center gap-2">
-                                    <Layers className="w-4 h-4 text-gray-400" />
-                                    <span className="text-gray-700">Skills</span>
-                                </div>
-                                <div className="flex items-center gap-2">
-                                    <span className="px-2 py-0.5 bg-green-100 text-green-700 rounded text-sm font-medium">
-                                        {preview?.stats.publishedSkills || 0} published
-                                    </span>
-                                    <span className="text-gray-400 text-sm">
-                                        {preview?.stats.unpublishedSkills || 0} draft
-                                    </span>
-                                </div>
-                            </div>
-                            <div className="flex items-center justify-between">
-                                <div className="flex items-center gap-2">
-                                    <HelpCircle className="w-4 h-4 text-gray-400" />
-                                    <span className="text-gray-700">Questions</span>
-                                </div>
-                                <div className="flex items-center gap-2">
-                                    <span className="px-2 py-0.5 bg-green-100 text-green-700 rounded text-sm font-medium">
-                                        {preview?.stats.publishedQuestions || 0} published
-                                    </span>
-                                    <span className="text-gray-400 text-sm">
-                                        {preview?.stats.unpublishedQuestions || 0} draft
-                                    </span>
-                                </div>
-                            </div>
+                            <p className="text-sm text-gray-500">
+                                items marked as "Published" will go live
+                            </p>
                         </div>
                     )}
                 </div>
+            </div>
+
+            <div className="bg-white rounded-2xl shadow-sm border border-gray-100 p-6">
+                <div className="flex items-center gap-3 mb-4">
+                    <div className="flex items-center justify-center w-10 h-10 rounded-xl bg-blue-100">
+                        <Layers className="w-5 h-5 text-blue-600" />
+                    </div>
+                    <div>
+                        <h3 className="font-semibold text-gray-900">Content Status Overview</h3>
+                        <p className="text-sm text-gray-500">Current state of all curriculum content</p>
+                    </div>
+                </div>
+                {isLoadingPreview ? (
+                    <div className="animate-pulse h-20 bg-gray-100 rounded"></div>
+                ) : (
+                    <div className="overflow-x-auto">
+                        <table className="w-full text-sm">
+                            <thead>
+                                <tr className="border-b border-gray-100">
+                                    <th className="text-left py-2 font-medium text-gray-600">Content</th>
+                                    <th className="text-center py-2 font-medium text-gray-500">Draft</th>
+                                    <th className="text-center py-2 font-medium text-amber-600">Published</th>
+                                    <th className="text-center py-2 font-medium text-green-600">Live</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr className="border-b border-gray-50">
+                                    <td className="py-3 flex items-center gap-2">
+                                        <BookOpen className="w-4 h-4 text-gray-400" />
+                                        Domains
+                                    </td>
+                                    <td className="py-3 text-center">
+                                        <span className="px-2 py-0.5 bg-gray-100 text-gray-600 rounded text-xs font-medium">
+                                            {preview?.stats.draftDomains || 0}
+                                        </span>
+                                    </td>
+                                    <td className="py-3 text-center">
+                                        <span className="px-2 py-0.5 bg-amber-100 text-amber-700 rounded text-xs font-medium">
+                                            {preview?.stats.publishedDomains || 0}
+                                        </span>
+                                    </td>
+                                    <td className="py-3 text-center">
+                                        <span className="px-2 py-0.5 bg-green-100 text-green-700 rounded text-xs font-medium">
+                                            {preview?.stats.liveDomains || 0}
+                                        </span>
+                                    </td>
+                                </tr>
+                                <tr className="border-b border-gray-50">
+                                    <td className="py-3 flex items-center gap-2">
+                                        <Layers className="w-4 h-4 text-gray-400" />
+                                        Skills
+                                    </td>
+                                    <td className="py-3 text-center">
+                                        <span className="px-2 py-0.5 bg-gray-100 text-gray-600 rounded text-xs font-medium">
+                                            {preview?.stats.draftSkills || 0}
+                                        </span>
+                                    </td>
+                                    <td className="py-3 text-center">
+                                        <span className="px-2 py-0.5 bg-amber-100 text-amber-700 rounded text-xs font-medium">
+                                            {preview?.stats.publishedSkills || 0}
+                                        </span>
+                                    </td>
+                                    <td className="py-3 text-center">
+                                        <span className="px-2 py-0.5 bg-green-100 text-green-700 rounded text-xs font-medium">
+                                            {preview?.stats.liveSkills || 0}
+                                        </span>
+                                    </td>
+                                </tr>
+                                <tr>
+                                    <td className="py-3 flex items-center gap-2">
+                                        <HelpCircle className="w-4 h-4 text-gray-400" />
+                                        Questions
+                                    </td>
+                                    <td className="py-3 text-center">
+                                        <span className="px-2 py-0.5 bg-gray-100 text-gray-600 rounded text-xs font-medium">
+                                            {preview?.stats.draftQuestions || 0}
+                                        </span>
+                                    </td>
+                                    <td className="py-3 text-center">
+                                        <span className="px-2 py-0.5 bg-amber-100 text-amber-700 rounded text-xs font-medium">
+                                            {preview?.stats.publishedQuestions || 0}
+                                        </span>
+                                    </td>
+                                    <td className="py-3 text-center">
+                                        <span className="px-2 py-0.5 bg-green-100 text-green-700 rounded text-xs font-medium">
+                                            {preview?.stats.liveQuestions || 0}
+                                        </span>
+                                    </td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                )}
             </div>
 
             {!isLoadingPreview && preview?.validationIssues && preview.validationIssues.length > 0 && (
@@ -147,7 +208,7 @@ export function PublishPage() {
                                 )}
                                 <div>
                                     <p className={`font-medium ${issue.type === 'error' ? 'text-red-800' : 'text-amber-800'}`}>
-                                        {issue.type === 'error' ? 'Error' : 'Warning'}
+                                        {issue.type === 'error' ? 'Error' : 'Note'}
                                     </p>
                                     <p className={`text-sm ${issue.type === 'error' ? 'text-red-700' : 'text-amber-700'}`}>
                                         {issue.message}
@@ -168,7 +229,7 @@ export function PublishPage() {
                         <div>
                             <h3 className="text-lg font-semibold text-gray-900">Release New Version</h3>
                             <p className="text-sm text-gray-500">
-                                Publish curriculum v{(preview?.meta.version || 0) + 1} to all students
+                                Move all "Published" content to "Live" status
                             </p>
                         </div>
                     </div>
@@ -176,7 +237,7 @@ export function PublishPage() {
                 
                 <div className="p-6 space-y-4">
                     <p className="text-gray-600">
-                        This will validate all domains, skills, and questions for integrity issues and publish a new curriculum version. Students will receive updates automatically when they sync.
+                        This action will transition all content marked as "Published" to "Live" status, making it visible to students. The curriculum version will be incremented.
                     </p>
 
                     {success && (
@@ -186,7 +247,7 @@ export function PublishPage() {
                             </div>
                             <div>
                                 <p className="font-medium">Success!</p>
-                                <p className="text-sm text-green-700">Curriculum v{publishedVersion} published successfully.</p>
+                                <p className="text-sm text-green-700">Curriculum v{publishedVersion} is now live.</p>
                             </div>
                         </div>
                     )}
@@ -218,13 +279,16 @@ export function PublishPage() {
                         ) : (
                             <>
                                 <Upload className="h-5 w-5" />
-                                Publish v{(preview?.meta.version || 0) + 1}
+                                {preview?.canPublish 
+                                    ? `Publish ${preview.readyToPublishCount} items as v${(preview?.meta.version || 0) + 1}`
+                                    : 'Nothing to publish'
+                                }
                             </>
                         )}
                     </button>
                     {preview && !preview.canPublish && (
-                        <p className="mt-3 text-sm text-red-600">
-                            Nothing to publish. Mark content as published first.
+                        <p className="mt-3 text-sm text-gray-500">
+                            Mark content as "Published" in the lists to make it ready for release.
                         </p>
                     )}
                 </div>

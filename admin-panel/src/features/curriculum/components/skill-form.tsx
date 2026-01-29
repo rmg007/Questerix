@@ -13,7 +13,6 @@ import {
 } from '@/components/ui/form';
 import { Input } from '@/components/ui/input';
 import { Textarea } from '@/components/ui/textarea';
-import { Checkbox } from '@/components/ui/checkbox';
 import { useCreateSkill, useUpdateSkill } from '../hooks/use-skills';
 import { useDomains } from '../hooks/use-domains';
 import { useNavigate } from 'react-router-dom';
@@ -29,6 +28,12 @@ import { Database } from '@/lib/database.types';
 
 type Skill = Database['public']['Tables']['skills']['Row'];
 
+const STATUS_OPTIONS: { value: 'draft' | 'published' | 'live'; label: string; description?: string }[] = [
+  { value: 'draft', label: 'Draft' },
+  { value: 'published', label: 'Published', description: 'Ready to go live' },
+  { value: 'live', label: 'Live' },
+];
+
 const skillSchema = z.object({
   domain_id: z.string().uuid(),
   slug: z.string()
@@ -39,7 +44,7 @@ const skillSchema = z.object({
   description: z.string().optional(),
   difficulty_level: z.coerce.number().min(1).max(5),
   sort_order: z.coerce.number().default(0),
-  is_published: z.boolean().default(false),
+  status: z.enum(['draft', 'published', 'live']).default('draft'),
 });
 
 type SkillFormData = z.infer<typeof skillSchema>;
@@ -63,7 +68,7 @@ export function SkillForm({ initialData }: SkillFormProps) {
       description: initialData?.description || '',
       difficulty_level: initialData?.difficulty_level || 1,
       sort_order: initialData?.sort_order || 0,
-      is_published: initialData?.is_published || false,
+      status: (initialData as any)?.status || 'draft',
     },
   });
 
@@ -206,23 +211,28 @@ export function SkillForm({ initialData }: SkillFormProps) {
 
         <FormField
           control={form.control}
-          name="is_published"
+          name="status"
           render={({ field }) => (
-            <FormItem className="flex flex-row items-start space-x-3 space-y-0 rounded-md border p-4">
-              <FormControl>
-                <Checkbox
-                  checked={field.value}
-                  onCheckedChange={field.onChange}
-                />
-              </FormControl>
-              <div className="space-y-1 leading-none">
-                <FormLabel>
-                  Published
-                </FormLabel>
-                <FormDescription>
-                  This skill will be visible to students when checked.
-                </FormDescription>
-              </div>
+            <FormItem>
+              <FormLabel>Status</FormLabel>
+              <Select onValueChange={field.onChange} defaultValue={field.value}>
+                <FormControl>
+                  <SelectTrigger>
+                    <SelectValue placeholder="Select status" />
+                  </SelectTrigger>
+                </FormControl>
+                <SelectContent>
+                  {STATUS_OPTIONS.map((option) => (
+                    <SelectItem key={option.value} value={option.value}>
+                      {option.label}{option.description ? ` - ${option.description}` : ''}
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+              <FormDescription>
+                Controls visibility of this skill.
+              </FormDescription>
+              <FormMessage />
             </FormItem>
           )}
         />

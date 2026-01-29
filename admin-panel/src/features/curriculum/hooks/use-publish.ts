@@ -8,12 +8,15 @@ interface CurriculumMeta {
 }
 
 interface PublishStats {
+  draftDomains: number;
   publishedDomains: number;
-  unpublishedDomains: number;
+  liveDomains: number;
+  draftSkills: number;
   publishedSkills: number;
-  unpublishedSkills: number;
+  liveSkills: number;
+  draftQuestions: number;
   publishedQuestions: number;
-  unpublishedQuestions: number;
+  liveQuestions: number;
 }
 
 interface ValidationIssue {
@@ -26,6 +29,7 @@ interface PublishPreview {
   stats: PublishStats;
   validationIssues: ValidationIssue[];
   canPublish: boolean;
+  readyToPublishCount: number;
 }
 
 export function useCurriculumMeta() {
@@ -52,66 +56,55 @@ export function usePublishPreview() {
 
       const [
         metaResult,
+        draftDomainsResult,
         publishedDomainsResult,
-        unpublishedDomainsResult,
+        liveDomainsResult,
+        draftSkillsResult,
         publishedSkillsResult,
-        unpublishedSkillsResult,
+        liveSkillsResult,
+        draftQuestionsResult,
         publishedQuestionsResult,
-        unpublishedQuestionsResult,
+        liveQuestionsResult,
       ] = await Promise.all([
         supabase.from('curriculum_meta').select('version, last_published_at').eq('id', 'singleton').single(),
-        supabase.from('domains').select('*', { count: 'exact', head: true }).is('deleted_at', null).eq('is_published', true),
-        supabase.from('domains').select('*', { count: 'exact', head: true }).is('deleted_at', null).eq('is_published', false),
-        supabase.from('skills').select('*', { count: 'exact', head: true }).is('deleted_at', null).eq('is_published', true),
-        supabase.from('skills').select('*', { count: 'exact', head: true }).is('deleted_at', null).eq('is_published', false),
-        supabase.from('questions').select('*', { count: 'exact', head: true }).is('deleted_at', null).eq('is_published', true),
-        supabase.from('questions').select('*', { count: 'exact', head: true }).is('deleted_at', null).eq('is_published', false),
+        supabase.from('domains').select('*', { count: 'exact', head: true }).is('deleted_at', null).eq('status', 'draft'),
+        supabase.from('domains').select('*', { count: 'exact', head: true }).is('deleted_at', null).eq('status', 'published'),
+        supabase.from('domains').select('*', { count: 'exact', head: true }).is('deleted_at', null).eq('status', 'live'),
+        supabase.from('skills').select('*', { count: 'exact', head: true }).is('deleted_at', null).eq('status', 'draft'),
+        supabase.from('skills').select('*', { count: 'exact', head: true }).is('deleted_at', null).eq('status', 'published'),
+        supabase.from('skills').select('*', { count: 'exact', head: true }).is('deleted_at', null).eq('status', 'live'),
+        supabase.from('questions').select('*', { count: 'exact', head: true }).is('deleted_at', null).eq('status', 'draft'),
+        supabase.from('questions').select('*', { count: 'exact', head: true }).is('deleted_at', null).eq('status', 'published'),
+        supabase.from('questions').select('*', { count: 'exact', head: true }).is('deleted_at', null).eq('status', 'live'),
       ]);
 
       if (metaResult.error) throw metaResult.error;
-      if (publishedDomainsResult.error) throw publishedDomainsResult.error;
-      if (unpublishedDomainsResult.error) throw unpublishedDomainsResult.error;
-      if (publishedSkillsResult.error) throw publishedSkillsResult.error;
-      if (unpublishedSkillsResult.error) throw unpublishedSkillsResult.error;
-      if (publishedQuestionsResult.error) throw publishedQuestionsResult.error;
-      if (unpublishedQuestionsResult.error) throw unpublishedQuestionsResult.error;
 
       const stats: PublishStats = {
+        draftDomains: draftDomainsResult.count ?? 0,
         publishedDomains: publishedDomainsResult.count ?? 0,
-        unpublishedDomains: unpublishedDomainsResult.count ?? 0,
+        liveDomains: liveDomainsResult.count ?? 0,
+        draftSkills: draftSkillsResult.count ?? 0,
         publishedSkills: publishedSkillsResult.count ?? 0,
-        unpublishedSkills: unpublishedSkillsResult.count ?? 0,
+        liveSkills: liveSkillsResult.count ?? 0,
+        draftQuestions: draftQuestionsResult.count ?? 0,
         publishedQuestions: publishedQuestionsResult.count ?? 0,
-        unpublishedQuestions: unpublishedQuestionsResult.count ?? 0,
+        liveQuestions: liveQuestionsResult.count ?? 0,
       };
 
-      if (stats.publishedDomains === 0) {
-        validationIssues.push({
-          type: 'warning',
-          message: 'No domains are marked as published',
-        });
-      }
+      const readyToPublishCount = stats.publishedDomains + stats.publishedSkills + stats.publishedQuestions;
 
-      if (stats.publishedSkills === 0) {
+      if (readyToPublishCount === 0) {
         validationIssues.push({
-          type: 'warning',
-          message: 'No skills are marked as published',
-        });
-      }
-
-      if (stats.publishedQuestions === 0) {
-        validationIssues.push({
-          type: 'warning',
-          message: 'No questions are marked as published',
-        });
-      }
-
-      // Check if there's nothing to publish
-      const hasContent = stats.publishedDomains > 0 || stats.publishedSkills > 0 || stats.publishedQuestions > 0;
-      if (!hasContent) {
-        validationIssues.unshift({
           type: 'error',
-          message: 'Nothing to publish. Mark at least one domain, skill, or question as published first.',
+          message: 'Nothing to publish. Mark content as "Published" first to make it ready for release.',
+        });
+      }
+
+      if (stats.liveDomains === 0 && stats.liveSkills === 0 && stats.liveQuestions === 0) {
+        validationIssues.push({
+          type: 'warning',
+          message: 'No content is currently live. This will be the first release.',
         });
       }
 
@@ -119,7 +112,8 @@ export function usePublishPreview() {
         meta: metaResult.data as CurriculumMeta,
         stats,
         validationIssues,
-        canPublish: hasContent,
+        canPublish: readyToPublishCount > 0,
+        readyToPublishCount,
       };
     },
     refetchInterval: 30000,
@@ -139,6 +133,13 @@ export function usePublishCurriculum() {
       queryClient.invalidateQueries({ queryKey: ['curriculum-meta'] });
       queryClient.invalidateQueries({ queryKey: ['publish-preview'] });
       queryClient.invalidateQueries({ queryKey: ['publish-history'] });
+      queryClient.invalidateQueries({ queryKey: ['domains'] });
+      queryClient.invalidateQueries({ queryKey: ['domains-paginated'] });
+      queryClient.invalidateQueries({ queryKey: ['skills'] });
+      queryClient.invalidateQueries({ queryKey: ['skills-paginated'] });
+      queryClient.invalidateQueries({ queryKey: ['questions'] });
+      queryClient.invalidateQueries({ queryKey: ['questions-paginated'] });
+      queryClient.invalidateQueries({ queryKey: ['dashboard-stats'] });
     },
   });
 }

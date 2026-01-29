@@ -13,7 +13,6 @@ import {
 } from '@/components/ui/form';
 import { Input } from '@/components/ui/input';
 import { RichTextEditor } from '@/components/ui/rich-text-editor';
-import { Checkbox } from '@/components/ui/checkbox';
 import { RadioGroup, RadioGroupItem } from '@/components/ui/radio-group';
 import { useCreateQuestion, useUpdateQuestion } from '../hooks/use-questions';
 import { useSkills } from '../hooks/use-skills';
@@ -33,6 +32,12 @@ type Question = Database['public']['Tables']['questions']['Row'];
 // Hardcoded for now based on Schema
 const QUESTION_TYPES = ['multiple_choice', 'mcq_multi', 'text_input', 'boolean', 'reorder_steps'] as const;
 
+const STATUS_OPTIONS: { value: 'draft' | 'published' | 'live'; label: string; description?: string }[] = [
+  { value: 'draft', label: 'Draft' },
+  { value: 'published', label: 'Published', description: 'Ready to go live' },
+  { value: 'live', label: 'Live' },
+];
+
 // Zod schema for the form
 const questionSchema = z.object({
   skill_id: z.string().uuid(),
@@ -43,7 +48,7 @@ const questionSchema = z.object({
   solution: z.any(),
   explanation: z.string().optional(),
   points: z.coerce.number().min(1),
-  is_published: z.boolean().default(false),
+  status: z.enum(['draft', 'published', 'live']).default('draft'),
 });
 
 type QuestionFormData = z.infer<typeof questionSchema>;
@@ -80,7 +85,7 @@ export function QuestionForm({ initialData }: QuestionFormProps) {
       content: initialData?.content || '',
       explanation: initialData?.explanation || '',
       points: initialData?.points || 1,
-      is_published: initialData?.is_published || false,
+      status: (initialData as any)?.status || 'draft',
       // Internal fields for managing JSON state
       options: parseOptions(initialData), 
       solution: parseSolution(initialData),
@@ -284,22 +289,27 @@ export function QuestionForm({ initialData }: QuestionFormProps) {
             )}
             />
 
-             <FormField
+            <FormField
                 control={form.control}
-                name="is_published"
+                name="status"
                 render={({ field }) => (
-                    <FormItem className="flex flex-row items-center space-x-3 space-y-0 rounded-md border p-4 mt-8">
-                    <FormControl>
-                        <Checkbox
-                        checked={field.value}
-                        onCheckedChange={field.onChange}
-                        />
-                    </FormControl>
-                    <div className="space-y-1 leading-none">
-                        <FormLabel>
-                        Published
-                        </FormLabel>
-                    </div>
+                    <FormItem>
+                    <FormLabel>Status</FormLabel>
+                    <Select onValueChange={field.onChange} defaultValue={field.value}>
+                        <FormControl>
+                        <SelectTrigger>
+                            <SelectValue placeholder="Select status" />
+                        </SelectTrigger>
+                        </FormControl>
+                        <SelectContent>
+                        {STATUS_OPTIONS.map((option) => (
+                            <SelectItem key={option.value} value={option.value}>
+                            {option.label}{option.description ? ` - ${option.description}` : ''}
+                            </SelectItem>
+                        ))}
+                        </SelectContent>
+                    </Select>
+                    <FormMessage />
                     </FormItem>
                 )}
             />

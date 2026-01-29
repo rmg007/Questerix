@@ -7,11 +7,13 @@ type Question = Database['public']['Tables']['questions']['Row'];
 type QuestionInsert = Database['public']['Tables']['questions']['Insert'];
 type QuestionUpdate = Database['public']['Tables']['questions']['Update'];
 
+export type CurriculumStatus = 'draft' | 'published' | 'live';
+
 export interface PaginationParams {
   page: number;
   pageSize: number;
   search?: string;
-  status?: 'all' | 'published' | 'draft';
+  status?: 'all' | 'draft' | 'published' | 'live';
   skillId?: string;
   sortBy?: string;
   sortOrder?: 'asc' | 'desc';
@@ -76,10 +78,8 @@ export function usePaginatedQuestions(params: PaginationParams) {
         query = query.ilike('content', `%${search}%`);
       }
 
-      if (status === 'published') {
-        query = query.eq('is_published', true);
-      } else if (status === 'draft') {
-        query = query.eq('is_published', false);
+      if (status && status !== 'all') {
+        query = query.eq('status', status);
       }
 
       if (skillId && skillId !== 'all') {
@@ -211,10 +211,10 @@ export function useBulkUpdateQuestionsStatus() {
     const queryClient = useQueryClient();
 
     return useMutation({
-        mutationFn: async ({ ids, is_published }: { ids: string[]; is_published: boolean }) => {
+        mutationFn: async ({ ids, status }: { ids: string[]; status: CurriculumStatus }) => {
             const { error } = await (supabase
                 .from('questions') as any)
-                .update({ is_published })
+                .update({ status })
                 .in('id', ids);
 
             if (error) throw error;
@@ -223,6 +223,7 @@ export function useBulkUpdateQuestionsStatus() {
             queryClient.invalidateQueries({ queryKey: ['questions'] });
             queryClient.invalidateQueries({ queryKey: ['questions-paginated'] });
             queryClient.invalidateQueries({ queryKey: ['dashboard-stats'] });
+            queryClient.invalidateQueries({ queryKey: ['publish-preview'] });
         },
     });
 }
@@ -245,7 +246,7 @@ export function useDuplicateQuestion() {
             const duplicate = {
                 ...rest,
                 content: `${rest.content} (Copy)`,
-                is_published: false,
+                status: 'draft',
             };
 
             const { data, error } = await (supabase

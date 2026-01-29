@@ -32,10 +32,9 @@ type Question = Database['public']['Tables']['questions']['Row'];
 // Hardcoded for now based on Schema
 const QUESTION_TYPES = ['multiple_choice', 'mcq_multi', 'text_input', 'boolean', 'reorder_steps'] as const;
 
-const STATUS_OPTIONS: { value: 'draft' | 'published' | 'live'; label: string; description?: string }[] = [
-  { value: 'draft', label: 'Draft' },
-  { value: 'published', label: 'Published', description: 'Ready to go live' },
-  { value: 'live', label: 'Live' },
+const STATUS_OPTIONS: { value: 'draft' | 'live'; label: string; description?: string }[] = [
+  { value: 'draft', label: 'Draft', description: 'Not visible to students' },
+  { value: 'live', label: 'Live', description: 'Visible to students' },
 ];
 
 // Zod schema for the form
@@ -48,7 +47,7 @@ const questionSchema = z.object({
   solution: z.any(),
   explanation: z.string().optional(),
   points: z.coerce.number().min(1),
-  status: z.enum(['draft', 'published', 'live']).default('draft'),
+  status: z.enum(['draft', 'live']).default('draft'),
 });
 
 type QuestionFormData = z.infer<typeof questionSchema>;

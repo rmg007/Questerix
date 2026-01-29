@@ -28,10 +28,9 @@ import { Database } from '@/lib/database.types';
 
 type Skill = Database['public']['Tables']['skills']['Row'];
 
-const STATUS_OPTIONS: { value: 'draft' | 'published' | 'live'; label: string; description?: string }[] = [
-  { value: 'draft', label: 'Draft' },
-  { value: 'published', label: 'Published', description: 'Ready to go live' },
-  { value: 'live', label: 'Live' },
+const STATUS_OPTIONS: { value: 'draft' | 'live'; label: string; description?: string }[] = [
+  { value: 'draft', label: 'Draft', description: 'Not visible to students' },
+  { value: 'live', label: 'Live', description: 'Visible to students' },
 ];
 
 const skillSchema = z.object({
@@ -44,7 +43,7 @@ const skillSchema = z.object({
   description: z.string().optional(),
   difficulty_level: z.coerce.number().min(1).max(5),
   sort_order: z.coerce.number().default(0),
-  status: z.enum(['draft', 'published', 'live']).default('draft'),
+  status: z.enum(['draft', 'live']).default('draft'),
 });
 
 type SkillFormData = z.infer<typeof skillSchema>;

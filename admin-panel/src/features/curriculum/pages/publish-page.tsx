@@ -70,23 +70,23 @@ export function PublishPage() {
 
                 <div className="bg-white rounded-2xl shadow-sm border border-gray-100 p-6">
                     <div className="flex items-center gap-3 mb-4">
-                        <div className="flex items-center justify-center w-10 h-10 rounded-xl bg-amber-100">
-                            <Rocket className="w-5 h-5 text-amber-600" />
+                        <div className="flex items-center justify-center w-10 h-10 rounded-xl bg-green-100">
+                            <Rocket className="w-5 h-5 text-green-600" />
                         </div>
                         <div>
-                            <h3 className="font-semibold text-gray-900">Ready to Publish</h3>
-                            <p className="text-sm text-gray-500">Content awaiting release</p>
+                            <h3 className="font-semibold text-gray-900">Live Content</h3>
+                            <p className="text-sm text-gray-500">Visible to students</p>
                         </div>
                     </div>
                     {isLoadingPreview ? (
                         <div className="animate-pulse h-12 bg-gray-100 rounded"></div>
                     ) : (
                         <div className="space-y-1">
-                            <div className="text-4xl font-bold text-amber-600">
+                            <div className="text-4xl font-bold text-green-600">
                                 {preview?.readyToPublishCount || 0}
                             </div>
                             <p className="text-sm text-gray-500">
-                                items marked as "Published" will go live
+                                items marked as "Live" are visible to students
                             </p>
                         </div>
                     )}
@@ -112,7 +112,6 @@ export function PublishPage() {
                                 <tr className="border-b border-gray-100">
                                     <th className="text-left py-2 font-medium text-gray-600">Content</th>
                                     <th className="text-center py-2 font-medium text-gray-500">Draft</th>
-                                    <th className="text-center py-2 font-medium text-amber-600">Published</th>
                                     <th className="text-center py-2 font-medium text-green-600">Live</th>
                                 </tr>
                             </thead>
@@ -125,11 +124,6 @@ export function PublishPage() {
                                     <td className="py-3 text-center">
                                         <span className="px-2 py-0.5 bg-gray-100 text-gray-600 rounded text-xs font-medium">
                                             {preview?.stats.draftDomains || 0}
-                                        </span>
-                                    </td>
-                                    <td className="py-3 text-center">
-                                        <span className="px-2 py-0.5 bg-amber-100 text-amber-700 rounded text-xs font-medium">
-                                            {preview?.stats.publishedDomains || 0}
                                         </span>
                                     </td>
                                     <td className="py-3 text-center">
@@ -149,11 +143,6 @@ export function PublishPage() {
                                         </span>
                                     </td>
                                     <td className="py-3 text-center">
-                                        <span className="px-2 py-0.5 bg-amber-100 text-amber-700 rounded text-xs font-medium">
-                                            {preview?.stats.publishedSkills || 0}
-                                        </span>
-                                    </td>
-                                    <td className="py-3 text-center">
                                         <span className="px-2 py-0.5 bg-green-100 text-green-700 rounded text-xs font-medium">
                                             {preview?.stats.liveSkills || 0}
                                         </span>
@@ -167,11 +156,6 @@ export function PublishPage() {
                                     <td className="py-3 text-center">
                                         <span className="px-2 py-0.5 bg-gray-100 text-gray-600 rounded text-xs font-medium">
                                             {preview?.stats.draftQuestions || 0}
-                                        </span>
-                                    </td>
-                                    <td className="py-3 text-center">
-                                        <span className="px-2 py-0.5 bg-amber-100 text-amber-700 rounded text-xs font-medium">
-                                            {preview?.stats.publishedQuestions || 0}
                                         </span>
                                     </td>
                                     <td className="py-3 text-center">
@@ -227,9 +211,9 @@ export function PublishPage() {
                             <Upload className="w-6 h-6 text-white" />
                         </div>
                         <div>
-                            <h3 className="text-lg font-semibold text-gray-900">Release New Version</h3>
+                            <h3 className="text-lg font-semibold text-gray-900">Curriculum Status</h3>
                             <p className="text-sm text-gray-500">
-                                Move all "Published" content to "Live" status
+                                Content with "Live" status is visible to students
                             </p>
                         </div>
                     </div>
@@ -237,7 +221,7 @@ export function PublishPage() {
                 
                 <div className="p-6 space-y-4">
                     <p className="text-gray-600">
-                        This action will transition all content marked as "Published" to "Live" status, making it visible to students. The curriculum version will be incremented.
+                        Mark content as "Live" from the domains, skills, or questions lists to make it visible to students. The curriculum version will be incremented when you publish.
                     </p>
 
                     {success && (
@@ -288,7 +272,7 @@ export function PublishPage() {
                     </button>
                     {preview && !preview.canPublish && (
                         <p className="mt-3 text-sm text-gray-500">
-                            Mark content as "Published" in the lists to make it ready for release.
+                            Mark content as "Live" in the lists to make it visible to students.
                         </p>
                     )}
                 </div>

@@ -7,13 +7,13 @@ type Domain = Database['public']['Tables']['domains']['Row'];
 type DomainInsert = Database['public']['Tables']['domains']['Insert'];
 type DomainUpdate = Database['public']['Tables']['domains']['Update'];
 
-export type CurriculumStatus = 'draft' | 'published' | 'live';
+export type CurriculumStatus = 'draft' | 'live';
 
 export interface PaginationParams {
   page: number;
   pageSize: number;
   search?: string;
-  status?: 'all' | 'draft' | 'published' | 'live';
+  status?: 'all' | 'draft' | 'live';
   sortBy?: string;
   sortOrder?: 'asc' | 'desc';
 }

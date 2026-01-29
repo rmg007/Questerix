@@ -75,19 +75,19 @@ export function useRecentActivity() {
           .select('id, title, created_at, updated_at')
           .is('deleted_at', null)
           .order('updated_at', { ascending: false })
-          .limit(5),
+          .limit(4),
         supabase
           .from('skills')
           .select('id, title, created_at, updated_at')
           .is('deleted_at', null)
           .order('updated_at', { ascending: false })
-          .limit(5),
+          .limit(4),
         supabase
           .from('questions')
           .select('id, content, created_at, updated_at')
           .is('deleted_at', null)
           .order('updated_at', { ascending: false })
-          .limit(5),
+          .limit(4),
       ]);
 
       if (domainsResult.error) throw domainsResult.error;

@@ -62,6 +62,15 @@ Core entities follow a curriculum hierarchy:
 - **Sessions** - Practice session tracking
 - **Skill Progress** - Aggregated mastery levels
 
+#### Status System (2-status simplified model)
+- Content uses a 2-status system: **draft** or **live**
+- **draft**: Content is not visible to students
+- **live**: Content is visible to students
+- Status cascades automatically downward:
+  - Changing a domain's status cascades to all its skills and their questions
+  - Changing a skill's status cascades to all its questions
+- The `is_published` field syncs automatically with status via database triggers
+
 Sync infrastructure:
 - **Outbox** - Client-side pending operations queue
 - **Sync Meta** - Sync watermarks and conflict resolution

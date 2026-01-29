@@ -58,6 +58,10 @@ Preferred communication style: Simple, everyday language.
   - Drag-and-drop reordering for domains, skills, and questions (via @dnd-kit)
   - Responsive mobile design with collapsible sidebar and card layouts
   - Touch-friendly UI with 48px minimum touch targets
+  - Data export/import toolbar on Domains, Skills, and Questions pages:
+    - Download data as CSV or JSON
+    - Download template CSV files for import reference
+    - Upload functionality (prepared for future implementation)
 
 ### Backend Architecture
 

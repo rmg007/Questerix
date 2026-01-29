@@ -1,4 +1,3 @@
-import 'dart:async';
 import 'dart:convert';
 import 'package:drift/drift.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
@@ -40,26 +39,15 @@ final syncServiceProvider = StateNotifierProvider<SyncService, SyncState>((ref) 
   return SyncService(database, supabase);
 });
 
-/// Sync service - handles push/pull synchronization
+/// Sync service - handles push/pull synchronization (manual only)
 class SyncService extends StateNotifier<SyncState> {
   final AppDatabase _database;
   final SupabaseClient _supabase;
-  Timer? _periodicSync;
 
-  SyncService(this._database, this._supabase) : super(SyncState.idle()) {
-    _startPeriodicSync();
-  }
-
-  void _startPeriodicSync() {
-    // Sync every 30 seconds when online
-    _periodicSync = Timer.periodic(const Duration(seconds: 30), (_) {
-      sync();
-    });
-  }
+  SyncService(this._database, this._supabase) : super(SyncState.idle());
 
   @override
   void dispose() {
-    _periodicSync?.cancel();
     super.dispose();
   }
 

@@ -18,11 +18,24 @@ Preferred communication style: Simple, everyday language.
 ### Frontend Architecture
 
 **Student App (Flutter)**
-- Framework: Flutter (tablet-first, targets iOS/Android tablets)
+- Framework: Flutter (phone-first, responsive design)
 - State Management: Riverpod only (no mixing with Provider/BLoC)
 - Local Database: Drift (SQLite) for offline-first data storage
-- Sync Pattern: Outbox pattern for queuing offline changes
-- Auth: Anonymous device-bound authentication (no login UI for students)
+- Sync Pattern: Outbox pattern for queuing offline changes, manual sync only
+- Auth: Email/password authentication with Supabase Auth
+- Design System: Custom AppTheme with Indigo primary color scheme
+- Features:
+  - Bottom navigation with Home, Progress, and Settings tabs
+  - Domain cards with mastery progress bars and points display
+  - Skill cards with mastery stars (1-5), streak indicators
+  - Practice sessions with timer, all 5 question types (multiple_choice, mcq_multi, boolean, text_input, reorder_steps)
+  - Quiz results summary with confetti celebration for high scores
+  - Progress dashboard showing total points, best streak, domain breakdown
+  - Session resume dialog on app launch
+  - Offline status indicator in app bar
+  - Connectivity toast notifications
+  - Settings with Large Text accessibility toggle and Dark Mode
+  - Polished animations and responsive layouts
 
 **Admin Panel (React)**
 - Framework: React 18 with TypeScript

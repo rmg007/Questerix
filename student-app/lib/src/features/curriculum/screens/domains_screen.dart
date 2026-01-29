@@ -1,52 +1,42 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:student_app/src/core/connectivity/connectivity_service.dart';
 import 'package:student_app/src/core/sync/sync_service.dart';
-import 'package:student_app/src/features/auth/providers/auth_provider.dart';
+import 'package:student_app/src/core/theme/app_theme.dart';
 import 'package:student_app/src/features/curriculum/repositories/domain_repository.dart';
 import 'package:student_app/src/features/curriculum/screens/skills_screen.dart';
+import 'package:student_app/src/features/progress/repositories/skill_progress_repository.dart';
 
-/// Domains screen - Browse all available learning domains
 class DomainsScreen extends ConsumerWidget {
   const DomainsScreen({super.key});
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final domainsStream = ref.watch(domainRepositoryProvider).watchAllPublished();
-    final currentUser = ref.watch(currentUserProvider);
-    final userName = currentUser?.userMetadata?['full_name'] as String? ?? 
-                     currentUser?.email?.split('@').first ?? 
-                     'Student';
+    final connectivityAsync = ref.watch(connectivityServiceProvider);
+    final syncState = ref.watch(syncServiceProvider);
 
     return Scaffold(
       appBar: AppBar(
-        title: Text('Welcome, $userName'),
-        backgroundColor: Theme.of(context).colorScheme.inversePrimary,
+        title: const Text('Learn'),
+        automaticallyImplyLeading: false,
         actions: [
+          _buildOfflineIndicator(context, connectivityAsync, syncState),
           IconButton(
-            icon: const Icon(Icons.logout),
-            tooltip: 'Sign Out',
-            onPressed: () async {
-              final confirmed = await showDialog<bool>(
-                context: context,
-                builder: (context) => AlertDialog(
-                  title: const Text('Sign Out'),
-                  content: const Text('Are you sure you want to sign out?'),
-                  actions: [
-                    TextButton(
-                      onPressed: () => Navigator.pop(context, false),
-                      child: const Text('Cancel'),
+            icon: syncState.isSyncing
+                ? const SizedBox(
+                    width: 20,
+                    height: 20,
+                    child: CircularProgressIndicator(
+                      strokeWidth: 2,
+                      color: Colors.white,
                     ),
-                    TextButton(
-                      onPressed: () => Navigator.pop(context, true),
-                      child: const Text('Sign Out'),
-                    ),
-                  ],
-                ),
-              );
-              if (confirmed == true) {
-                await ref.read(authServiceProvider).signOut();
-              }
-            },
+                  )
+                : const Icon(Icons.sync),
+            tooltip: 'Sync',
+            onPressed: syncState.isSyncing
+                ? null
+                : () => ref.read(syncServiceProvider.notifier).sync(),
           ),
         ],
       ),
@@ -54,18 +44,49 @@ class DomainsScreen extends ConsumerWidget {
         stream: domainsStream,
         builder: (context, snapshot) {
           if (snapshot.connectionState == ConnectionState.waiting) {
-            return const Center(child: CircularProgressIndicator());
+            return const Center(
+              child: Column(
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: [
+                  CircularProgressIndicator(),
+                  SizedBox(height: 16),
+                  Text('Loading domains...'),
+                ],
+              ),
+            );
           }
 
           if (snapshot.hasError) {
             return Center(
-              child: Column(
-                mainAxisAlignment: MainAxisAlignment.center,
-                children: [
-                  const Icon(Icons.error_outline, size: 48, color: Colors.red),
-                  const SizedBox(height: 16),
-                  Text('Error: ${snapshot.error}'),
-                ],
+              child: Padding(
+                padding: const EdgeInsets.all(24),
+                child: Column(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  children: [
+                    Icon(
+                      Icons.error_outline,
+                      size: 64,
+                      color: AppColors.error,
+                    ),
+                    const SizedBox(height: 16),
+                    Text(
+                      'Something went wrong',
+                      style: Theme.of(context).textTheme.titleLarge,
+                    ),
+                    const SizedBox(height: 8),
+                    Text(
+                      '${snapshot.error}',
+                      style: Theme.of(context).textTheme.bodySmall,
+                      textAlign: TextAlign.center,
+                    ),
+                    const SizedBox(height: 24),
+                    ElevatedButton.icon(
+                      onPressed: () => ref.read(syncServiceProvider.notifier).sync(),
+                      icon: const Icon(Icons.refresh),
+                      label: const Text('Try Again'),
+                    ),
+                  ],
+                ),
               ),
             );
           }
@@ -74,32 +95,50 @@ class DomainsScreen extends ConsumerWidget {
 
           if (domains.isEmpty) {
             return Center(
-              child: Column(
-                mainAxisAlignment: MainAxisAlignment.center,
-                children: [
-                  Icon(
-                    Icons.school_outlined,
-                    size: 64,
-                    color: Colors.grey[400],
-                  ),
-                  const SizedBox(height: 16),
-                  Text(
-                    'No domains available',
-                    style: Theme.of(context).textTheme.titleLarge,
-                  ),
-                  const SizedBox(height: 8),
-                  Text(
-                    'Pull down to refresh',
-                    style: TextStyle(color: Colors.grey[600]),
-                  ),
-                ],
+              child: Padding(
+                padding: const EdgeInsets.all(24),
+                child: Column(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  children: [
+                    Container(
+                      padding: const EdgeInsets.all(24),
+                      decoration: BoxDecoration(
+                        color: AppColors.primary.withOpacity(0.1),
+                        shape: BoxShape.circle,
+                      ),
+                      child: Icon(
+                        Icons.school_outlined,
+                        size: 64,
+                        color: AppColors.primary,
+                      ),
+                    ),
+                    const SizedBox(height: 24),
+                    Text(
+                      'No subjects available yet',
+                      style: Theme.of(context).textTheme.titleLarge,
+                    ),
+                    const SizedBox(height: 8),
+                    Text(
+                      'Pull down to refresh or sync to get the latest content',
+                      style: Theme.of(context).textTheme.bodyMedium?.copyWith(
+                        color: AppColors.textSecondary,
+                      ),
+                      textAlign: TextAlign.center,
+                    ),
+                    const SizedBox(height: 24),
+                    ElevatedButton.icon(
+                      onPressed: () => ref.read(syncServiceProvider.notifier).sync(),
+                      icon: const Icon(Icons.sync),
+                      label: const Text('Sync Now'),
+                    ),
+                  ],
+                ),
               ),
             );
           }
 
           return RefreshIndicator(
             onRefresh: () async {
-              // Trigger sync
               await ref.read(syncServiceProvider.notifier).sync();
             },
             child: ListView.builder(
@@ -107,37 +146,19 @@ class DomainsScreen extends ConsumerWidget {
               itemCount: domains.length,
               itemBuilder: (context, index) {
                 final domain = domains[index];
-                return Card(
-                  margin: const EdgeInsets.only(bottom: 12),
-                  child: ListTile(
-                    leading: CircleAvatar(
-                      backgroundColor: Theme.of(context).colorScheme.primary,
-                      child: const Icon(Icons.category, color: Colors.white),
-                    ),
-                    title: Text(
-                      domain.title,
-                      style: const TextStyle(fontWeight: FontWeight.bold),
-                    ),
-                    subtitle: domain.description != null
-                        ? Text(
-                            domain.description!,
-                            maxLines: 2,
-                            overflow: TextOverflow.ellipsis,
-                          )
-                        : null,
-                    trailing: const Icon(Icons.arrow_forward_ios, size: 16),
-                    onTap: () {
-                      Navigator.push(
-                        context,
-                        MaterialPageRoute(
-                          builder: (context) => SkillsScreen(
-                            domainId: domain.id,
-                            domainTitle: domain.title,
-                          ),
+                return _DomainCard(
+                  domain: domain,
+                  onTap: () {
+                    Navigator.push(
+                      context,
+                      MaterialPageRoute(
+                        builder: (context) => SkillsScreen(
+                          domainId: domain.id,
+                          domainTitle: domain.title,
                         ),
-                      );
-                    },
-                  ),
+                      ),
+                    );
+                  },
                 );
               },
             ),
@@ -145,5 +166,198 @@ class DomainsScreen extends ConsumerWidget {
         },
       ),
     );
+  }
+
+  Widget _buildOfflineIndicator(
+    BuildContext context,
+    AsyncValue<ConnectivityStatus> connectivityAsync,
+    SyncState syncState,
+  ) {
+    return connectivityAsync.when(
+      data: (status) {
+        if (status == ConnectivityStatus.offline) {
+          return Container(
+            margin: const EdgeInsets.only(right: 8),
+            padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
+            decoration: BoxDecoration(
+              color: AppColors.offline.withOpacity(0.2),
+              borderRadius: BorderRadius.circular(16),
+            ),
+            child: const Row(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                Icon(Icons.wifi_off, size: 16, color: Colors.white),
+                SizedBox(width: 4),
+                Text(
+                  'Offline',
+                  style: TextStyle(
+                    fontSize: 12,
+                    fontWeight: FontWeight.w500,
+                    color: Colors.white,
+                  ),
+                ),
+              ],
+            ),
+          );
+        }
+        return const SizedBox.shrink();
+      },
+      loading: () => const SizedBox.shrink(),
+      error: (_, __) => const SizedBox.shrink(),
+    );
+  }
+}
+
+class _DomainCard extends ConsumerWidget {
+  final dynamic domain;
+  final VoidCallback onTap;
+
+  const _DomainCard({
+    required this.domain,
+    required this.onTap,
+  });
+
+  @override
+  Widget build(BuildContext context, WidgetRef ref) {
+    return FutureBuilder<List<int>>(
+      future: Future.wait([
+        ref.read(skillProgressRepositoryProvider).getMasteryForDomain(domain.id),
+        ref.read(skillProgressRepositoryProvider).getPointsForDomain(domain.id),
+      ]),
+      builder: (context, snapshot) {
+        final mastery = snapshot.data?[0] ?? 0;
+        final points = snapshot.data?[1] ?? 0;
+
+        return Card(
+          margin: const EdgeInsets.only(bottom: 12),
+          child: InkWell(
+            onTap: onTap,
+            borderRadius: BorderRadius.circular(16),
+            child: Padding(
+              padding: const EdgeInsets.all(16),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Row(
+                    children: [
+                      Container(
+                        width: 48,
+                        height: 48,
+                        decoration: BoxDecoration(
+                          color: AppColors.primary.withOpacity(0.1),
+                          borderRadius: BorderRadius.circular(12),
+                        ),
+                        child: const Icon(
+                          Icons.menu_book,
+                          color: AppColors.primary,
+                        ),
+                      ),
+                      const SizedBox(width: 12),
+                      Expanded(
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            Text(
+                              domain.title,
+                              style: Theme.of(context).textTheme.titleMedium?.copyWith(
+                                fontWeight: FontWeight.bold,
+                              ),
+                            ),
+                            if (domain.description != null)
+                              Text(
+                                domain.description!,
+                                style: Theme.of(context).textTheme.bodySmall,
+                                maxLines: 1,
+                                overflow: TextOverflow.ellipsis,
+                              ),
+                          ],
+                        ),
+                      ),
+                      const Icon(
+                        Icons.arrow_forward_ios,
+                        size: 16,
+                        color: AppColors.textTertiary,
+                      ),
+                    ],
+                  ),
+                  const SizedBox(height: 16),
+                  Row(
+                    children: [
+                      Expanded(
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            Row(
+                              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                              children: [
+                                Text(
+                                  'Mastery',
+                                  style: Theme.of(context).textTheme.bodySmall,
+                                ),
+                                Text(
+                                  '$mastery%',
+                                  style: Theme.of(context).textTheme.bodySmall?.copyWith(
+                                    fontWeight: FontWeight.bold,
+                                    color: _getMasteryColor(mastery),
+                                  ),
+                                ),
+                              ],
+                            ),
+                            const SizedBox(height: 4),
+                            ClipRRect(
+                              borderRadius: BorderRadius.circular(4),
+                              child: LinearProgressIndicator(
+                                value: mastery / 100,
+                                backgroundColor: AppColors.cardBorder,
+                                valueColor: AlwaysStoppedAnimation(_getMasteryColor(mastery)),
+                                minHeight: 6,
+                              ),
+                            ),
+                          ],
+                        ),
+                      ),
+                      const SizedBox(width: 16),
+                      Container(
+                        padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
+                        decoration: BoxDecoration(
+                          color: AppColors.points.withOpacity(0.1),
+                          borderRadius: BorderRadius.circular(16),
+                        ),
+                        child: Row(
+                          mainAxisSize: MainAxisSize.min,
+                          children: [
+                            Icon(
+                              Icons.star,
+                              size: 16,
+                              color: AppColors.points,
+                            ),
+                            const SizedBox(width: 4),
+                            Text(
+                              '$points pts',
+                              style: TextStyle(
+                                fontSize: 12,
+                                fontWeight: FontWeight.bold,
+                                color: AppColors.points,
+                              ),
+                            ),
+                          ],
+                        ),
+                      ),
+                    ],
+                  ),
+                ],
+              ),
+            ),
+          ),
+        );
+      },
+    );
+  }
+
+  Color _getMasteryColor(int mastery) {
+    if (mastery >= 80) return AppColors.success;
+    if (mastery >= 60) return AppColors.primary;
+    if (mastery >= 40) return AppColors.warning;
+    return AppColors.textTertiary;
   }
 }

@@ -6,7 +6,18 @@ import { useState, useEffect, useMemo } from 'react';
 import { useToast } from '@/components/ui/toast';
 import { Pagination } from '@/components/ui/pagination';
 import { SortableHeader } from '@/components/ui/sortable-header';
+import { DataToolbar } from '@/components/ui/data-toolbar';
+import type { DataColumn } from '@/lib/data-utils';
 import { Plus, CheckSquare, Square, Search, X, Trash, FileText, GripVertical } from 'lucide-react';
+
+const QUESTION_COLUMNS: DataColumn[] = [
+    { key: 'content', header: 'Content' },
+    { key: 'type', header: 'Type' },
+    { key: 'skill_id', header: 'Skill ID' },
+    { key: 'points', header: 'Points' },
+    { key: 'sort_order', header: 'Sort Order' },
+    { key: 'status', header: 'Status' },
+];
 import {
     DndContext,
     closestCenter,
@@ -478,13 +489,22 @@ export function QuestionList() {
                     <h2 className="text-2xl md:text-3xl font-bold text-gray-900">Questions</h2>
                     <p className="mt-1 text-sm md:text-base text-gray-500">Manage curriculum questions</p>
                 </div>
-                <Link
-                    to="/questions/new"
-                    className="inline-flex items-center justify-center gap-2 px-5 py-3 min-h-[48px] bg-gradient-to-r from-purple-600 to-blue-600 hover:from-purple-700 hover:to-blue-700 text-white font-medium rounded-xl transition-all duration-200 shadow-lg hover:shadow-xl w-full sm:w-auto"
-                >
-                    <Plus className="h-5 w-5" />
-                    <span>New Question</span>
-                </Link>
+                <div className="flex flex-col gap-2 sm:flex-row sm:items-center">
+                    <DataToolbar
+                        data={questions as any[]}
+                        columns={QUESTION_COLUMNS}
+                        entityName="Questions"
+                        importDisabled={true}
+                        importDisabledMessage="Question import is not available. Please create questions manually."
+                    />
+                    <Link
+                        to="/questions/new"
+                        className="inline-flex items-center justify-center gap-2 px-5 py-3 min-h-[48px] bg-gradient-to-r from-purple-600 to-blue-600 hover:from-purple-700 hover:to-blue-700 text-white font-medium rounded-xl transition-all duration-200 shadow-lg hover:shadow-xl w-full sm:w-auto"
+                    >
+                        <Plus className="h-5 w-5" />
+                        <span>New Question</span>
+                    </Link>
+                </div>
             </div>
 
             <div className="bg-white rounded-2xl shadow-sm border border-gray-100 p-3 md:p-4">

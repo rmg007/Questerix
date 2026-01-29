@@ -41,7 +41,14 @@ export function exportToJSON<T>(data: T[], filename: string): void {
 
 export function downloadTemplate(columns: DataColumn[], filename: string): void {
   const headers = columns.map((col) => col.header);
-  const exampleRow = columns.map((col) => `example_${col.key}`);
+  const exampleRow = columns.map((col) => {
+    if (col.header.includes('status')) return 'draft';
+    if (col.header.includes('order')) return '1';
+    if (col.header.includes('points')) return '10';
+    if (col.header.includes('level')) return '1';
+    if (col.header.includes('type')) return 'multiple_choice';
+    return `your_${col.header}`;
+  });
   const csvContent = [headers.join(','), exampleRow.join(',')].join('\n');
   downloadFile(csvContent, `${filename}_template.csv`, 'text/csv');
 }

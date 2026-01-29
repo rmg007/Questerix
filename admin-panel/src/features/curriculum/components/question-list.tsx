@@ -11,12 +11,12 @@ import type { DataColumn } from '@/lib/data-utils';
 import { Plus, CheckSquare, Square, Search, X, Trash, FileText, GripVertical } from 'lucide-react';
 
 const QUESTION_COLUMNS: DataColumn[] = [
-    { key: 'content', header: 'Content' },
-    { key: 'type', header: 'Type' },
-    { key: 'skill_id', header: 'Skill ID' },
-    { key: 'points', header: 'Points' },
-    { key: 'sort_order', header: 'Sort Order' },
-    { key: 'status', header: 'Status' },
+    { key: 'content', header: 'content' },
+    { key: 'type', header: 'type' },
+    { key: 'skills', header: 'skill_title', transform: (v: unknown) => (v as { title?: string } | null)?.title ?? '' },
+    { key: 'points', header: 'points' },
+    { key: 'sort_order', header: 'sort_order' },
+    { key: 'status', header: 'status' },
 ];
 import {
     DndContext,

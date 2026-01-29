@@ -164,9 +164,9 @@ export function QuestionForm({ initialData }: QuestionFormProps) {
 
   return (
     <Form {...form}>
-      <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-6 max-w-3xl">
+      <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4 md:space-y-6 w-full max-w-3xl px-1">
         
-        <div className="grid grid-cols-2 gap-4">
+        <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
             <FormField
             control={form.control}
             name="skill_id"
@@ -175,7 +175,7 @@ export function QuestionForm({ initialData }: QuestionFormProps) {
                 <FormLabel>Skill</FormLabel>
                 <Select onValueChange={field.onChange} defaultValue={field.value}>
                     <FormControl>
-                    <SelectTrigger>
+                    <SelectTrigger className="min-h-[48px] text-base">
                         <SelectValue placeholder="Select a skill" />
                     </SelectTrigger>
                     </FormControl>
@@ -200,7 +200,7 @@ export function QuestionForm({ initialData }: QuestionFormProps) {
                 <FormLabel>Question Type</FormLabel>
                 <Select onValueChange={field.onChange} defaultValue={field.value}>
                     <FormControl>
-                    <SelectTrigger>
+                    <SelectTrigger className="min-h-[48px] text-base">
                         <SelectValue placeholder="Select type" />
                     </SelectTrigger>
                     </FormControl>
@@ -273,7 +273,7 @@ export function QuestionForm({ initialData }: QuestionFormProps) {
             </div>
         )}
 
-        <div className="grid grid-cols-2 gap-4">
+        <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
             <FormField
             control={form.control}
             name="points"
@@ -281,7 +281,7 @@ export function QuestionForm({ initialData }: QuestionFormProps) {
                 <FormItem>
                 <FormLabel>Points</FormLabel>
                 <FormControl>
-                    <Input type="number" min={1} {...field} />
+                    <Input type="number" min={1} {...field} className="min-h-[48px] text-base" />
                 </FormControl>
                 <FormMessage />
                 </FormItem>
@@ -296,7 +296,7 @@ export function QuestionForm({ initialData }: QuestionFormProps) {
                     <FormLabel>Status</FormLabel>
                     <Select onValueChange={field.onChange} defaultValue={field.value}>
                         <FormControl>
-                        <SelectTrigger>
+                        <SelectTrigger className="min-h-[48px] text-base">
                             <SelectValue placeholder="Select status" />
                         </SelectTrigger>
                         </FormControl>
@@ -332,11 +332,11 @@ export function QuestionForm({ initialData }: QuestionFormProps) {
           )}
         />
 
-        <div className="flex gap-4">
-          <Button type="button" variant="outline" onClick={() => navigate('/questions')}>
+        <div className="flex flex-col-reverse gap-3 pt-4 sm:flex-row sm:gap-4">
+          <Button type="button" variant="outline" onClick={() => navigate('/questions')} className="w-full sm:w-auto min-h-[48px] px-6">
             Cancel
           </Button>
-          <Button type="submit" disabled={isSubmitting}>
+          <Button type="submit" disabled={isSubmitting} className="w-full sm:w-auto min-h-[48px] px-6">
             {isSubmitting && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
             {initialData ? 'Update Question' : 'Create Question'}
           </Button>

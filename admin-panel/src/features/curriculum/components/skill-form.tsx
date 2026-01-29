@@ -94,7 +94,7 @@ export function SkillForm({ initialData }: SkillFormProps) {
 
   return (
     <Form {...form}>
-      <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-6 max-w-2xl">
+      <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4 md:space-y-6 w-full max-w-2xl px-1">
         
         <FormField
           control={form.control}
@@ -104,7 +104,7 @@ export function SkillForm({ initialData }: SkillFormProps) {
               <FormLabel>Domain</FormLabel>
               <Select onValueChange={field.onChange} defaultValue={field.value}>
                 <FormControl>
-                  <SelectTrigger>
+                  <SelectTrigger className="min-h-[48px] text-base">
                     <SelectValue placeholder="Select a domain" />
                   </SelectTrigger>
                 </FormControl>
@@ -124,7 +124,7 @@ export function SkillForm({ initialData }: SkillFormProps) {
           )}
         />
 
-        <div className="grid grid-cols-2 gap-4">
+        <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
             <FormField
             control={form.control}
             name="title"
@@ -132,7 +132,7 @@ export function SkillForm({ initialData }: SkillFormProps) {
                 <FormItem>
                 <FormLabel>Title</FormLabel>
                 <FormControl>
-                    <Input placeholder="e.g. Addition" {...field} />
+                    <Input placeholder="e.g. Addition" {...field} className="min-h-[48px] text-base" />
                 </FormControl>
                 <FormMessage />
                 </FormItem>
@@ -146,7 +146,7 @@ export function SkillForm({ initialData }: SkillFormProps) {
                 <FormItem>
                 <FormLabel>Slug</FormLabel>
                 <FormControl>
-                    <Input placeholder="e.g. addition" {...field} />
+                    <Input placeholder="e.g. addition" {...field} className="min-h-[48px] text-base" />
                 </FormControl>
                 <FormDescription>
                     Unique identifier (URL-safe).
@@ -166,7 +166,7 @@ export function SkillForm({ initialData }: SkillFormProps) {
               <FormControl>
                 <Textarea 
                   placeholder="Describe this skill..." 
-                  className="resize-none" 
+                  className="resize-none min-h-[100px] text-base" 
                   {...field} 
                 />
               </FormControl>
@@ -175,7 +175,7 @@ export function SkillForm({ initialData }: SkillFormProps) {
           )}
         />
 
-        <div className="grid grid-cols-2 gap-4">
+        <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
              <FormField
                 control={form.control}
                 name="difficulty_level"
@@ -183,7 +183,7 @@ export function SkillForm({ initialData }: SkillFormProps) {
                     <FormItem>
                     <FormLabel>Difficulty Level (1-5)</FormLabel>
                     <FormControl>
-                        <Input type="number" min={1} max={5} {...field} />
+                        <Input type="number" min={1} max={5} {...field} className="min-h-[48px] text-base" />
                     </FormControl>
                     <FormMessage />
                     </FormItem>
@@ -197,7 +197,7 @@ export function SkillForm({ initialData }: SkillFormProps) {
                 <FormItem>
                 <FormLabel>Sort Order</FormLabel>
                 <FormControl>
-                    <Input type="number" {...field} />
+                    <Input type="number" {...field} className="min-h-[48px] text-base" />
                 </FormControl>
                 <FormDescription>
                     Order in which this appears in lists.
@@ -216,7 +216,7 @@ export function SkillForm({ initialData }: SkillFormProps) {
               <FormLabel>Status</FormLabel>
               <Select onValueChange={field.onChange} defaultValue={field.value}>
                 <FormControl>
-                  <SelectTrigger>
+                  <SelectTrigger className="min-h-[48px] text-base">
                     <SelectValue placeholder="Select status" />
                   </SelectTrigger>
                 </FormControl>
@@ -236,11 +236,11 @@ export function SkillForm({ initialData }: SkillFormProps) {
           )}
         />
 
-        <div className="flex gap-4">
-          <Button type="button" variant="outline" onClick={() => navigate('/skills')}>
+        <div className="flex flex-col-reverse gap-3 pt-4 sm:flex-row sm:gap-4">
+          <Button type="button" variant="outline" onClick={() => navigate('/skills')} className="w-full sm:w-auto min-h-[48px] px-6">
             Cancel
           </Button>
-          <Button type="submit" disabled={isSubmitting}>
+          <Button type="submit" disabled={isSubmitting} className="w-full sm:w-auto min-h-[48px] px-6">
             {isSubmitting && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
             {initialData ? 'Update Skill' : 'Create Skill'}
           </Button>

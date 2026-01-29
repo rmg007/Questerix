@@ -121,6 +121,83 @@ function SortableRow({ domain, isSelected, onSelect, onDelete, renderStatusBadge
   )
 }
 
+function SortableCard({ domain, isSelected, onSelect, onDelete, renderStatusBadge, isDragDisabled }: SortableRowProps) {
+  const {
+    attributes,
+    listeners,
+    setNodeRef,
+    transform,
+    transition,
+    isDragging,
+  } = useSortable({ id: domain.id, disabled: isDragDisabled })
+
+  const style = {
+    transform: CSS.Transform.toString(transform),
+    transition,
+    opacity: isDragging ? 0.5 : 1,
+    boxShadow: isDragging ? '0 8px 16px rgba(0, 0, 0, 0.15)' : undefined,
+    position: 'relative' as const,
+    zIndex: isDragging ? 10 : undefined,
+  }
+
+  return (
+    <div
+      ref={setNodeRef}
+      style={style}
+      className={`bg-white rounded-xl border ${isSelected ? 'border-purple-300 bg-purple-50' : 'border-gray-200'} p-4 space-y-3 transition-colors`}
+    >
+      <div className="flex items-start gap-3">
+        {!isDragDisabled ? (
+          <button
+            {...attributes}
+            {...listeners}
+            className="p-2 text-gray-400 hover:text-gray-600 cursor-grab active:cursor-grabbing touch-none flex-shrink-0"
+            aria-label="Drag to reorder"
+          >
+            <GripVertical className="h-5 w-5" />
+          </button>
+        ) : (
+          <div className="p-2 text-gray-200 flex-shrink-0">
+            <GripVertical className="h-5 w-5" />
+          </div>
+        )}
+        <button
+          onClick={() => onSelect(domain.id)}
+          className="p-2 text-gray-400 hover:text-gray-600 flex-shrink-0"
+        >
+          {isSelected ? <CheckSquare className="h-5 w-5 text-purple-600" /> : <Square className="h-5 w-5" />}
+        </button>
+        <div className="flex-1 min-w-0">
+          <div className="flex items-center gap-2 mb-1">
+            <span className="inline-flex items-center justify-center w-7 h-7 rounded-lg bg-purple-100 text-purple-700 font-semibold text-xs flex-shrink-0">
+              {domain.sort_order}
+            </span>
+            <h3 className="font-medium text-gray-900 truncate">{domain.title}</h3>
+          </div>
+          <code className="px-2 py-0.5 bg-gray-100 rounded text-xs text-gray-600">{domain.slug}</code>
+        </div>
+        <div className="flex-shrink-0">
+          {renderStatusBadge((domain as any).status || 'draft')}
+        </div>
+      </div>
+      <div className="flex items-center justify-end gap-2 pt-2 border-t border-gray-100">
+        <Link
+          to={`/domains/${domain.id}/edit`}
+          className="px-4 py-2 bg-blue-100 text-blue-700 rounded-full text-sm font-medium hover:bg-blue-200 transition-colors"
+        >
+          Edit
+        </Link>
+        <button
+          onClick={() => onDelete(domain.id)}
+          className="px-4 py-2 bg-red-100 text-red-700 rounded-full text-sm font-medium hover:bg-red-200 transition-colors"
+        >
+          Delete
+        </button>
+      </div>
+    </div>
+  )
+}
+
 export function DomainList() {
   const [selectedIds, setSelectedIds] = useState<Set<string>>(new Set())
   const [statusFilter, setStatusFilter] = useState<'all' | 'draft' | 'live'>('all')
@@ -341,52 +418,52 @@ export function DomainList() {
   const isAllSelected = domains.length ? selectedIds.size === domains.length : false
 
   return (
-    <div className="space-y-6">
-      <div className="flex items-center justify-between">
+    <div className="space-y-4 md:space-y-6">
+      <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
         <div>
-          <h2 className="text-3xl font-bold text-gray-900">Domains</h2>
-          <p className="mt-1 text-gray-500">Manage curriculum domains</p>
+          <h2 className="text-2xl md:text-3xl font-bold text-gray-900">Domains</h2>
+          <p className="mt-1 text-sm md:text-base text-gray-500">Manage curriculum domains</p>
         </div>
         <Link
           to="/domains/new"
-          className="inline-flex items-center gap-2 px-5 py-3 bg-gradient-to-r from-purple-600 to-blue-600 hover:from-purple-700 hover:to-blue-700 text-white font-medium rounded-xl transition-all duration-200 shadow-lg hover:shadow-xl"
+          className="inline-flex items-center justify-center gap-2 px-5 py-3 min-h-[48px] bg-gradient-to-r from-purple-600 to-blue-600 hover:from-purple-700 hover:to-blue-700 text-white font-medium rounded-xl transition-all duration-200 shadow-lg hover:shadow-xl w-full sm:w-auto"
         >
           <Plus className="h-5 w-5" />
-          New Domain
+          <span>New Domain</span>
         </Link>
       </div>
 
-      <div className="bg-white rounded-2xl shadow-sm border border-gray-100 p-4">
-        <div className="space-y-4 mb-4">
-          <div className="flex items-center gap-3">
-            <div className="relative flex-1 max-w-md">
+      <div className="bg-white rounded-2xl shadow-sm border border-gray-100 p-3 md:p-4">
+        <div className="space-y-3 md:space-y-4 mb-4">
+          <div className="flex flex-col gap-3 sm:flex-row sm:items-center">
+            <div className="relative flex-1">
               <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-5 w-5 text-gray-400" />
               <input
                 type="text"
                 placeholder="Search domains..."
                 value={searchQuery}
                 onChange={(e) => setSearchQuery(e.target.value)}
-                className="w-full pl-10 pr-4 py-2 rounded-lg border border-gray-200 bg-white text-gray-700 focus:border-purple-500 focus:ring-2 focus:ring-purple-200 transition-colors"
+                className="w-full pl-10 pr-4 py-3 min-h-[48px] rounded-lg border border-gray-200 bg-white text-gray-700 focus:border-purple-500 focus:ring-2 focus:ring-purple-200 transition-colors text-base"
               />
             </div>
             {hasActiveFilters && (
               <button
                 onClick={clearFilters}
-                className="inline-flex items-center gap-1 px-3 py-2 text-sm font-medium text-gray-600 hover:text-gray-700 hover:bg-gray-100 rounded-lg transition-colors"
+                className="inline-flex items-center justify-center gap-1 px-4 py-3 min-h-[48px] text-sm font-medium text-gray-600 hover:text-gray-700 hover:bg-gray-100 rounded-lg transition-colors"
               >
                 <X className="h-4 w-4" />
-                Clear filters
+                <span>Clear filters</span>
               </button>
             )}
           </div>
 
-          <div className="flex flex-wrap items-center gap-3">
-            <div className="flex items-center gap-2">
+          <div className="flex flex-col gap-3 sm:flex-row sm:flex-wrap sm:items-center">
+            <div className="flex flex-col gap-1 sm:flex-row sm:items-center sm:gap-2 w-full sm:w-auto">
               <label className="text-sm font-medium text-gray-600">Status:</label>
               <select
                 value={statusFilter}
                 onChange={(e) => setStatusFilter(e.target.value as 'all' | 'draft' | 'live')}
-                className="px-3 py-2 rounded-lg border border-gray-200 bg-white text-gray-700 focus:border-purple-500 focus:ring-2 focus:ring-purple-200 transition-colors text-sm"
+                className="px-3 py-3 min-h-[48px] rounded-lg border border-gray-200 bg-white text-gray-700 focus:border-purple-500 focus:ring-2 focus:ring-purple-200 transition-colors text-base w-full sm:w-auto"
               >
                 <option value="all">All Status</option>
                 <option value="draft">Draft</option>
@@ -395,35 +472,35 @@ export function DomainList() {
             </div>
 
             {isDragDisabled && sortBy === 'sort_order' && (
-              <span className="text-sm text-amber-600 bg-amber-50 px-3 py-1 rounded-lg">
+              <span className="text-xs md:text-sm text-amber-600 bg-amber-50 px-3 py-2 rounded-lg">
                 Clear filters to enable drag reordering
               </span>
             )}
 
             {selectedIds.size > 0 && (
-              <div className="flex items-center gap-2 ml-auto">
-                <span className="text-sm text-gray-600">{selectedIds.size} selected</span>
+              <div className="flex flex-wrap items-center gap-2 sm:ml-auto">
+                <span className="text-sm text-gray-600 w-full sm:w-auto">{selectedIds.size} selected</span>
                 <button
                   onClick={handleMarkLive}
                   disabled={bulkUpdateStatus.isPending}
-                  className="inline-flex items-center gap-1 px-3 py-2 text-sm font-medium text-green-600 hover:text-green-700 hover:bg-green-50 rounded-lg transition-colors"
+                  className="inline-flex items-center justify-center gap-1 px-4 py-3 min-h-[48px] text-sm font-medium text-green-600 hover:text-green-700 hover:bg-green-50 rounded-lg transition-colors flex-1 sm:flex-none"
                 >
                   Mark Live
                 </button>
                 <button
                   onClick={handleMarkDraft}
                   disabled={bulkUpdateStatus.isPending}
-                  className="inline-flex items-center gap-1 px-3 py-2 text-sm font-medium text-gray-600 hover:text-gray-700 hover:bg-gray-100 rounded-lg transition-colors"
+                  className="inline-flex items-center justify-center gap-1 px-4 py-3 min-h-[48px] text-sm font-medium text-gray-600 hover:text-gray-700 hover:bg-gray-100 rounded-lg transition-colors flex-1 sm:flex-none"
                 >
                   Mark Draft
                 </button>
                 <button
                   onClick={handleBulkDelete}
                   disabled={bulkDelete.isPending}
-                  className="inline-flex items-center gap-1 px-3 py-2 text-sm font-medium text-red-600 hover:text-red-700 hover:bg-red-50 rounded-lg transition-colors"
+                  className="inline-flex items-center justify-center gap-1 px-4 py-3 min-h-[48px] text-sm font-medium text-red-600 hover:text-red-700 hover:bg-red-50 rounded-lg transition-colors flex-1 sm:flex-none"
                 >
                   <Trash className="h-4 w-4" />
-                  Delete
+                  <span>Delete</span>
                 </button>
               </div>
             )}
@@ -436,7 +513,8 @@ export function DomainList() {
           collisionDetection={closestCenter}
           onDragEnd={handleDragEnd}
         >
-          <div className="overflow-hidden rounded-xl border border-gray-100">
+          {/* Desktop Table View */}
+          <div className="hidden md:block overflow-hidden rounded-xl border border-gray-100">
             <table className="w-full">
               <thead>
                 <tr className="bg-gray-50 border-b border-gray-100">
@@ -535,6 +613,55 @@ export function DomainList() {
                 </tbody>
               </SortableContext>
             </table>
+          </div>
+
+          {/* Mobile Card View */}
+          <div className="md:hidden">
+            <SortableContext items={domainIds} strategy={verticalListSortingStrategy}>
+              {!domains.length ? (
+                <div className="rounded-xl border border-gray-100 p-8 text-center">
+                  <div className="flex flex-col items-center">
+                    <div className="flex items-center justify-center w-16 h-16 rounded-full bg-gray-100 mb-4">
+                      <Book className="w-8 h-8 text-gray-400" />
+                    </div>
+                    <p className="text-gray-500 mb-4">
+                      {hasActiveFilters ? 'No domains match your filters.' : 'No domains found. Create one to get started.'}
+                    </p>
+                    {hasActiveFilters ? (
+                      <button
+                        onClick={clearFilters}
+                        className="inline-flex items-center gap-2 px-4 py-2 bg-gray-100 hover:bg-gray-200 text-gray-700 font-medium rounded-lg transition-colors"
+                      >
+                        <X className="h-4 w-4" />
+                        Clear filters
+                      </button>
+                    ) : (
+                      <Link
+                        to="/domains/new"
+                        className="inline-flex items-center gap-2 px-4 py-2 bg-purple-600 hover:bg-purple-700 text-white font-medium rounded-lg transition-colors"
+                      >
+                        <Plus className="h-4 w-4" />
+                        Create Domain
+                      </Link>
+                    )}
+                  </div>
+                </div>
+              ) : (
+                <div className="space-y-3">
+                  {domains.map((domain) => (
+                    <SortableCard
+                      key={domain.id}
+                      domain={domain}
+                      isSelected={selectedIds.has(domain.id)}
+                      onSelect={handleSelectOne}
+                      onDelete={handleDelete}
+                      renderStatusBadge={renderStatusBadge}
+                      isDragDisabled={isDragDisabled}
+                    />
+                  ))}
+                </div>
+              )}
+            </SortableContext>
           </div>
         </DndContext>
 

@@ -123,10 +123,15 @@ class _PracticeScreenState extends ConsumerState<PracticeScreen> {
     final solution = jsonDecode(question.solution) as Map<String, dynamic>;
     final isCorrect = _checkAnswer(question.type, _selectedAnswer!, solution);
 
+    int scoreAwarded = 0;
     if (isCorrect) {
       _correctCount++;
       _currentStreak++;
-      _totalScore += question.points;
+      
+      final multiplier = _getStreakMultiplier(_currentStreak);
+      scoreAwarded = (question.points * multiplier).round();
+      _totalScore += scoreAwarded;
+      
       if (_currentStreak > _longestStreak) {
         _longestStreak = _currentStreak;
       }
@@ -138,7 +143,7 @@ class _PracticeScreenState extends ConsumerState<PracticeScreen> {
           questionId: question.id,
           response: _selectedAnswer!,
           isCorrect: isCorrect,
-          scoreAwarded: isCorrect ? question.points : 0,
+          scoreAwarded: scoreAwarded,
           timeSpentMs: timeSpentMs,
         );
 
@@ -146,7 +151,7 @@ class _PracticeScreenState extends ConsumerState<PracticeScreen> {
       await ref.read(skillProgressRepositoryProvider).recordAttempt(
             skillId: widget.skillId,
             isCorrect: isCorrect,
-            pointsEarned: isCorrect ? question.points : 0,
+            pointsEarned: scoreAwarded,
           );
     } catch (e) {
       debugPrint('Failed to record skill progress: $e');
@@ -203,6 +208,12 @@ class _PracticeScreenState extends ConsumerState<PracticeScreen> {
       default:
         return false;
     }
+  }
+
+  double _getStreakMultiplier(int streak) {
+    if (streak >= 5) return 2.0;
+    if (streak >= 3) return 1.5;
+    return 1.0;
   }
 
   Future<void> _nextQuestion() async {

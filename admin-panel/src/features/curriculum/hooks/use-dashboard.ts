@@ -14,6 +14,7 @@ interface DashboardStats {
   draftQuestions: number;
   currentVersion: number;
   lastPublishedAt: string | null;
+  readyToPublish: number;
 }
 
 interface RecentActivity {
@@ -56,6 +57,8 @@ export function useDashboardStats() {
       if (skillsResult.error) throw skillsResult.error;
       if (questionsResult.error) throw questionsResult.error;
 
+      const draftCount = (draftDomainsResult.count ?? 0) + (draftSkillsResult.count ?? 0) + (draftQuestionsResult.count ?? 0);
+      
       return {
         totalDomains: domainsResult.count ?? 0,
         totalSkills: skillsResult.count ?? 0,
@@ -68,6 +71,7 @@ export function useDashboardStats() {
         draftQuestions: draftQuestionsResult.count ?? 0,
         currentVersion: (metaResult.data as any)?.version ?? 0,
         lastPublishedAt: (metaResult.data as any)?.last_published_at ?? null,
+        readyToPublish: draftCount,
       };
     },
     refetchInterval: 60000,

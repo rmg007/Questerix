@@ -6,7 +6,18 @@ import { useState, useEffect, useMemo } from 'react';
 import { useToast } from '@/components/ui/toast';
 import { Pagination } from '@/components/ui/pagination';
 import { SortableHeader } from '@/components/ui/sortable-header';
+import { DataToolbar } from '@/components/ui/data-toolbar';
+import type { DataColumn } from '@/lib/data-utils';
 import { Plus, CheckSquare, Square, Search, X, Trash, Layers, GripVertical } from 'lucide-react';
+
+const SKILL_COLUMNS: DataColumn[] = [
+    { key: 'title', header: 'Title' },
+    { key: 'slug', header: 'Slug' },
+    { key: 'domain_id', header: 'Domain ID' },
+    { key: 'difficulty_level', header: 'Difficulty Level' },
+    { key: 'sort_order', header: 'Sort Order' },
+    { key: 'status', header: 'Status' },
+];
 import {
     DndContext,
     closestCenter,
@@ -477,13 +488,22 @@ export function SkillList() {
                     <h2 className="text-2xl md:text-3xl font-bold text-gray-900">Skills</h2>
                     <p className="mt-1 text-sm md:text-base text-gray-500">Manage learning skills</p>
                 </div>
-                <Link
-                    to="/skills/new"
-                    className="inline-flex items-center justify-center gap-2 px-5 py-3 min-h-[48px] bg-gradient-to-r from-purple-600 to-blue-600 hover:from-purple-700 hover:to-blue-700 text-white font-medium rounded-xl transition-all duration-200 shadow-lg hover:shadow-xl w-full sm:w-auto"
-                >
-                    <Plus className="h-5 w-5" />
-                    <span>New Skill</span>
-                </Link>
+                <div className="flex flex-col gap-2 sm:flex-row sm:items-center">
+                    <DataToolbar
+                        data={skills as any[]}
+                        columns={SKILL_COLUMNS}
+                        entityName="Skills"
+                        importDisabled={true}
+                        importDisabledMessage="Skill import is not available. Please create skills manually."
+                    />
+                    <Link
+                        to="/skills/new"
+                        className="inline-flex items-center justify-center gap-2 px-5 py-3 min-h-[48px] bg-gradient-to-r from-purple-600 to-blue-600 hover:from-purple-700 hover:to-blue-700 text-white font-medium rounded-xl transition-all duration-200 shadow-lg hover:shadow-xl w-full sm:w-auto"
+                    >
+                        <Plus className="h-5 w-5" />
+                        <span>New Skill</span>
+                    </Link>
+                </div>
             </div>
 
             <div className="bg-white rounded-2xl shadow-sm border border-gray-100 p-3 md:p-4">

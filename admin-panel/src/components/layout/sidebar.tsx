@@ -1,8 +1,14 @@
 import { Link, useLocation, useNavigate } from 'react-router-dom'
-import { LayoutDashboard, Book, Layers, FileText, Upload, LogOut, Settings, Key, History, Users } from 'lucide-react'
+import { LayoutDashboard, Book, Layers, FileText, Upload, LogOut, Settings, Key, History, Users, X } from 'lucide-react'
 import { cn } from '@/lib/utils'
 import { supabase } from '@/lib/supabase'
 import { useState, useEffect } from 'react'
+
+interface SidebarProps {
+  isOpen?: boolean
+  onClose?: () => void
+  isMobile?: boolean
+}
 
 const baseNavigation = [
   { name: 'Dashboard', href: '/', icon: LayoutDashboard },
@@ -28,11 +34,17 @@ interface UserInfo {
   role: string
 }
 
-export function Sidebar() {
+export function Sidebar({ isOpen = true, onClose, isMobile = false }: SidebarProps) {
   const location = useLocation()
   const navigate = useNavigate()
   const [isSuperAdmin, setIsSuperAdmin] = useState(false)
   const [userInfo, setUserInfo] = useState<UserInfo | null>(null)
+
+  const handleNavClick = () => {
+    if (isMobile && onClose) {
+      onClose()
+    }
+  }
 
   useEffect(() => {
     const checkRole = async () => {
@@ -78,9 +90,16 @@ export function Sidebar() {
   }
 
   return (
-    <div className="flex w-72 flex-col bg-gradient-to-b from-slate-900 via-purple-900 to-slate-900 h-screen">
+    <div 
+      className={cn(
+        "flex w-72 flex-col bg-gradient-to-b from-slate-900 via-purple-900 to-slate-900 h-screen",
+        isMobile && "fixed inset-y-0 left-0 z-50 transform transition-transform duration-300 ease-in-out",
+        isMobile && !isOpen && "-translate-x-full",
+        isMobile && isOpen && "translate-x-0"
+      )}
+    >
       <div className="flex h-20 items-center px-6 border-b border-white/10">
-        <div className="flex items-center gap-3">
+        <div className="flex items-center gap-3 flex-1">
           <div className="flex items-center justify-center w-10 h-10 rounded-xl bg-gradient-to-r from-purple-500 to-blue-500">
             <svg className="w-5 h-5 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 7h6m0 10v-3m-3 3h.01M9 17h.01M9 14h.01M12 14h.01M15 11h.01M12 11h.01M9 11h.01M7 21h10a2 2 0 002-2V5a2 2 0 00-2-2H7a2 2 0 00-2 2v14a2 2 0 002 2z" />
@@ -91,6 +110,15 @@ export function Sidebar() {
             <p className="text-xs text-purple-300">Admin Panel</p>
           </div>
         </div>
+        {isMobile && onClose && (
+          <button
+            onClick={onClose}
+            className="p-2 rounded-lg text-purple-200 hover:bg-white/10 hover:text-white transition-colors"
+            aria-label="Close sidebar"
+          >
+            <X className="h-5 w-5" />
+          </button>
+        )}
       </div>
       
       <nav className="flex-1 px-4 py-6 space-y-2">
@@ -101,6 +129,7 @@ export function Sidebar() {
             <Link
               key={item.name}
               to={item.href}
+              onClick={handleNavClick}
               className={cn(
                 "flex items-center gap-3 rounded-xl px-4 py-3 text-sm font-medium transition-all duration-200",
                 isActive 

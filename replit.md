@@ -82,14 +82,19 @@ Core entities follow a curriculum hierarchy:
 - **Sessions** - Practice session tracking
 - **Skill Progress** - Aggregated mastery levels
 
-#### Status System (2-status simplified model)
-- Content uses a 2-status system: **draft** or **live**
-- **draft**: Content is not visible to students
-- **live**: Content is visible to students
+#### Status System (3-status workflow)
+- Content uses a 3-status system: **draft**, **published**, or **live**
+- **draft**: Content being worked on (not visible to students)
+- **published**: Content staged and ready for next release (not yet visible to students)
+- **live**: Content active and visible to students
+- Workflow:
+  1. Create/edit content in "draft" status
+  2. Mark content as "published" when ready for release
+  3. Admin clicks "Publish Curriculum" to transition all "published" → "live"
 - Status cascades automatically downward:
   - Changing a domain's status cascades to all its skills and their questions
   - Changing a skill's status cascades to all its questions
-- The `is_published` field syncs automatically with status via database triggers
+- The `is_published` field syncs automatically with status via database triggers (live = is_published: true)
 
 Sync infrastructure:
 - **Outbox** - Client-side pending operations queue

@@ -9,6 +9,9 @@ interface DashboardStats {
   liveDomains: number;
   liveSkills: number;
   liveQuestions: number;
+  publishedDomains: number;
+  publishedSkills: number;
+  publishedQuestions: number;
   draftDomains: number;
   draftSkills: number;
   draftQuestions: number;
@@ -32,23 +35,29 @@ export function useDashboardStats() {
       const [
         domainsResult,
         liveDomainsResult,
+        publishedDomainsResult,
         draftDomainsResult,
         skillsResult,
         liveSkillsResult,
+        publishedSkillsResult,
         draftSkillsResult,
         questionsResult,
         liveQuestionsResult,
+        publishedQuestionsResult,
         draftQuestionsResult,
         metaResult,
       ] = await Promise.all([
         supabase.from('domains').select('*', { count: 'exact', head: true }).is('deleted_at', null),
         supabase.from('domains').select('*', { count: 'exact', head: true }).is('deleted_at', null).eq('status', 'live'),
+        supabase.from('domains').select('*', { count: 'exact', head: true }).is('deleted_at', null).eq('status', 'published'),
         supabase.from('domains').select('*', { count: 'exact', head: true }).is('deleted_at', null).eq('status', 'draft'),
         supabase.from('skills').select('*', { count: 'exact', head: true }).is('deleted_at', null),
         supabase.from('skills').select('*', { count: 'exact', head: true }).is('deleted_at', null).eq('status', 'live'),
+        supabase.from('skills').select('*', { count: 'exact', head: true }).is('deleted_at', null).eq('status', 'published'),
         supabase.from('skills').select('*', { count: 'exact', head: true }).is('deleted_at', null).eq('status', 'draft'),
         supabase.from('questions').select('*', { count: 'exact', head: true }).is('deleted_at', null),
         supabase.from('questions').select('*', { count: 'exact', head: true }).is('deleted_at', null).eq('status', 'live'),
+        supabase.from('questions').select('*', { count: 'exact', head: true }).is('deleted_at', null).eq('status', 'published'),
         supabase.from('questions').select('*', { count: 'exact', head: true }).is('deleted_at', null).eq('status', 'draft'),
         supabase.from('curriculum_meta').select('version, last_published_at').eq('id', 'singleton').single(),
       ]);
@@ -57,7 +66,7 @@ export function useDashboardStats() {
       if (skillsResult.error) throw skillsResult.error;
       if (questionsResult.error) throw questionsResult.error;
 
-      const draftCount = (draftDomainsResult.count ?? 0) + (draftSkillsResult.count ?? 0) + (draftQuestionsResult.count ?? 0);
+      const publishedCount = (publishedDomainsResult.count ?? 0) + (publishedSkillsResult.count ?? 0) + (publishedQuestionsResult.count ?? 0);
       
       return {
         totalDomains: domainsResult.count ?? 0,
@@ -66,12 +75,15 @@ export function useDashboardStats() {
         liveDomains: liveDomainsResult.count ?? 0,
         liveSkills: liveSkillsResult.count ?? 0,
         liveQuestions: liveQuestionsResult.count ?? 0,
+        publishedDomains: publishedDomainsResult.count ?? 0,
+        publishedSkills: publishedSkillsResult.count ?? 0,
+        publishedQuestions: publishedQuestionsResult.count ?? 0,
         draftDomains: draftDomainsResult.count ?? 0,
         draftSkills: draftSkillsResult.count ?? 0,
         draftQuestions: draftQuestionsResult.count ?? 0,
         currentVersion: (metaResult.data as any)?.version ?? 0,
         lastPublishedAt: (metaResult.data as any)?.last_published_at ?? null,
-        readyToPublish: draftCount,
+        readyToPublish: publishedCount,
       };
     },
     refetchInterval: 60000,

@@ -149,6 +149,105 @@ function SortableRow({ question, isSelected, onSelect, onDelete, onDuplicate, re
     );
 }
 
+function SortableCard({ question, isSelected, onSelect, onDelete, onDuplicate, renderStatusBadge, isDragDisabled, isDuplicating }: SortableRowProps) {
+    const {
+        attributes,
+        listeners,
+        setNodeRef,
+        transform,
+        transition,
+        isDragging,
+    } = useSortable({ id: question.id, disabled: isDragDisabled });
+
+    const style = {
+        transform: CSS.Transform.toString(transform),
+        transition,
+        opacity: isDragging ? 0.5 : 1,
+        boxShadow: isDragging ? '0 8px 16px rgba(0, 0, 0, 0.15)' : undefined,
+        position: 'relative' as const,
+        zIndex: isDragging ? 10 : undefined,
+    };
+
+    return (
+        <div
+            ref={setNodeRef}
+            style={style}
+            className={`bg-white rounded-xl border ${isSelected ? 'border-purple-300 bg-purple-50' : 'border-gray-200'} p-4 space-y-3 transition-colors`}
+        >
+            <div className="flex items-start gap-3">
+                {!isDragDisabled ? (
+                    <button
+                        {...attributes}
+                        {...listeners}
+                        className="p-2 text-gray-400 hover:text-gray-600 cursor-grab active:cursor-grabbing touch-none flex-shrink-0"
+                        aria-label="Drag to reorder"
+                    >
+                        <GripVertical className="h-5 w-5" />
+                    </button>
+                ) : (
+                    <div className="p-2 text-gray-200 flex-shrink-0">
+                        <GripVertical className="h-5 w-5" />
+                    </div>
+                )}
+                <button
+                    onClick={() => onSelect(question.id)}
+                    className="p-2 text-gray-400 hover:text-gray-600 flex-shrink-0"
+                >
+                    {isSelected ? <CheckSquare className="h-5 w-5 text-purple-600" /> : <Square className="h-5 w-5" />}
+                </button>
+                <div className="flex-1 min-w-0">
+                    <p className="font-medium text-gray-900 line-clamp-2">{question.content}</p>
+                </div>
+                <div className="flex-shrink-0">
+                    {renderStatusBadge(question.status || 'draft')}
+                </div>
+            </div>
+            <div className="flex flex-wrap items-center gap-2 text-sm">
+                <span className="px-2 py-1 bg-blue-100 text-blue-700 rounded-full text-xs font-medium capitalize">
+                    {question.type}
+                </span>
+                {question.skills?.title && (
+                    <span className="text-gray-600 text-xs">
+                        Skill: <span className="font-medium">{question.skills.title}</span>
+                    </span>
+                )}
+                <span className="inline-flex items-center gap-1 text-gray-600">
+                    <span className="text-xs">Points:</span>
+                    <span className="inline-flex items-center justify-center w-6 h-6 rounded bg-orange-100 text-orange-700 font-semibold text-xs">
+                        {question.points}
+                    </span>
+                </span>
+                {!question.skills && (
+                    <span className="px-2 py-1 bg-orange-100 text-orange-700 rounded-full text-xs font-medium">
+                        Orphan
+                    </span>
+                )}
+            </div>
+            <div className="flex items-center justify-end gap-2 pt-2 border-t border-gray-100">
+                <Link
+                    to={`/questions/${question.id}/edit`}
+                    className="px-4 py-2 bg-blue-100 text-blue-700 rounded-full text-sm font-medium hover:bg-blue-200 transition-colors"
+                >
+                    Edit
+                </Link>
+                <button
+                    onClick={() => onDuplicate(question.id)}
+                    disabled={isDuplicating}
+                    className="px-4 py-2 bg-purple-100 text-purple-700 rounded-full text-sm font-medium hover:bg-purple-200 transition-colors disabled:opacity-50"
+                >
+                    Duplicate
+                </button>
+                <button
+                    onClick={() => onDelete(question.id)}
+                    className="px-4 py-2 bg-red-100 text-red-700 rounded-full text-sm font-medium hover:bg-red-200 transition-colors"
+                >
+                    Delete
+                </button>
+            </div>
+        </div>
+    );
+}
+
 export function QuestionList() {
     const [selectedSkillId, setSelectedSkillId] = useState<string>('all');
     const [statusFilter, setStatusFilter] = useState<'all' | 'draft' | 'live'>('all');
@@ -373,52 +472,52 @@ export function QuestionList() {
     }
 
     return (
-        <div className="space-y-6">
-            <div className="flex items-center justify-between">
+        <div className="space-y-4 md:space-y-6">
+            <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
                 <div>
-                    <h2 className="text-3xl font-bold text-gray-900">Questions</h2>
-                    <p className="mt-1 text-gray-500">Manage curriculum questions</p>
+                    <h2 className="text-2xl md:text-3xl font-bold text-gray-900">Questions</h2>
+                    <p className="mt-1 text-sm md:text-base text-gray-500">Manage curriculum questions</p>
                 </div>
                 <Link
                     to="/questions/new"
-                    className="inline-flex items-center gap-2 px-5 py-3 bg-gradient-to-r from-purple-600 to-blue-600 hover:from-purple-700 hover:to-blue-700 text-white font-medium rounded-xl transition-all duration-200 shadow-lg hover:shadow-xl"
+                    className="inline-flex items-center justify-center gap-2 px-5 py-3 min-h-[48px] bg-gradient-to-r from-purple-600 to-blue-600 hover:from-purple-700 hover:to-blue-700 text-white font-medium rounded-xl transition-all duration-200 shadow-lg hover:shadow-xl w-full sm:w-auto"
                 >
                     <Plus className="h-5 w-5" />
-                    New Question
+                    <span>New Question</span>
                 </Link>
             </div>
 
-            <div className="bg-white rounded-2xl shadow-sm border border-gray-100 p-4">
-                <div className="space-y-4 mb-4">
-                    <div className="flex items-center gap-3">
-                        <div className="relative flex-1 max-w-md">
+            <div className="bg-white rounded-2xl shadow-sm border border-gray-100 p-3 md:p-4">
+                <div className="space-y-3 md:space-y-4 mb-4">
+                    <div className="flex flex-col gap-3 sm:flex-row sm:items-center">
+                        <div className="relative flex-1">
                             <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-5 w-5 text-gray-400" />
                             <input
                                 type="text"
                                 placeholder="Search questions..."
                                 value={searchQuery}
                                 onChange={(e) => setSearchQuery(e.target.value)}
-                                className="w-full pl-10 pr-4 py-2 rounded-lg border border-gray-200 bg-white text-gray-700 focus:border-purple-500 focus:ring-2 focus:ring-purple-200 transition-colors"
+                                className="w-full pl-10 pr-4 py-3 min-h-[48px] rounded-lg border border-gray-200 bg-white text-gray-700 focus:border-purple-500 focus:ring-2 focus:ring-purple-200 transition-colors text-base"
                             />
                         </div>
                         {hasActiveFilters && (
                             <button
                                 onClick={clearFilters}
-                                className="inline-flex items-center gap-1 px-3 py-2 text-sm font-medium text-gray-600 hover:text-gray-700 hover:bg-gray-100 rounded-lg transition-colors"
+                                className="inline-flex items-center justify-center gap-1 px-4 py-3 min-h-[48px] text-sm font-medium text-gray-600 hover:text-gray-700 hover:bg-gray-100 rounded-lg transition-colors"
                             >
                                 <X className="h-4 w-4" />
-                                Clear filters
+                                <span>Clear filters</span>
                             </button>
                         )}
                     </div>
 
-                    <div className="flex flex-wrap items-center gap-3">
-                        <div className="flex items-center gap-2">
+                    <div className="flex flex-col gap-3 sm:flex-row sm:flex-wrap sm:items-center">
+                        <div className="flex flex-col gap-1 sm:flex-row sm:items-center sm:gap-2 w-full sm:w-auto">
                             <label className="text-sm font-medium text-gray-600">Skill:</label>
                             <select
                                 value={selectedSkillId}
                                 onChange={(e) => setSelectedSkillId(e.target.value)}
-                                className="px-3 py-2 rounded-lg border border-gray-200 bg-white text-gray-700 focus:border-purple-500 focus:ring-2 focus:ring-purple-200 transition-colors text-sm min-w-[200px]"
+                                className="px-3 py-3 min-h-[48px] rounded-lg border border-gray-200 bg-white text-gray-700 focus:border-purple-500 focus:ring-2 focus:ring-purple-200 transition-colors text-base w-full sm:w-auto sm:min-w-[200px]"
                             >
                                 <option value="all">All Skills</option>
                                 {skills?.map((skill: any) => (
@@ -428,12 +527,12 @@ export function QuestionList() {
                                 ))}
                             </select>
                         </div>
-                        <div className="flex items-center gap-2">
+                        <div className="flex flex-col gap-1 sm:flex-row sm:items-center sm:gap-2 w-full sm:w-auto">
                             <label className="text-sm font-medium text-gray-600">Status:</label>
                             <select
                                 value={statusFilter}
                                 onChange={(e) => setStatusFilter(e.target.value as 'all' | 'draft' | 'live')}
-                                className="px-3 py-2 rounded-lg border border-gray-200 bg-white text-gray-700 focus:border-purple-500 focus:ring-2 focus:ring-purple-200 transition-colors text-sm"
+                                className="px-3 py-3 min-h-[48px] rounded-lg border border-gray-200 bg-white text-gray-700 focus:border-purple-500 focus:ring-2 focus:ring-purple-200 transition-colors text-base w-full sm:w-auto"
                             >
                                 <option value="all">All Status</option>
                                 <option value="draft">Draft</option>
@@ -442,19 +541,19 @@ export function QuestionList() {
                         </div>
 
                         {selectedIds.size > 0 && (
-                            <div className="flex items-center gap-2 ml-auto">
-                                <span className="text-sm text-gray-600">{selectedIds.size} selected</span>
+                            <div className="flex flex-wrap items-center gap-2 sm:ml-auto">
+                                <span className="text-sm text-gray-600 w-full sm:w-auto">{selectedIds.size} selected</span>
                                 <button
                                     onClick={handleMarkLive}
                                     disabled={bulkUpdateStatus.isPending}
-                                    className="inline-flex items-center gap-1 px-3 py-2 text-sm font-medium text-green-600 hover:text-green-700 hover:bg-green-50 rounded-lg transition-colors"
+                                    className="inline-flex items-center justify-center gap-1 px-4 py-3 min-h-[48px] text-sm font-medium text-green-600 hover:text-green-700 hover:bg-green-50 rounded-lg transition-colors flex-1 sm:flex-none"
                                 >
                                     Mark Live
                                 </button>
                                 <button
                                     onClick={handleMarkDraft}
                                     disabled={bulkUpdateStatus.isPending}
-                                    className="inline-flex items-center gap-1 px-3 py-2 text-sm font-medium text-gray-600 hover:text-gray-700 hover:bg-gray-50 rounded-lg transition-colors"
+                                    className="inline-flex items-center justify-center gap-1 px-4 py-3 min-h-[48px] text-sm font-medium text-gray-600 hover:text-gray-700 hover:bg-gray-50 rounded-lg transition-colors flex-1 sm:flex-none"
                                 >
                                     Mark Draft
                                 </button>
@@ -471,13 +570,14 @@ export function QuestionList() {
                     </div>
                 </div>
 
-                <div className="overflow-hidden rounded-xl border border-gray-100">
-                    {/* @ts-expect-error - Known React types version mismatch with @dnd-kit */}
-                    <DndContext
-                        sensors={sensors}
-                        collisionDetection={closestCenter}
-                        onDragEnd={handleDragEnd}
-                    >
+                {/* @ts-expect-error - Known React types version mismatch with @dnd-kit */}
+                <DndContext
+                    sensors={sensors}
+                    collisionDetection={closestCenter}
+                    onDragEnd={handleDragEnd}
+                >
+                    {/* Desktop Table View */}
+                    <div className="hidden md:block overflow-hidden rounded-xl border border-gray-100">
                         <table className="w-full">
                             <thead>
                                 <tr className="bg-gray-50 border-b border-gray-100">
@@ -584,8 +684,59 @@ export function QuestionList() {
                                 )}
                             </tbody>
                         </table>
-                    </DndContext>
-                </div>
+                    </div>
+
+                    {/* Mobile Card View */}
+                    <div className="md:hidden">
+                        <SortableContext items={questionIds} strategy={verticalListSortingStrategy}>
+                            {!questions.length ? (
+                                <div className="rounded-xl border border-gray-100 p-8 text-center">
+                                    <div className="flex flex-col items-center">
+                                        <div className="flex items-center justify-center w-16 h-16 rounded-full bg-gray-100 mb-4">
+                                            <FileText className="w-8 h-8 text-gray-400" />
+                                        </div>
+                                        <p className="text-gray-500 mb-4">
+                                            {hasActiveFilters ? 'No questions match your filters.' : 'No questions found. Create one to get started.'}
+                                        </p>
+                                        {hasActiveFilters ? (
+                                            <button
+                                                onClick={clearFilters}
+                                                className="inline-flex items-center gap-2 px-4 py-2 bg-gray-100 hover:bg-gray-200 text-gray-700 font-medium rounded-lg transition-colors"
+                                            >
+                                                <X className="h-4 w-4" />
+                                                Clear filters
+                                            </button>
+                                        ) : (
+                                            <Link
+                                                to="/questions/new"
+                                                className="inline-flex items-center gap-2 px-4 py-2 bg-purple-600 hover:bg-purple-700 text-white font-medium rounded-lg transition-colors"
+                                            >
+                                                <Plus className="h-4 w-4" />
+                                                Create Question
+                                            </Link>
+                                        )}
+                                    </div>
+                                </div>
+                            ) : (
+                                <div className="space-y-3">
+                                    {questions.map((question: any) => (
+                                        <SortableCard
+                                            key={question.id}
+                                            question={question}
+                                            isSelected={selectedIds.has(question.id)}
+                                            onSelect={handleSelectOne}
+                                            onDelete={handleDelete}
+                                            onDuplicate={handleDuplicate}
+                                            renderStatusBadge={renderStatusBadge}
+                                            isDragDisabled={isDragDisabled}
+                                            isDuplicating={duplicateQuestion.isPending}
+                                        />
+                                    ))}
+                                </div>
+                            )}
+                        </SortableContext>
+                    </div>
+                </DndContext>
 
                 <Pagination
                     currentPage={page}

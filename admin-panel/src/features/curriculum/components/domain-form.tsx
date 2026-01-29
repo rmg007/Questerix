@@ -76,20 +76,20 @@ export function DomainForm() {
   }
 
   return (
-    <div className="max-w-2xl space-y-6">
+    <div className="w-full max-w-2xl space-y-4 md:space-y-6 px-1">
       <div className="flex items-center justify-between">
-        <h2 className="text-3xl font-bold tracking-tight">
+        <h2 className="text-2xl md:text-3xl font-bold tracking-tight">
           {isEditing ? 'Edit Domain' : 'New Domain'}
         </h2>
       </div>
 
-      <form onSubmit={handleSubmit(onSubmit)} className="space-y-4 rounded-md border p-6">
+      <form onSubmit={handleSubmit(onSubmit)} className="space-y-4 md:space-y-5 rounded-lg border p-4 md:p-6">
         <div className="space-y-2">
           <label htmlFor="title" className="text-sm font-medium">Title</label>
           <input
             id="title"
             {...register('title')}
-            className="flex h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background"
+            className="flex min-h-[48px] w-full rounded-md border border-input bg-background px-3 py-3 text-base ring-offset-background focus:ring-2 focus:ring-purple-200 focus:border-purple-500"
             placeholder="e.g. Mathematics"
           />
           {errors.title && (
@@ -102,7 +102,7 @@ export function DomainForm() {
           <input
             id="slug"
             {...register('slug')}
-            className="flex h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background"
+            className="flex min-h-[48px] w-full rounded-md border border-input bg-background px-3 py-3 text-base ring-offset-background focus:ring-2 focus:ring-purple-200 focus:border-purple-500 disabled:opacity-50"
             placeholder="e.g. basic_math"
             disabled={isEditing} 
           />
@@ -117,7 +117,7 @@ export function DomainForm() {
                 id="sort_order"
                 type="number"
                 {...register('sort_order', { valueAsNumber: true })}
-                className="flex h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background"
+                className="flex min-h-[48px] w-full rounded-md border border-input bg-background px-3 py-3 text-base ring-offset-background focus:ring-2 focus:ring-purple-200 focus:border-purple-500"
             />
             {errors.sort_order && (
                 <p className="text-sm text-red-500">{errors.sort_order.message}</p>
@@ -129,7 +129,7 @@ export function DomainForm() {
           <textarea
             id="description"
             {...register('description')}
-            className="flex min-h-[80px] w-full rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background"
+            className="flex min-h-[100px] w-full rounded-md border border-input bg-background px-3 py-3 text-base ring-offset-background focus:ring-2 focus:ring-purple-200 focus:border-purple-500"
           />
         </div>
 
@@ -138,7 +138,7 @@ export function DomainForm() {
           <select
             id="status"
             {...register('status')}
-            className="flex h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background"
+            className="flex min-h-[48px] w-full rounded-md border border-input bg-background px-3 py-3 text-base ring-offset-background focus:ring-2 focus:ring-purple-200 focus:border-purple-500"
           >
             {STATUS_OPTIONS.map((option) => (
               <option key={option.value} value={option.value}>
@@ -151,15 +151,16 @@ export function DomainForm() {
           )}
         </div>
 
-        <div className="flex justify-end gap-4 pt-4">
+        <div className="flex flex-col-reverse gap-3 pt-4 sm:flex-row sm:justify-end sm:gap-4">
           <Button
             type="button"
             variant="outline"
             onClick={() => navigate('/domains')}
+            className="w-full sm:w-auto min-h-[48px] px-6"
           >
             Cancel
           </Button>
-          <Button type="submit" disabled={isSubmitting}>
+          <Button type="submit" disabled={isSubmitting} className="w-full sm:w-auto min-h-[48px] px-6">
             {isEditing ? 'Update Domain' : 'Create Domain'}
           </Button>
         </div>

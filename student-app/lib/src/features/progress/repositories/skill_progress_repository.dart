@@ -96,7 +96,7 @@ class SkillProgressRepository {
   }
 
   int _calculateMastery(int total, int correct) {
-    if (total == 0) return 0;
+    if (total < 3) return 0;
     final percentage = (correct / total * 100).round();
     return percentage.clamp(0, 100);
   }

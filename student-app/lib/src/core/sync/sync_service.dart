@@ -138,6 +138,7 @@ class SyncService extends StateNotifier<SyncState> {
         .from('domains')
         .select()
         .gt('updated_at', lastSync.toIso8601String())
+        .eq('is_published', true)
         .isFilter('deleted_at', null);
 
     if (response.isNotEmpty) {
@@ -174,6 +175,7 @@ class SyncService extends StateNotifier<SyncState> {
         .from('skills')
         .select()
         .gt('updated_at', lastSync.toIso8601String())
+        .eq('is_published', true)
         .isFilter('deleted_at', null);
 
     if (response.isNotEmpty) {
@@ -212,6 +214,7 @@ class SyncService extends StateNotifier<SyncState> {
         .from('questions')
         .select()
         .gt('updated_at', lastSync.toIso8601String())
+        .eq('is_published', true)
         .isFilter('deleted_at', null);
 
     if (response.isNotEmpty) {

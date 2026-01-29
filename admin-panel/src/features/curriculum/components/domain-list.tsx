@@ -362,13 +362,13 @@ export function DomainList() {
                       <div className="flex items-center justify-end gap-2">
                         <Link
                           to={`/domains/${domain.id}/edit`}
-                          className="px-3 py-2 text-sm font-medium text-purple-600 hover:text-purple-700 hover:bg-purple-50 rounded-lg transition-colors"
+                          className="px-3 py-1 bg-blue-100 text-blue-700 rounded-full text-sm font-medium hover:bg-blue-200 transition-colors"
                         >
                           Edit
                         </Link>
                         <button
                           onClick={() => handleDelete(domain.id)}
-                          className="px-3 py-2 text-sm font-medium text-red-600 hover:text-red-700 hover:bg-red-50 rounded-lg transition-colors"
+                          className="px-3 py-1 bg-red-100 text-red-700 rounded-full text-sm font-medium hover:bg-red-200 transition-colors"
                         >
                           Delete
                         </button>

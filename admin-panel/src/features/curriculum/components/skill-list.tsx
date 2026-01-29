@@ -305,13 +305,14 @@ export function SkillList() {
                                         onSort={handleSort}
                                     />
                                 </th>
+                                <th className="text-left px-6 py-4 text-sm font-semibold text-gray-600">Orphan</th>
                                 <th className="text-right px-6 py-4 text-sm font-semibold text-gray-600">Actions</th>
                             </tr>
                         </thead>
                         <tbody className="divide-y divide-gray-100">
                             {!skills.length ? (
                                 <tr>
-                                    <td colSpan={6} className="px-6 py-12 text-center">
+                                    <td colSpan={7} className="px-6 py-12 text-center">
                                         <div className="flex flex-col items-center">
                                             <div className="flex items-center justify-center w-16 h-16 rounded-full bg-gray-100 mb-4">
                                                 <Layers className="w-8 h-8 text-gray-400" />
@@ -374,24 +375,35 @@ export function SkillList() {
                                                 </span>
                                             )}
                                         </td>
+                                        <td className="px-6 py-4">
+                                            {!skill.domain_id ? (
+                                                <span className="px-3 py-1 bg-orange-100 text-orange-700 rounded-full text-sm font-medium">
+                                                    Orphan
+                                                </span>
+                                            ) : (
+                                                <span className="px-3 py-1 bg-gray-50 text-gray-400 rounded-full text-sm font-medium">
+                                                    -
+                                                </span>
+                                            )}
+                                        </td>
                                         <td className="px-6 py-4 text-right">
                                             <div className="flex items-center justify-end gap-2">
                                                 <Link
                                                     to={`/skills/${skill.id}/edit`}
-                                                    className="px-3 py-2 text-sm font-medium text-purple-600 hover:text-purple-700 hover:bg-purple-50 rounded-lg transition-colors"
+                                                    className="px-3 py-1 bg-blue-100 text-blue-700 rounded-full text-sm font-medium hover:bg-blue-200 transition-colors"
                                                 >
                                                     Edit
                                                 </Link>
                                                 <button
                                                     onClick={() => handleDuplicate(skill.id)}
                                                     disabled={duplicateSkill.isPending}
-                                                    className="px-3 py-2 text-sm font-medium text-gray-600 hover:text-gray-700 hover:bg-gray-50 rounded-lg transition-colors"
+                                                    className="px-3 py-1 bg-indigo-100 text-indigo-700 rounded-full text-sm font-medium hover:bg-indigo-200 transition-colors disabled:opacity-50"
                                                 >
                                                     Duplicate
                                                 </button>
                                                 <button
                                                     onClick={() => handleDelete(skill.id)}
-                                                    className="px-3 py-2 text-sm font-medium text-red-600 hover:text-red-700 hover:bg-red-50 rounded-lg transition-colors"
+                                                    className="px-3 py-1 bg-red-100 text-red-700 rounded-full text-sm font-medium hover:bg-red-200 transition-colors"
                                                 >
                                                     Delete
                                                 </button>

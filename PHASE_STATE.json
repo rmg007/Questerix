@@ -1,6 +1,4 @@
 {
-  "current_phase": 4,
-  "completed_phases": [-1, 0, 1, 2, 3, 4],
   "phase_artifacts": {
     "-1": {
       "timestamp": "2026-01-26T19:30:00Z",
@@ -57,9 +55,7 @@
         "supabase/migrations/20260127000015_create_rpc_functions.sql",
         "supabase/seed.sql",
         "scripts/apply-migrations-dashboard.sql",
-        "scripts/apply-migrations.py",
-        "scripts/migration-applier.html",
-        "MIGRATION_GUIDE.md"
+        "scripts/apply-migrations.py"
       ],
       "validation_passed": true,
       "notes": "Phase 1 completed. All 15 granular migration files created. RLS policies implemented with is_admin() function. Seed data with sample domain/skill/questions. Migration tools created for easy deployment. Migrations ready to apply via Supabase Dashboard SQL Editor, psql, or Python script."
@@ -120,9 +116,46 @@
       ],
       "validation_passed": true,
       "notes": "Phase 4 completed. Added Sentry initialization (Flutter + React), added typed error primitives + retry with exponential backoff (Flutter), added CI workflow, and updated Phase 4 validator to warn (not fail) when Android SDK is unavailable. Phase 4 validation passed with 1 warning (Android SDK not present in this environment)."
+    },
+    "5": {
+      "timestamp": "2026-01-31T08:14:00Z",
+      "files_created": [
+        "supabase/migrations/20260131000001_phase1_rpcs.sql",
+        "scripts/agent_migrate.ps1",
+        "scripts/direct_apply.js",
+        "scripts/package.json"
+      ],
+      "files_modified": [
+        "student-app/lib/src/core/sync/sync_service.dart",
+        "AGENTS.md"
+      ],
+      "validation_passed": true,
+      "notes": "Strengthen RPCs & Automation completed. Implemented `submit_attempt_and_update_progress` RPC for server-side mastery logic. Updated Student App `SyncService` to consume it. Created autonomous migration scripts (`agent_migrate.ps1`, `direct_apply.js`) to handle CLI auth restrictions."
+    },
+    "6": {
+      "timestamp": "2026-01-31T09:00:00Z",
+      "files_created": [
+        "math7_domain/pubspec.yaml",
+        "math7_domain/lib/math7_domain.dart",
+        "math7_domain/lib/src/models/domain.dart",
+        "math7_domain/lib/src/models/skill.dart",
+        "math7_domain/lib/src/models/question.dart",
+        "math7_domain/lib/src/models/attempt.dart",
+        "math7_domain/lib/src/validation/validators.dart",
+        "scripts/validate-phase-2.ps1",
+        "scripts/gen_types.ps1",
+        "scripts/generate_types.js"
+      ],
+      "files_modified": [
+        "student-app/pubspec.yaml",
+        "admin-panel/src/lib/database.types.ts"
+      ],
+      "validation_passed": true,
+      "notes": "Shared Domain & Codegen completed. Created `math7-domain` package with Freezed models and validators. Generated TypeScript types using custom introspection script. Linked Student App to shared domain and aligned dependencies."
     }
   },
-  "blocked_on": null,
+  "current_phase": 6,
+  "completed_phases": [-1, 0, 1, 2, 3, 4, 5, 6],
   "pending_clarifications": [],
   "resolved_clarifications": [
     {

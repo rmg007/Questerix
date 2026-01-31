@@ -1,0 +1,433 @@
+[ +607 ms] Unable to locate an Android SDK.
+[   +8 ms] Artifact Instance of 'MaterialFonts' is not required, skipping update.
+[        ] Artifact Instance of 'GradleWrapper' is not required, skipping update.
+[        ] Artifact Instance of 'AndroidGenSnapshotArtifacts' is not required, skipping update.
+[        ] Artifact Instance of 'AndroidInternalBuildArtifacts' is not required, skipping update.
+[        ] Artifact Instance of 'IOSEngineArtifacts' is not required, skipping update.
+[        ] Artifact Instance of 'FlutterWebSdk' is not required, skipping update.
+[        ] Artifact Instance of 'LegacyCanvasKitRemover' is not required, skipping update.
+[        ] Artifact Instance of 'FlutterSdk' is not required, skipping update.
+[        ] Artifact Instance of 'WindowsEngineArtifacts' is not required, skipping update.
+[        ] Artifact Instance of 'MacOSEngineArtifacts' is not required, skipping update.
+[        ] Artifact Instance of 'LinuxEngineArtifacts' is not required, skipping update.
+[        ] Artifact Instance of 'LinuxFuchsiaSDKArtifacts' is not required, skipping update.
+[        ] Artifact Instance of 'MacOSFuchsiaSDKArtifacts' is not required, skipping update.
+[        ] Artifact Instance of 'FlutterRunnerSDKArtifacts' is not required, skipping update.
+[        ] Artifact Instance of 'FlutterRunnerDebugSymbols' is not required, skipping update.
+[        ] Artifact Instance of 'IosUsbArtifacts' is not required, skipping update.
+[        ] Artifact Instance of 'IosUsbArtifacts' is not required, skipping update.
+[        ] Artifact Instance of 'IosUsbArtifacts' is not required, skipping update.
+[        ] Artifact Instance of 'IosUsbArtifacts' is not required, skipping update.
+[        ] Artifact Instance of 'IosUsbArtifacts' is not required, skipping update.
+[        ] Artifact Instance of 'IosUsbArtifacts' is not required, skipping update.
+[        ] Artifact Instance of 'FontSubsetArtifacts' is not required, skipping update.
+[        ] Artifact Instance of 'PubDependencies' is not required, skipping update.
+[   +1 ms] executing: [C:\Users\mhali\flutter/] git -c log.showSignature=false log HEAD -n 1 --pretty=format:%ad --date=iso
+[  +85 ms] Exit code 0 from: git -c log.showSignature=false log HEAD -n 1 --pretty=format:%ad --date=iso
+[        ] 2026-01-13 13:47:42 -0800
+[  +13 ms] Found 1 files which will be executed as Widget Tests.
+[   +4 ms] Artifact Instance of 'AndroidGenSnapshotArtifacts' is not required, skipping update.
+[        ] Artifact Instance of 'AndroidInternalBuildArtifacts' is not required, skipping update.
+[        ] Artifact Instance of 'IOSEngineArtifacts' is not required, skipping update.
+[        ] Artifact Instance of 'FlutterWebSdk' is not required, skipping update.
+[        ] Artifact Instance of 'FlutterEngineStamp' is not required, skipping update.
+[        ] Artifact Instance of 'LegacyCanvasKitRemover' is not required, skipping update.
+[   +2 ms] Artifact Instance of 'WindowsEngineArtifacts' is not required, skipping update.
+[        ] Artifact Instance of 'MacOSEngineArtifacts' is not required, skipping update.
+[        ] Artifact Instance of 'LinuxEngineArtifacts' is not required, skipping update.
+[        ] Artifact Instance of 'LinuxFuchsiaSDKArtifacts' is not required, skipping update.
+[        ] Artifact Instance of 'MacOSFuchsiaSDKArtifacts' is not required, skipping update.
+[        ] Artifact Instance of 'FlutterRunnerSDKArtifacts' is not required, skipping update.
+[        ] Artifact Instance of 'FlutterRunnerDebugSymbols' is not required, skipping update.
+[  +79 ms] Artifact Instance of 'MaterialFonts' is not required, skipping update.
+[        ] Artifact Instance of 'GradleWrapper' is not required, skipping update.
+[        ] Artifact Instance of 'AndroidGenSnapshotArtifacts' is not required, skipping update.
+[        ] Artifact Instance of 'AndroidInternalBuildArtifacts' is not required, skipping update.
+[        ] Artifact Instance of 'IOSEngineArtifacts' is not required, skipping update.
+[        ] Artifact Instance of 'FlutterWebSdk' is not required, skipping update.
+[        ] Artifact Instance of 'FlutterEngineStamp' is not required, skipping update.
+[        ] Artifact Instance of 'LegacyCanvasKitRemover' is not required, skipping update.
+[        ] Artifact Instance of 'FlutterSdk' is not required, skipping update.
+[        ] Artifact Instance of 'WindowsEngineArtifacts' is not required, skipping update.
+[        ] Artifact Instance of 'MacOSEngineArtifacts' is not required, skipping update.
+[        ] Artifact Instance of 'LinuxEngineArtifacts' is not required, skipping update.
+[        ] Artifact Instance of 'LinuxFuchsiaSDKArtifacts' is not required, skipping update.
+[        ] Artifact Instance of 'MacOSFuchsiaSDKArtifacts' is not required, skipping update.
+[        ] Artifact Instance of 'FlutterRunnerSDKArtifacts' is not required, skipping update.
+[        ] Artifact Instance of 'FlutterRunnerDebugSymbols' is not required, skipping update.
+[        ] Artifact Instance of 'IosUsbArtifacts' is not required, skipping update.
+[        ] Artifact Instance of 'IosUsbArtifacts' is not required, skipping update.
+[        ] Artifact Instance of 'IosUsbArtifacts' is not required, skipping update.
+[        ] Artifact Instance of 'IosUsbArtifacts' is not required, skipping update.
+[        ] Artifact Instance of 'IosUsbArtifacts' is not required, skipping update.
+[        ] Artifact Instance of 'IosUsbArtifacts' is not required, skipping update.
+[        ] Artifact Instance of 'FontSubsetArtifacts' is not required, skipping update.
+[        ] Artifact Instance of 'PubDependencies' is not required, skipping update.
+[  +17 ms] Skipping pub get: version match.
+[ +300 ms] Found plugin integration_test at C:\Users\mhali\flutter\packages\integration_test\
+[  +66 ms] Found plugin url_launcher at C:\Users\mhali\AppData\Local\Pub\Cache\hosted\pub.dev\url_launcher-6.3.2\
+[   +2 ms] Found plugin url_launcher_windows at C:\Users\mhali\AppData\Local\Pub\Cache\hosted\pub.dev\url_launcher_windows-3.1.5\
+[   +7 ms] Found plugin url_launcher_web at C:\Users\mhali\AppData\Local\Pub\Cache\hosted\pub.dev\url_launcher_web-2.4.1\
+[   +3 ms] Found plugin url_launcher_macos at C:\Users\mhali\AppData\Local\Pub\Cache\hosted\pub.dev\url_launcher_macos-3.2.3\
+[   +2 ms] Found plugin url_launcher_linux at C:\Users\mhali\AppData\Local\Pub\Cache\hosted\pub.dev\url_launcher_linux-3.2.2\
+[   +4 ms] Found plugin url_launcher_ios at C:\Users\mhali\AppData\Local\Pub\Cache\hosted\pub.dev\url_launcher_ios-6.3.4\
+[   +2 ms] Found plugin url_launcher_android at C:\Users\mhali\AppData\Local\Pub\Cache\hosted\pub.dev\url_launcher_android-6.3.20\
+[  +31 ms] Found plugin shared_preferences at C:\Users\mhali\AppData\Local\Pub\Cache\hosted\pub.dev\shared_preferences-2.5.3\
+[   +4 ms] Found plugin shared_preferences_windows at C:\Users\mhali\AppData\Local\Pub\Cache\hosted\pub.dev\shared_preferences_windows-2.4.1\
+[   +4 ms] Found plugin path_provider_windows at C:\Users\mhali\AppData\Local\Pub\Cache\hosted\pub.dev\path_provider_windows-2.3.0\
+[   +5 ms] Found plugin shared_preferences_web at C:\Users\mhali\AppData\Local\Pub\Cache\hosted\pub.dev\shared_preferences_web-2.4.3\
+[   +2 ms] Found plugin shared_preferences_linux at C:\Users\mhali\AppData\Local\Pub\Cache\hosted\pub.dev\shared_preferences_linux-2.4.1\
+[   +1 ms] Found plugin path_provider_linux at C:\Users\mhali\AppData\Local\Pub\Cache\hosted\pub.dev\path_provider_linux-2.2.1\
+[   +2 ms] Found plugin shared_preferences_foundation at C:\Users\mhali\AppData\Local\Pub\Cache\hosted\pub.dev\shared_preferences_foundation-2.5.4\
+[   +1 ms] Found plugin shared_preferences_android at C:\Users\mhali\AppData\Local\Pub\Cache\hosted\pub.dev\shared_preferences_android-2.4.13\
+[   +1 ms] Found plugin path_provider at C:\Users\mhali\AppData\Local\Pub\Cache\hosted\pub.dev\path_provider-2.1.5\
+[   +1 ms] Found plugin path_provider_foundation at C:\Users\mhali\AppData\Local\Pub\Cache\hosted\pub.dev\path_provider_foundation-2.4.2\
+[   +1 ms] Found plugin path_provider_android at C:\Users\mhali\AppData\Local\Pub\Cache\hosted\pub.dev\path_provider_android-2.2.19\
+[   +2 ms] Found plugin app_links at C:\Users\mhali\AppData\Local\Pub\Cache\hosted\pub.dev\app_links-6.4.1\
+[   +2 ms] Found plugin app_links_web at C:\Users\mhali\AppData\Local\Pub\Cache\hosted\pub.dev\app_links_web-1.0.4\
+[   +3 ms] Found plugin app_links_linux at C:\Users\mhali\AppData\Local\Pub\Cache\hosted\pub.dev\app_links_linux-1.0.3\
+[   +1 ms] Found plugin gtk at C:\Users\mhali\AppData\Local\Pub\Cache\hosted\pub.dev\gtk-2.1.0\
+[   +1 ms] Found plugin sqlite3_flutter_libs at C:\Users\mhali\AppData\Local\Pub\Cache\hosted\pub.dev\sqlite3_flutter_libs-0.5.41\
+[   +2 ms] Found plugin sentry_flutter at C:\Users\mhali\AppData\Local\Pub\Cache\hosted\pub.dev\sentry_flutter-9.10.0\
+[   +3 ms] Found plugin package_info_plus at C:\Users\mhali\AppData\Local\Pub\Cache\hosted\pub.dev\package_info_plus-9.0.0\
+[   +7 ms] Found plugin jni at C:\Users\mhali\AppData\Local\Pub\Cache\hosted\pub.dev\jni-0.14.2\
+[  +10 ms] Found plugin connectivity_plus at C:\Users\mhali\AppData\Local\Pub\Cache\hosted\pub.dev\connectivity_plus-7.0.0\
+[ +161 ms] Found plugin integration_test at C:\Users\mhali\flutter\packages\integration_test\
+[  +42 ms] Found plugin url_launcher at C:\Users\mhali\AppData\Local\Pub\Cache\hosted\pub.dev\url_launcher-6.3.2\
+[   +1 ms] Found plugin url_launcher_windows at C:\Users\mhali\AppData\Local\Pub\Cache\hosted\pub.dev\url_launcher_windows-3.1.5\
+[   +4 ms] Found plugin url_launcher_web at C:\Users\mhali\AppData\Local\Pub\Cache\hosted\pub.dev\url_launcher_web-2.4.1\
+[   +2 ms] Found plugin url_launcher_macos at C:\Users\mhali\AppData\Local\Pub\Cache\hosted\pub.dev\url_launcher_macos-3.2.3\
+[   +1 ms] Found plugin url_launcher_linux at C:\Users\mhali\AppData\Local\Pub\Cache\hosted\pub.dev\url_launcher_linux-3.2.2\
+[   +1 ms] Found plugin url_launcher_ios at C:\Users\mhali\AppData\Local\Pub\Cache\hosted\pub.dev\url_launcher_ios-6.3.4\
+[   +1 ms] Found plugin url_launcher_android at C:\Users\mhali\AppData\Local\Pub\Cache\hosted\pub.dev\url_launcher_android-6.3.20\
+[  +23 ms] Found plugin shared_preferences at C:\Users\mhali\AppData\Local\Pub\Cache\hosted\pub.dev\shared_preferences-2.5.3\
+[   +2 ms] Found plugin shared_preferences_windows at C:\Users\mhali\AppData\Local\Pub\Cache\hosted\pub.dev\shared_preferences_windows-2.4.1\
+[   +2 ms] Found plugin path_provider_windows at C:\Users\mhali\AppData\Local\Pub\Cache\hosted\pub.dev\path_provider_windows-2.3.0\
+[   +2 ms] Found plugin shared_preferences_web at C:\Users\mhali\AppData\Local\Pub\Cache\hosted\pub.dev\shared_preferences_web-2.4.3\
+[   +1 ms] Found plugin shared_preferences_linux at C:\Users\mhali\AppData\Local\Pub\Cache\hosted\pub.dev\shared_preferences_linux-2.4.1\
+[   +2 ms] Found plugin path_provider_linux at C:\Users\mhali\AppData\Local\Pub\Cache\hosted\pub.dev\path_provider_linux-2.2.1\
+[   +3 ms] Found plugin shared_preferences_foundation at C:\Users\mhali\AppData\Local\Pub\Cache\hosted\pub.dev\shared_preferences_foundation-2.5.4\
+[   +1 ms] Found plugin shared_preferences_android at C:\Users\mhali\AppData\Local\Pub\Cache\hosted\pub.dev\shared_preferences_android-2.4.13\
+[   +1 ms] Found plugin path_provider at C:\Users\mhali\AppData\Local\Pub\Cache\hosted\pub.dev\path_provider-2.1.5\
+[   +1 ms] Found plugin path_provider_foundation at C:\Users\mhali\AppData\Local\Pub\Cache\hosted\pub.dev\path_provider_foundation-2.4.2\
+[   +1 ms] Found plugin path_provider_android at C:\Users\mhali\AppData\Local\Pub\Cache\hosted\pub.dev\path_provider_android-2.2.19\
+[   +1 ms] Found plugin app_links at C:\Users\mhali\AppData\Local\Pub\Cache\hosted\pub.dev\app_links-6.4.1\
+[   +1 ms] Found plugin app_links_web at C:\Users\mhali\AppData\Local\Pub\Cache\hosted\pub.dev\app_links_web-1.0.4\
+[   +2 ms] Found plugin app_links_linux at C:\Users\mhali\AppData\Local\Pub\Cache\hosted\pub.dev\app_links_linux-1.0.3\
+[   +1 ms] Found plugin gtk at C:\Users\mhali\AppData\Local\Pub\Cache\hosted\pub.dev\gtk-2.1.0\
+[   +1 ms] Found plugin sqlite3_flutter_libs at C:\Users\mhali\AppData\Local\Pub\Cache\hosted\pub.dev\sqlite3_flutter_libs-0.5.41\
+[   +1 ms] Found plugin sentry_flutter at C:\Users\mhali\AppData\Local\Pub\Cache\hosted\pub.dev\sentry_flutter-9.10.0\
+[   +2 ms] Found plugin package_info_plus at C:\Users\mhali\AppData\Local\Pub\Cache\hosted\pub.dev\package_info_plus-9.0.0\
+[   +4 ms] Found plugin jni at C:\Users\mhali\AppData\Local\Pub\Cache\hosted\pub.dev\jni-0.14.2\
+[   +8 ms] Found plugin connectivity_plus at C:\Users\mhali\AppData\Local\Pub\Cache\hosted\pub.dev\connectivity_plus-7.0.0\
+[  +15 ms] Skipping generating web_plugin_registrant.dart because it is up-to-date.
+[  +87 ms] Found plugin integration_test at C:\Users\mhali\flutter\packages\integration_test\
+[  +30 ms] Found plugin url_launcher at C:\Users\mhali\AppData\Local\Pub\Cache\hosted\pub.dev\url_launcher-6.3.2\
+[   +1 ms] Found plugin url_launcher_windows at C:\Users\mhali\AppData\Local\Pub\Cache\hosted\pub.dev\url_launcher_windows-3.1.5\
+[   +3 ms] Found plugin url_launcher_web at C:\Users\mhali\AppData\Local\Pub\Cache\hosted\pub.dev\url_launcher_web-2.4.1\
+[   +2 ms] Found plugin url_launcher_macos at C:\Users\mhali\AppData\Local\Pub\Cache\hosted\pub.dev\url_launcher_macos-3.2.3\
+[   +1 ms] Found plugin url_launcher_linux at C:\Users\mhali\AppData\Local\Pub\Cache\hosted\pub.dev\url_launcher_linux-3.2.2\
+[   +1 ms] Found plugin url_launcher_ios at C:\Users\mhali\AppData\Local\Pub\Cache\hosted\pub.dev\url_launcher_ios-6.3.4\
+[   +1 ms] Found plugin url_launcher_android at C:\Users\mhali\AppData\Local\Pub\Cache\hosted\pub.dev\url_launcher_android-6.3.20\
+[  +14 ms] Found plugin shared_preferences at C:\Users\mhali\AppData\Local\Pub\Cache\hosted\pub.dev\shared_preferences-2.5.3\
+[   +1 ms] Found plugin shared_preferences_windows at C:\Users\mhali\AppData\Local\Pub\Cache\hosted\pub.dev\shared_preferences_windows-2.4.1\
+[   +3 ms] Found plugin path_provider_windows at C:\Users\mhali\AppData\Local\Pub\Cache\hosted\pub.dev\path_provider_windows-2.3.0\
+[   +2 ms] Found plugin shared_preferences_web at C:\Users\mhali\AppData\Local\Pub\Cache\hosted\pub.dev\shared_preferences_web-2.4.3\
+[   +1 ms] Found plugin shared_preferences_linux at C:\Users\mhali\AppData\Local\Pub\Cache\hosted\pub.dev\shared_preferences_linux-2.4.1\
+[   +1 ms] Found plugin path_provider_linux at C:\Users\mhali\AppData\Local\Pub\Cache\hosted\pub.dev\path_provider_linux-2.2.1\
+[   +1 ms] Found plugin shared_preferences_foundation at C:\Users\mhali\AppData\Local\Pub\Cache\hosted\pub.dev\shared_preferences_foundation-2.5.4\
+[   +1 ms] Found plugin shared_preferences_android at C:\Users\mhali\AppData\Local\Pub\Cache\hosted\pub.dev\shared_preferences_android-2.4.13\
+[   +1 ms] Found plugin path_provider at C:\Users\mhali\AppData\Local\Pub\Cache\hosted\pub.dev\path_provider-2.1.5\
+[   +1 ms] Found plugin path_provider_foundation at C:\Users\mhali\AppData\Local\Pub\Cache\hosted\pub.dev\path_provider_foundation-2.4.2\
+[        ] Found plugin path_provider_android at C:\Users\mhali\AppData\Local\Pub\Cache\hosted\pub.dev\path_provider_android-2.2.19\
+[   +1 ms] Found plugin app_links at C:\Users\mhali\AppData\Local\Pub\Cache\hosted\pub.dev\app_links-6.4.1\
+[   +1 ms] Found plugin app_links_web at C:\Users\mhali\AppData\Local\Pub\Cache\hosted\pub.dev\app_links_web-1.0.4\
+[   +2 ms] Found plugin app_links_linux at C:\Users\mhali\AppData\Local\Pub\Cache\hosted\pub.dev\app_links_linux-1.0.3\
+[   +1 ms] Found plugin gtk at C:\Users\mhali\AppData\Local\Pub\Cache\hosted\pub.dev\gtk-2.1.0\
+[   +1 ms] Found plugin sqlite3_flutter_libs at C:\Users\mhali\AppData\Local\Pub\Cache\hosted\pub.dev\sqlite3_flutter_libs-0.5.41\
+[   +1 ms] Found plugin sentry_flutter at C:\Users\mhali\AppData\Local\Pub\Cache\hosted\pub.dev\sentry_flutter-9.10.0\
+[   +1 ms] Found plugin package_info_plus at C:\Users\mhali\AppData\Local\Pub\Cache\hosted\pub.dev\package_info_plus-9.0.0\
+[   +3 ms] Found plugin jni at C:\Users\mhali\AppData\Local\Pub\Cache\hosted\pub.dev\jni-0.14.2\
+[   +6 ms] Found plugin connectivity_plus at C:\Users\mhali\AppData\Local\Pub\Cache\hosted\pub.dev\connectivity_plus-7.0.0\
+[ +119 ms] No packages with native assets. Skipping native assets compilation.
+[   +1 ms] Writing native assets json to file:///C:/Users/mhali/OneDrive/Desktop/Important%20Projects/Math7/student-app/build/native_assets/windows/native_assets.json.
+[   +2 ms] Writing C:\Users\mhali\OneDrive\Desktop\Important Projects\Math7\student-app\build\native_assets\windows\native_assets.json done.
+[ +201 ms] running test package with arguments: [--no-color, --chain-stack-traces, --, file:///C:/Users/mhali/OneDrive/Desktop/Important%20Projects/Math7/student-app/test/core/database/mappers_test.dart?]
+00:00 +0: loading C:/Users/mhali/OneDrive/Desktop/Important Projects/Math7/student-app/test/core/database/mappers_test.dart
+[ +129 ms] test 0: starting test C:/Users/mhali/OneDrive/Desktop/Important Projects/Math7/student-app/test/core/database/mappers_test.dart
+[   +5 ms] Stopping scan for flutter_test_config.dart; found project root at C:\Users\mhali\OneDrive\Desktop\Important Projects\Math7\student-app
+[   +9 ms] Compiler will use the following file as its incremental dill file: C:\Users\mhali\AppData\Local\Temp\flutter_tools.d31c7a0f\flutter_test_compiler.97cceca5\output.dill
+[        ] Listening to compiler controller...
+[   +6 ms] Compiling file:///C:/Users/mhali/AppData/Local/Temp/flutter_tools.d31c7a0f/flutter_test_listener.9cf5eee7/listener.dart
+[ +118 ms] Found plugin integration_test at C:\Users\mhali\flutter\packages\integration_test\
+[  +39 ms] Found plugin url_launcher at C:\Users\mhali\AppData\Local\Pub\Cache\hosted\pub.dev\url_launcher-6.3.2\
+[   +1 ms] Found plugin url_launcher_windows at C:\Users\mhali\AppData\Local\Pub\Cache\hosted\pub.dev\url_launcher_windows-3.1.5\
+[   +4 ms] Found plugin url_launcher_web at C:\Users\mhali\AppData\Local\Pub\Cache\hosted\pub.dev\url_launcher_web-2.4.1\
+[   +2 ms] Found plugin url_launcher_macos at C:\Users\mhali\AppData\Local\Pub\Cache\hosted\pub.dev\url_launcher_macos-3.2.3\
+[   +1 ms] Found plugin url_launcher_linux at C:\Users\mhali\AppData\Local\Pub\Cache\hosted\pub.dev\url_launcher_linux-3.2.2\
+[   +1 ms] Found plugin url_launcher_ios at C:\Users\mhali\AppData\Local\Pub\Cache\hosted\pub.dev\url_launcher_ios-6.3.4\
+[   +1 ms] Found plugin url_launcher_android at C:\Users\mhali\AppData\Local\Pub\Cache\hosted\pub.dev\url_launcher_android-6.3.20\
+[  +24 ms] Found plugin shared_preferences at C:\Users\mhali\AppData\Local\Pub\Cache\hosted\pub.dev\shared_preferences-2.5.3\
+[   +2 ms] Found plugin shared_preferences_windows at C:\Users\mhali\AppData\Local\Pub\Cache\hosted\pub.dev\shared_preferences_windows-2.4.1\
+[   +4 ms] Found plugin path_provider_windows at C:\Users\mhali\AppData\Local\Pub\Cache\hosted\pub.dev\path_provider_windows-2.3.0\
+[   +3 ms] Found plugin shared_preferences_web at C:\Users\mhali\AppData\Local\Pub\Cache\hosted\pub.dev\shared_preferences_web-2.4.3\
+[   +1 ms] Found plugin shared_preferences_linux at C:\Users\mhali\AppData\Local\Pub\Cache\hosted\pub.dev\shared_preferences_linux-2.4.1\
+[   +1 ms] Found plugin path_provider_linux at C:\Users\mhali\AppData\Local\Pub\Cache\hosted\pub.dev\path_provider_linux-2.2.1\
+[   +2 ms] Found plugin shared_preferences_foundation at C:\Users\mhali\AppData\Local\Pub\Cache\hosted\pub.dev\shared_preferences_foundation-2.5.4\
+[   +1 ms] Found plugin shared_preferences_android at C:\Users\mhali\AppData\Local\Pub\Cache\hosted\pub.dev\shared_preferences_android-2.4.13\
+[   +1 ms] Found plugin path_provider at C:\Users\mhali\AppData\Local\Pub\Cache\hosted\pub.dev\path_provider-2.1.5\
+[   +1 ms] Found plugin path_provider_foundation at C:\Users\mhali\AppData\Local\Pub\Cache\hosted\pub.dev\path_provider_foundation-2.4.2\
+[   +1 ms] Found plugin path_provider_android at C:\Users\mhali\AppData\Local\Pub\Cache\hosted\pub.dev\path_provider_android-2.2.19\
+[   +1 ms] Found plugin app_links at C:\Users\mhali\AppData\Local\Pub\Cache\hosted\pub.dev\app_links-6.4.1\
+[   +1 ms] Found plugin app_links_web at C:\Users\mhali\AppData\Local\Pub\Cache\hosted\pub.dev\app_links_web-1.0.4\
+[   +2 ms] Found plugin app_links_linux at C:\Users\mhali\AppData\Local\Pub\Cache\hosted\pub.dev\app_links_linux-1.0.3\
+[   +1 ms] Found plugin gtk at C:\Users\mhali\AppData\Local\Pub\Cache\hosted\pub.dev\gtk-2.1.0\
+[   +1 ms] Found plugin sqlite3_flutter_libs at C:\Users\mhali\AppData\Local\Pub\Cache\hosted\pub.dev\sqlite3_flutter_libs-0.5.41\
+[   +1 ms] Found plugin sentry_flutter at C:\Users\mhali\AppData\Local\Pub\Cache\hosted\pub.dev\sentry_flutter-9.10.0\
+[   +2 ms] Found plugin package_info_plus at C:\Users\mhali\AppData\Local\Pub\Cache\hosted\pub.dev\package_info_plus-9.0.0\
+[   +4 ms] Found plugin jni at C:\Users\mhali\AppData\Local\Pub\Cache\hosted\pub.dev\jni-0.14.2\
+[  +12 ms] Found plugin connectivity_plus at C:\Users\mhali\AppData\Local\Pub\Cache\hosted\pub.dev\connectivity_plus-7.0.0\
+[  +13 ms] Skipping generating dart_plugin_registrant.dart because it is up-to-date.
+[   +3 ms] C:\Users\mhali\flutter\bin\cache\dart-sdk\bin\dartaotruntime.exe C:\Users\mhali\flutter\bin\cache\dart-sdk\bin\snapshots\frontend_server_aot.dart.snapshot --sdk-root C:\Users\mhali\flutter\bin\cache\artifacts\engine\common\flutter_patched_sdk/ --incremental --no-print-incremental-dependencies --target=flutter --experimental-emit-debug-metadata -DFLUTTER_VERSION=3.38.7 -DFLUTTER_CHANNEL=stable -DFLUTTER_GIT_URL=https://github.com/flutter/flutter.git -DFLUTTER_FRAMEWORK_REVISION=3b62efc2a3 -DFLUTTER_ENGINE_REVISION=78fc3012e4 -DFLUTTER_DART_VERSION=3.10.7 --output-dill C:\Users\mhali\AppData\Local\Temp\flutter_tools.d31c7a0f\flutter_test_compiler.97cceca5\output.dill --packages C:\Users\mhali\OneDrive\Desktop\Important Projects\Math7\student-app\.dart_tool\package_config.json -Ddart.vm.profile=false -Ddart.vm.product=false --enable-asserts --track-widget-creation --initialize-from-dill C:\Users\mhali\OneDrive\Desktop\Important Projects\Math7\student-app\build\test_cache\build\199e63d12aae48772fe1ad268adc4fc7.cache.dill.track.dill --verbosity=error
+[  +12 ms] <- compile file:///C:/Users/mhali/AppData/Local/Temp/flutter_tools.d31c7a0f/flutter_test_listener.9cf5eee7/listener.dart
+[+4831 ms] killing pid 15544
+[   +1 ms] test 0: cleaning up...
+[        ] test 0: deleting temporary directory
+[   +2 ms] test 0: waiting for controller sink to close
+00:00 +0 -1: loading C:/Users/mhali/OneDrive/Desktop/Important Projects/Math7/student-app/test/core/database/mappers_test.dart [E]
+  Failed to load "C:/Users/mhali/OneDrive/Desktop/Important Projects/Math7/student-app/test/core/database/mappers_test.dart":
+  Compilation failed for testPath=C:/Users/mhali/OneDrive/Desktop/Important Projects/Math7/student-app/test/core/database/mappers_test.dart: ../math7_domain/lib/src/models/domain.dart:7:7: Error: The non-abstract class 'Domain' is missing implementations for these members:
+   - _$Domain.createdAt
+   - _$Domain.deletedAt
+   - _$Domain.description
+   - _$Domain.id
+   - _$Domain.isPublished
+   - _$Domain.slug
+   - _$Domain.sortOrder
+   - _$Domain.title
+   - _$Domain.toJson
+   - _$Domain.updatedAt
+  Try to either
+   - provide an implementation,
+   - inherit an implementation from a superclass or mixin,
+   - mark the class as abstract, or
+   - provide a 'noSuchMethod' implementation.
+  class Domain with _$Domain {
+        ^^^^^^
+  ../math7_domain/lib/src/models/domain.freezed.dart:18:131: Context: '_$Domain.createdAt' is defined here.
+   String get id; String get slug; String get title; String? get description; int get sortOrder; bool get isPublished; DateTime get createdAt; DateTime get updatedAt; DateTime? get deletedAt;
+                                                                                                                                    ^^^^^^^^^
+  ../math7_domain/lib/src/models/domain.freezed.dart:18:180: Context: '_$Domain.deletedAt' is defined here.
+   String get id; String get slug; String get title; String? get description; int get sortOrder; bool get isPublished; DateTime get createdAt; DateTime get updatedAt; DateTime? get deletedAt;
+                                                                                                                                                                                     ^^^^^^^^^
+  ../math7_domain/lib/src/models/domain.freezed.dart:18:64: Context: '_$Domain.description' is defined here.
+   String get id; String get slug; String get title; String? get description; int get sortOrder; bool get isPublished; DateTime get createdAt; DateTime get updatedAt; DateTime? get deletedAt;
+                                                                 ^^^^^^^^^^^
+  ../math7_domain/lib/src/models/domain.freezed.dart:18:13: Context: '_$Domain.id' is defined here.
+   String get id; String get slug; String get title; String? get description; int get sortOrder; bool get isPublished; DateTime get createdAt; DateTime get updatedAt; DateTime? get deletedAt;
+              ^^
+  ../math7_domain/lib/src/models/domain.freezed.dart:18:105: Context: '_$Domain.isPublished' is defined here.
+   String get id; String get slug; String get title; String? get description; int get sortOrder; bool get isPublished; DateTime get createdAt; DateTime get updatedAt; DateTime? get deletedAt;
+                                                                                                          ^^^^^^^^^^^
+  ../math7_domain/lib/src/models/domain.freezed.dart:18:28: Context: '_$Domain.slug' is defined here.
+   String get id; String get slug; String get title; String? get description; int get sortOrder; bool get isPublished; DateTime get createdAt; DateTime get updatedAt; DateTime? get deletedAt;
+                             ^^^^
+  ../math7_domain/lib/src/models/domain.freezed.dart:18:85: Context: '_$Domain.sortOrder' is defined here.
+   String get id; String get slug; String get title; String? get description; int get sortOrder; bool get isPublished; DateTime get createdAt; DateTime get updatedAt; DateTime? get deletedAt;
+                                                                                      ^^^^^^^^^
+  ../math7_domain/lib/src/models/domain.freezed.dart:18:45: Context: '_$Domain.title' is defined here.
+   String get id; String get slug; String get title; String? get description; int get sortOrder; bool get isPublished; DateTime get createdAt; DateTime get updatedAt; DateTime? get deletedAt;
+                                              ^^^^^
+  ../math7_domain/lib/src/models/domain.freezed.dart:26:24: Context: '_$Domain.toJson' is defined here.
+    Map<String, dynamic> toJson();
+                         ^^^^^^
+  ../math7_domain/lib/src/models/domain.freezed.dart:18:155: Context: '_$Domain.updatedAt' is defined here.
+   String get id; String get slug; String get title; String? get description; int get sortOrder; bool get isPublished; DateTime get createdAt; DateTime get updatedAt; DateTime? get deletedAt;
+                                                                                                                                                            ^^^^^^^^^
+  ../math7_domain/lib/src/models/skill.dart:7:7: Error: The non-abstract class 'Skill' is missing implementations for these members:
+   - _$Skill.createdAt
+   - _$Skill.deletedAt
+   - _$Skill.description
+   - _$Skill.difficultyLevel
+   - _$Skill.domainId
+   - _$Skill.id
+   - _$Skill.isPublished
+   - _$Skill.slug
+   - _$Skill.sortOrder
+   - _$Skill.title
+   - _$Skill.toJson
+   - _$Skill.updatedAt
+  Try to either
+   - provide an implementation,
+   - inherit an implementation from a superclass or mixin,
+   - mark the class as abstract, or
+   - provide a 'noSuchMethod' implementation.
+  class Skill with _$Skill {
+        ^^^^^
+  ../math7_domain/lib/src/models/skill.freezed.dart:18:177: Context: '_$Skill.createdAt' is defined here.
+   String get id; String get domainId; String get slug; String get title; String? get description; int get difficultyLevel; int get sortOrder; bool get isPublished; DateTime get createdAt; DateTime get updatedAt; DateTime? get deletedAt;
+                                                                                                                                                                                  ^^^^^^^^^
+  ../math7_domain/lib/src/models/skill.freezed.dart:18:226: Context: '_$Skill.deletedAt' is defined here.
+   String get id; String get domainId; String get slug; String get title; String? get description; int get difficultyLevel; int get sortOrder; bool get isPublished; DateTime get createdAt; DateTime get updatedAt; DateTime? get deletedAt;
+                                                                                                                                                                                                                                   ^^^^^^^^^
+  ../math7_domain/lib/src/models/skill.freezed.dart:18:85: Context: '_$Skill.description' is defined here.
+   String get id; String get domainId; String get slug; String get title; String? get description; int get difficultyLevel; int get sortOrder; bool get isPublished; DateTime get createdAt; DateTime get updatedAt; DateTime? get deletedAt;
+                                                                                      ^^^^^^^^^^^
+  ../math7_domain/lib/src/models/skill.freezed.dart:18:106: Context: '_$Skill.difficultyLevel' is defined here.
+   String get id; String get domainId; String get slug; String get title; String? get description; int get difficultyLevel; int get sortOrder; bool get isPublished; DateTime get createdAt; DateTime get updatedAt; DateTime? get deletedAt;
+                                                                                                           ^^^^^^^^^^^^^^^
+  ../math7_domain/lib/src/models/skill.freezed.dart:18:28: Context: '_$Skill.domainId' is defined here.
+   String get id; String get domainId; String get slug; String get title; String? get description; int get difficultyLevel; int get sortOrder; bool get isPublished; DateTime get createdAt; DateTime get updatedAt; DateTime? get deletedAt;
+                             ^^^^^^^^
+  ../math7_domain/lib/src/models/skill.freezed.dart:18:13: Context: '_$Skill.id' is defined here.
+   String get id; String get domainId; String get slug; String get title; String? get description; int get difficultyLevel; int get sortOrder; bool get isPublished; DateTime get createdAt; DateTime get updatedAt; DateTime? get deletedAt;
+              ^^
+  ../math7_domain/lib/src/models/skill.freezed.dart:18:151: Context: '_$Skill.isPublished' is defined here.
+   String get id; String get domainId; String get slug; String get title; String? get description; int get difficultyLevel; int get sortOrder; bool get isPublished; DateTime get createdAt; DateTime get updatedAt; DateTime? get deletedAt;
+                                                                                                                                                        ^^^^^^^^^^^
+  ../math7_domain/lib/src/models/skill.freezed.dart:18:49: Context: '_$Skill.slug' is defined here.
+   String get id; String get domainId; String get slug; String get title; String? get description; int get difficultyLevel; int get sortOrder; bool get isPublished; DateTime get createdAt; DateTime get updatedAt; DateTime? get deletedAt;
+                                                  ^^^^
+  ../math7_domain/lib/src/models/skill.freezed.dart:18:131: Context: '_$Skill.sortOrder' is defined here.
+   String get id; String get domainId; String get slug; String get title; String? get description; int get difficultyLevel; int get sortOrder; bool get isPublished; DateTime get createdAt; DateTime get updatedAt; DateTime? get deletedAt;
+                                                                                                                                    ^^^^^^^^^
+  ../math7_domain/lib/src/models/skill.freezed.dart:18:66: Context: '_$Skill.title' is defined here.
+   String get id; String get domainId; String get slug; String get title; String? get description; int get difficultyLevel; int get sortOrder; bool get isPublished; DateTime get createdAt; DateTime get updatedAt; DateTime? get deletedAt;
+                                                                   ^^^^^
+  ../math7_domain/lib/src/models/skill.freezed.dart:26:24: Context: '_$Skill.toJson' is defined here.
+    Map<String, dynamic> toJson();
+                         ^^^^^^
+  ../math7_domain/lib/src/models/skill.freezed.dart:18:201: Context: '_$Skill.updatedAt' is defined here.
+   String get id; String get domainId; String get slug; String get title; String? get description; int get difficultyLevel; int get sortOrder; bool get isPublished; DateTime get createdAt; DateTime get updatedAt; DateTime? get deletedAt;
+                                                                                                                                                                                                          ^^^^^^^^^
+  ../math7_domain/lib/src/models/question.dart:20:7: Error: The non-abstract class 'Question' is missing implementations for these members:
+   - _$Question.content
+   - _$Question.createdAt
+   - _$Question.deletedAt
+   - _$Question.explanation
+   - _$Question.id
+   - _$Question.isPublished
+   - _$Question.options
+   - _$Question.points
+   - _$Question.skillId
+   - _$Question.solution
+   - _$Question.toJson
+   - _$Question.type
+   - _$Question.updatedAt
+  Try to either
+   - provide an implementation,
+   - inherit an implementation from a superclass or mixin,
+   - mark the class as abstract, or
+   - provide a 'noSuchMethod' implementation.
+  class Question with _$Question {
+        ^^^^^^^^
+  ../math7_domain/lib/src/models/question.freezed.dart:18:71: Context: '_$Question.content' is defined here.
+   String get id; String get skillId; QuestionType get type; String get content;// Using dynamic for flexible JSON structures
+                                                                        ^^^^^^^
+  ../math7_domain/lib/src/models/question.freezed.dart:19:147: Context: '_$Question.createdAt' is defined here.
+   Map<String, dynamic> get options; Map<String, dynamic> get solution; String? get explanation; int get points; bool get isPublished; DateTime get createdAt; DateTime get updatedAt; DateTime? get deletedAt;
+                                                                                                                                                    ^^^^^^^^^
+  ../math7_domain/lib/src/models/question.freezed.dart:19:196: Context: '_$Question.deletedAt' is defined here.
+   Map<String, dynamic> get options; Map<String, dynamic> get solution; String? get explanation; int get points; bool get isPublished; DateTime get createdAt; DateTime get updatedAt; DateTime? get deletedAt;
+                                                                                                                                                                                                     ^^^^^^^^^
+  ../math7_domain/lib/src/models/question.freezed.dart:19:83: Context: '_$Question.explanation' is defined here.
+   Map<String, dynamic> get options; Map<String, dynamic> get solution; String? get explanation; int get points; bool get isPublished; DateTime get createdAt; DateTime get updatedAt; DateTime? get deletedAt;
+                                                                                    ^^^^^^^^^^^
+  ../math7_domain/lib/src/models/question.freezed.dart:18:13: Context: '_$Question.id' is defined here.
+   String get id; String get skillId; QuestionType get type; String get content;// Using dynamic for flexible JSON structures
+              ^^
+  ../math7_domain/lib/src/models/question.freezed.dart:19:121: Context: '_$Question.isPublished' is defined here.
+   Map<String, dynamic> get options; Map<String, dynamic> get solution; String? get explanation; int get points; bool get isPublished; DateTime get createdAt; DateTime get updatedAt; DateTime? get deletedAt;
+                                                                                                                          ^^^^^^^^^^^
+  ../math7_domain/lib/src/models/question.freezed.dart:19:27: Context: '_$Question.options' is defined here.
+   Map<String, dynamic> get options; Map<String, dynamic> get solution; String? get explanation; int get points; bool get isPublished; DateTime get createdAt; DateTime get updatedAt; DateTime? get deletedAt;
+                            ^^^^^^^
+  ../math7_domain/lib/src/models/question.freezed.dart:19:104: Context: '_$Question.points' is defined here.
+   Map<String, dynamic> get options; Map<String, dynamic> get solution; String? get explanation; int get points; bool get isPublished; DateTime get createdAt; DateTime get updatedAt; DateTime? get deletedAt;
+                                                                                                         ^^^^^^
+  ../math7_domain/lib/src/models/question.freezed.dart:18:28: Context: '_$Question.skillId' is defined here.
+   String get id; String get skillId; QuestionType get type; String get content;// Using dynamic for flexible JSON structures
+                             ^^^^^^^
+  ../math7_domain/lib/src/models/question.freezed.dart:19:61: Context: '_$Question.solution' is defined here.
+   Map<String, dynamic> get options; Map<String, dynamic> get solution; String? get explanation; int get points; bool get isPublished; DateTime get createdAt; DateTime get updatedAt; DateTime? get deletedAt;
+                                                              ^^^^^^^^
+  ../math7_domain/lib/src/models/question.freezed.dart:27:24: Context: '_$Question.toJson' is defined here.
+    Map<String, dynamic> toJson();
+                         ^^^^^^
+  ../math7_domain/lib/src/models/question.freezed.dart:18:54: Context: '_$Question.type' is defined here.
+   String get id; String get skillId; QuestionType get type; String get content;// Using dynamic for flexible JSON structures
+                                                       ^^^^
+  ../math7_domain/lib/src/models/question.freezed.dart:19:171: Context: '_$Question.updatedAt' is defined here.
+   Map<String, dynamic> get options; Map<String, dynamic> get solution; String? get explanation; int get points; bool get isPublished; DateTime get createdAt; DateTime get updatedAt; DateTime? get deletedAt;
+                                                                                                                                                                            ^^^^^^^^^
+  ../math7_domain/lib/src/models/attempt.dart:7:7: Error: The non-abstract class 'Attempt' is missing implementations for these members:
+   - _$Attempt.createdAt
+   - _$Attempt.deletedAt
+   - _$Attempt.id
+   - _$Attempt.isCorrect
+   - _$Attempt.questionId
+   - _$Attempt.response
+   - _$Attempt.scoreAwarded
+   - _$Attempt.timeSpentMs
+   - _$Attempt.toJson
+   - _$Attempt.updatedAt
+   - _$Attempt.userId
+  Try to either
+   - provide an implementation,
+   - inherit an implementation from a superclass or mixin,
+   - mark the class as abstract, or
+   - provide a 'noSuchMethod' implementation.
+  class Attempt with _$Attempt {
+        ^^^^^^^
+  ../math7_domain/lib/src/models/attempt.freezed.dart:19:101: Context: '_$Attempt.createdAt' is defined here.
+   dynamic get response; bool get isCorrect; int get scoreAwarded; int? get timeSpentMs; DateTime get createdAt; DateTime get updatedAt; DateTime? get deletedAt;
+                                                                                                      ^^^^^^^^^
+  ../math7_domain/lib/src/models/attempt.freezed.dart:19:150: Context: '_$Attempt.deletedAt' is defined here.
+   dynamic get response; bool get isCorrect; int get scoreAwarded; int? get timeSpentMs; DateTime get createdAt; DateTime get updatedAt; DateTime? get deletedAt;
+                                                                                                                                                       ^^^^^^^^^
+  ../math7_domain/lib/src/models/attempt.freezed.dart:18:13: Context: '_$Attempt.id' is defined here.
+   String get id; String get userId; String get questionId;// Response is JSON, could be a selected option ID or text or list
+              ^^
+  ../math7_domain/lib/src/models/attempt.freezed.dart:19:33: Context: '_$Attempt.isCorrect' is defined here.
+   dynamic get response; bool get isCorrect; int get scoreAwarded; int? get timeSpentMs; DateTime get createdAt; DateTime get updatedAt; DateTime? get deletedAt;
+                                  ^^^^^^^^^
+  ../math7_domain/lib/src/models/attempt.freezed.dart:18:47: Context: '_$Attempt.questionId' is defined here.
+   String get id; String get userId; String get questionId;// Response is JSON, could be a selected option ID or text or list
+                                                ^^^^^^^^^^
+  ../math7_domain/lib/src/models/attempt.freezed.dart:19:14: Context: '_$Attempt.response' is defined here.
+   dynamic get response; bool get isCorrect; int get scoreAwarded; int? get timeSpentMs; DateTime get createdAt; DateTime get updatedAt; DateTime? get deletedAt;
+               ^^^^^^^^
+  ../math7_domain/lib/src/models/attempt.freezed.dart:19:52: Context: '_$Attempt.scoreAwarded' is defined here.
+   dynamic get response; bool get isCorrect; int get scoreAwarded; int? get timeSpentMs; DateTime get createdAt; DateTime get updatedAt; DateTime? get deletedAt;
+                                                     ^^^^^^^^^^^^
+  ../math7_domain/lib/src/models/attempt.freezed.dart:19:75: Context: '_$Attempt.timeSpentMs' is defined here.
+   dynamic get response; bool get isCorrect; int get scoreAwarded; int? get timeSpentMs; DateTime get createdAt; DateTime get updatedAt; DateTime? get deletedAt;
+                                                                            ^^^^^^^^^^^
+  ../math7_domain/lib/src/models/attempt.freezed.dart:27:24: Context: '_$Attempt.toJson' is defined here.
+    Map<String, dynamic> toJson();
+                         ^^^^^^
+  ../math7_domain/lib/src/models/attempt.freezed.dart:19:125: Context: '_$Attempt.updatedAt' is defined here.
+   dynamic get response; bool get isCorrect; int get scoreAwarded; int? get timeSpentMs; DateTime get createdAt; DateTime get updatedAt; DateTime? get deletedAt;
+                                                                                                                              ^^^^^^^^^
+  ../math7_domain/lib/src/models/attempt.freezed.dart:18:28: Context: '_$Attempt.userId' is defined here.
+   String get id; String get userId; String get questionId;// Response is JSON, could be a selected option ID or text or list
+                             ^^^^^^
+  .
+00:00 +0 -1: Some tests failed.
+[   +8 ms] Deleting C:\Users\mhali\AppData\Local\Temp\flutter_tools.d31c7a0f\flutter_test_compiler.97cceca5...
+[        ] killing pid 15544
+[  +47 ms] Compiling file:///C:/Users/mhali/AppData/Local/Temp/flutter_tools.d31c7a0f/flutter_test_listener.9cf5eee7/listener.dart took 6702ms
+[   +1 ms] test package returned with exit code 1
+[        ] Runtime for phase TestRunner: Wall-clock: 0:00:06.864818; combined: 0:00:06.864834.
+[        ] Runtime for phase Compile: Wall-clock: 0:00:06.702697; combined: 0:00:06.702712.
+[        ] Runtime for phase Run: Wall-clock: 0:00:00.000000; combined: 0:00:00.000000.
+[        ] Runtime for phase CoverageTotal: Wall-clock: 0:00:00.000000; combined: 0:00:00.000000.
+[        ] Runtime for phase CoverageCollect: Wall-clock: 0:00:00.000000; combined: 0:00:00.000000.
+[        ] Runtime for phase CoverageParseJson: Wall-clock: 0:00:00.000000; combined: 0:00:00.000000.
+[        ] Runtime for phase CoverageAddHitmap: Wall-clock: 0:00:00.000000; combined: 0:00:00.000000.
+[        ] Runtime for phase CoverageDataCollect: Wall-clock: 0:00:00.000000; combined: 0:00:00.000000.
+[        ] Runtime for phase WatcherFinishedTest: Wall-clock: 0:00:00.000000; combined: 0:00:00.000000.
+[   +4 ms] "flutter test" took 8,269ms.
+[        ] Running 3 shutdown hooks
+[   +2 ms] Shutdown hooks complete
+[ +150 ms] exiting with code 1

@@ -1,0 +1,34 @@
+{
+  "mcpServers": {
+    "flutter": {
+      "command": "dart",
+      "args": ["pub", "global", "run", "dart_mcp_server"]
+    },
+    "supabase": {
+      "command": "npx",
+      "args": ["-y", "@supabase/mcp-server"],
+      "env": {
+        "SUPABASE_ACCESS_TOKEN": "YOUR_ACCESS_TOKEN",
+        "SUPABASE_PROJECT_ID": "qvslbiceoonrgjxzkotb"
+      }
+    },
+    "playwright": {
+      "command": "npx",
+      "args": ["-y", "@modelcontextprotocol/server-playwright"],
+      "env": {
+        "PLAYWRIGHT_CONFIG_PATH": "c:\\Users\\mhali\\OneDrive\\Desktop\\Important Projects\\Math7\\admin-panel\\playwright.config.ts"
+      }
+    },
+    "sequential-thinking": {
+      "command": "npx",
+      "args": ["-y", "@modelcontextprotocol/server-sequential-thinking"]
+    },
+    "code-scalpel": {
+      "command": "uvx",
+      "args": ["code-scalpel", "mcp"],
+      "env": {
+        "CODE_SCALPEL_ROOT": "c:\\Users\\mhali\\OneDrive\\Desktop\\Important Projects\\Math7"
+      }
+    }
+  }
+}

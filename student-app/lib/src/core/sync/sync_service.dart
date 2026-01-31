@@ -5,6 +5,11 @@ import 'package:supabase_flutter/supabase_flutter.dart';
 import 'package:student_app/src/core/database/database.dart';
 import 'package:student_app/src/core/database/providers.dart';
 import 'package:student_app/src/core/supabase/providers.dart';
+import 'package:student_app/src/features/curriculum/repositories/domain_repository.dart';
+import 'package:student_app/src/features/curriculum/repositories/skill_repository.dart';
+import 'package:student_app/src/features/curriculum/repositories/question_repository.dart';
+
+import 'package:math7_domain/math7_domain.dart' as model;
 
 /// Sync state
 class SyncState {
@@ -36,20 +41,28 @@ class SyncState {
 final syncServiceProvider = StateNotifierProvider<SyncService, SyncState>((ref) {
   final database = ref.watch(databaseProvider);
   final supabase = ref.watch(supabaseClientProvider);
-  return SyncService(database, supabase);
+  final domainRepo = ref.watch(localDomainRepositoryProvider);
+  final skillRepo = ref.watch(localSkillRepositoryProvider);
+  final questionRepo = ref.watch(localQuestionRepositoryProvider);
+  return SyncService(database, supabase, domainRepo, skillRepo, questionRepo);
 });
 
 /// Sync service - handles push/pull synchronization (manual only)
 class SyncService extends StateNotifier<SyncState> {
   final AppDatabase _database;
   final SupabaseClient _supabase;
+  final DriftDomainRepository _domainRepo;
+  final DriftSkillRepository _skillRepo;
+  final DriftQuestionRepository _questionRepo;
 
-  SyncService(this._database, this._supabase) : super(SyncState.idle());
+  SyncService(
+    this._database,
+    this._supabase,
+    this._domainRepo,
+    this._skillRepo,
+    this._questionRepo,
+  ) : super(SyncState.idle());
 
-  @override
-  void dispose() {
-    super.dispose();
-  }
 
   /// Full sync: push local changes, then pull remote changes
   Future<void> sync() async {
@@ -81,11 +94,44 @@ class SyncService extends StateNotifier<SyncState> {
         switch (item.action) {
           case 'INSERT':
           case 'UPSERT':
-            // Use batch_submit_attempts RPC for attempts
+            // Use submit_attempt_and_update_progress RPC for attempts
             if (item.table == 'attempts') {
-              await _supabase.rpc('batch_submit_attempts', params: {
-                'attempts_json': [payload],
-              });
+              final List<dynamic> response = await _supabase.rpc(
+                'submit_attempt_and_update_progress',
+                params: {
+                  'attempts_json': [payload],
+                },
+              );
+
+              // Process returned skill_progress updates
+              if (response.isNotEmpty) {
+                final progressList = response.map((json) {
+                  return SkillProgressCompanion(
+                    id: Value(json['id'] as String),
+                    userId: Value(json['user_id'] as String),
+                    skillId: Value(json['skill_id'] as String),
+                    totalAttempts: Value(json['total_attempts'] as int),
+                    correctAttempts: Value(json['correct_attempts'] as int),
+                    totalPoints: Value(json['total_points'] as int),
+                    masteryLevel: Value(json['mastery_level'] as int),
+                    currentStreak: Value(json['current_streak'] as int),
+                    longestStreak: Value(json['longest_streak'] as int),
+                    lastAttemptAt: Value(DateTime.parse(json['last_attempt_at'] as String)),
+                    createdAt: Value(DateTime.parse(json['created_at'] as String)),
+                    updatedAt: Value(DateTime.parse(json['updated_at'] as String)),
+                  );
+                }).toList();
+
+                await _database.batch((batch) {
+                  for (final progress in progressList) {
+                    batch.insert(
+                      _database.skillProgress,
+                      progress,
+                      mode: InsertMode.insertOrReplace,
+                    );
+                  }
+                });
+              }
             } else {
               await _supabase.from(item.table).upsert(payload);
             }
@@ -142,28 +188,8 @@ class SyncService extends StateNotifier<SyncState> {
         .isFilter('deleted_at', null);
 
     if (response.isNotEmpty) {
-      final domains = response.map((json) {
-        return DomainsCompanion(
-          id: Value(json['id'] as String),
-          slug: Value(json['slug'] as String),
-          title: Value(json['title'] as String),
-          description: Value(json['description'] as String?),
-          sortOrder: Value(json['sort_order'] as int? ?? 0),
-          isPublished: Value(json['is_published'] as bool? ?? false),
-          createdAt: Value(DateTime.parse(json['created_at'] as String)),
-          updatedAt: Value(DateTime.parse(json['updated_at'] as String)),
-          deletedAt: Value(json['deleted_at'] != null 
-              ? DateTime.parse(json['deleted_at'] as String) 
-              : null),
-        );
-      }).toList();
-
-      await _database.batch((batch) {
-        for (final domain in domains) {
-          batch.insert(_database.domains, domain, mode: InsertMode.insertOrReplace);
-        }
-      });
-
+      final domains = response.map((json) => model.Domain.fromJson(json)).toList();
+      await _domainRepo.batchUpsert(domains);
       await _updateLastSync('domains', DateTime.now());
     }
   }
@@ -179,30 +205,8 @@ class SyncService extends StateNotifier<SyncState> {
         .isFilter('deleted_at', null);
 
     if (response.isNotEmpty) {
-      final skills = response.map((json) {
-        return SkillsCompanion(
-          id: Value(json['id'] as String),
-          domainId: Value(json['domain_id'] as String),
-          slug: Value(json['slug'] as String),
-          title: Value(json['title'] as String),
-          description: Value(json['description'] as String?),
-          difficultyLevel: Value(json['difficulty_level'] as int? ?? 1),
-          sortOrder: Value(json['sort_order'] as int? ?? 0),
-          isPublished: Value(json['is_published'] as bool? ?? false),
-          createdAt: Value(DateTime.parse(json['created_at'] as String)),
-          updatedAt: Value(DateTime.parse(json['updated_at'] as String)),
-          deletedAt: Value(json['deleted_at'] != null 
-              ? DateTime.parse(json['deleted_at'] as String) 
-              : null),
-        );
-      }).toList();
-
-      await _database.batch((batch) {
-        for (final skill in skills) {
-          batch.insert(_database.skills, skill, mode: InsertMode.insertOrReplace);
-        }
-      });
-
+      final skills = response.map((json) => model.Skill.fromJson(json)).toList();
+      await _skillRepo.batchUpsert(skills);
       await _updateLastSync('skills', DateTime.now());
     }
   }
@@ -218,31 +222,8 @@ class SyncService extends StateNotifier<SyncState> {
         .isFilter('deleted_at', null);
 
     if (response.isNotEmpty) {
-      final questions = response.map((json) {
-        return QuestionsCompanion(
-          id: Value(json['id'] as String),
-          skillId: Value(json['skill_id'] as String),
-          type: Value(json['type'] as String),
-          content: Value(json['content'] as String),
-          options: Value(jsonEncode(json['options'])),
-          solution: Value(jsonEncode(json['solution'])),
-          explanation: Value(json['explanation'] as String?),
-          points: Value(json['points'] as int? ?? 1),
-          isPublished: Value(json['is_published'] as bool? ?? false),
-          createdAt: Value(DateTime.parse(json['created_at'] as String)),
-          updatedAt: Value(DateTime.parse(json['updated_at'] as String)),
-          deletedAt: Value(json['deleted_at'] != null 
-              ? DateTime.parse(json['deleted_at'] as String) 
-              : null),
-        );
-      }).toList();
-
-      await _database.batch((batch) {
-        for (final question in questions) {
-          batch.insert(_database.questions, question, mode: InsertMode.insertOrReplace);
-        }
-      });
-
+      final questions = response.map((json) => model.Question.fromJson(json)).toList();
+      await _questionRepo.batchUpsert(questions);
       await _updateLastSync('questions', DateTime.now());
     }
   }

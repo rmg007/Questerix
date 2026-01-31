@@ -1,4 +1,5 @@
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+
 import 'database.dart';
 
 /// Provider for the Drift database instance
@@ -13,3 +14,5 @@ final databaseProvider = Provider<AppDatabase>((ref) {
   
   return database;
 });
+
+

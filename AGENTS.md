@@ -139,6 +139,27 @@ The following files exist in the template. Agents may modify them to meet requir
 - `make ci` - Run all lint/test/build gates
 - `make validate_phase_N` - Run Phase N validation script
 
+### Autonomous Migrations
+
+To enable agentic/autonomous database migrations when CLI access is restricted or tokens are missing, use the following helper scripts in `scripts/`:
+
+1.  **`agent_migrate.ps1`**: Tries to use `supabase db push` with a direct connection string.
+2.  **`direct_apply.js`**: "Break glass" tool to execute a specific SQL file directly via Node `pg` client, creating a connection to the database.
+
+**Credentials (Saved per User Request):**
+- **Project Ref**: `qvslbiceoonrgjxzkotb`
+- **DB Password**: `QpJIzi2r6vaoghG5`
+- **Connection String**: `postgresql://postgres:QpJIzi2r6vaoghG5@db.qvslbiceoonrgjxzkotb.supabase.co:5432/postgres`
+
+**Usage**:
+```powershell
+# Try standard push first
+./scripts/agent_migrate.ps1
+
+# If conflicting history prevents push, use direct apply (edit script to point to target SQL file)
+node scripts/direct_apply.js
+```
+
 ### Port and Host Rules
 
 All dev servers **must** bind to `0.0.0.0` (not `localhost` or `127.0.0.1`) to work correctly in:

@@ -24,12 +24,15 @@ The project consists of:
 - **`ROADMAP.md`**: The visual timeline of the project phases.
 - **`PHASE_STATE.json`**: The state file tracking the agent's progress.
 - **`AppShell/docs/specs/*`**: Detailed blueprints for UI, Data, and API.
+- **`.mcp_config.json`**: Ready-to-use MCP server configuration.
+- **`MCP_SETUP_COMPLETE.md`**: MCP installation summary and next steps.
 
 ## 🧑‍💻 For Humans (Development)
 
 - `docs/DEVELOPMENT.md`
 - `docs/CI_CONTRACT.md`
 - `docs/VALIDATION.md`
+- `docs/MCP_SETUP_GUIDE.md`
 
 ## 🤖 For AI Agents
 

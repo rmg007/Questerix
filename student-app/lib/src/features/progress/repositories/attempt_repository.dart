@@ -1,10 +1,12 @@
 import 'dart:convert';
 import 'package:drift/drift.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:uuid/uuid.dart';
+import 'package:math7_domain/math7_domain.dart' as model;
 import 'package:student_app/src/core/database/database.dart';
+import 'package:student_app/src/core/database/mappers.dart';
 import 'package:student_app/src/core/database/providers.dart';
 import 'package:student_app/src/core/supabase/providers.dart';
+import 'package:uuid/uuid.dart';
 
 /// Provider for attempt repository
 final attemptRepositoryProvider = Provider<AttemptRepository>((ref) {
@@ -29,7 +31,8 @@ class AttemptRepository {
     required int scoreAwarded,
     int? timeSpentMs,
   }) async {
-    if (_userId == null) {
+    final userId = _userId;
+    if (userId == null) {
       throw Exception('User not authenticated');
     }
 
@@ -38,7 +41,7 @@ class AttemptRepository {
 
     final attempt = AttemptsCompanion(
       id: Value(attemptId),
-      userId: Value(_userId),
+      userId: Value(userId),
       questionId: Value(questionId),
       response: Value(jsonEncode(response)),
       isCorrect: Value(isCorrect),
@@ -61,7 +64,7 @@ class AttemptRepository {
               recordId: Value(attemptId),
               payload: Value(jsonEncode({
                 'id': attemptId,
-                'user_id': _userId,
+                'user_id': userId,
                 'question_id': questionId,
                 'response': response,
                 'is_correct': isCorrect,
@@ -80,28 +83,32 @@ class AttemptRepository {
   }
 
   /// Get all attempts for the current user
-  Stream<List<Attempt>> watchMyAttempts() {
-    if (_userId == null) {
+  Stream<List<model.Attempt>> watchMyAttempts() {
+    final userId = _userId;
+    if (userId == null) {
       return Stream.value([]);
     }
 
     return (_database.select(_database.attempts)
-          ..where((a) => a.userId.equals(_userId))
+          ..where((a) => a.userId.equals(userId))
           ..orderBy([(a) => OrderingTerm.desc(a.createdAt)]))
-        .watch();
+        .watch()
+        .map((rows) => rows.map(DriftMappers.toAttempt).toList());
   }
 
   /// Get attempts for a specific question
-  Future<List<Attempt>> getByQuestion(String questionId) {
-    if (_userId == null) {
-      return Future.value([]);
+  Future<List<model.Attempt>> getByQuestion(String questionId) async {
+    final userId = _userId;
+    if (userId == null) {
+      return [];
     }
 
-    return (_database.select(_database.attempts)
-          ..where((a) => a.userId.equals(_userId))
+    final rows = await (_database.select(_database.attempts)
+          ..where((a) => a.userId.equals(userId))
           ..where((a) => a.questionId.equals(questionId))
           ..orderBy([(a) => OrderingTerm.desc(a.createdAt)]))
         .get();
+    return rows.map(DriftMappers.toAttempt).toList();
   }
 
   /// Get attempt statistics for a skill
@@ -112,6 +119,7 @@ class AttemptRepository {
       return {'total': 0, 'correct': 0};
     }
 
+    // TODO: Improve query to filter by skill via JOIN
     final attempts = await _database.select(_database.attempts).get();
     final total = attempts.length;
     final correct = attempts.where((a) => a.isCorrect).length;
@@ -120,12 +128,12 @@ class AttemptRepository {
   }
 
   /// Batch upsert attempts (for sync)
-  Future<void> batchUpsert(List<Attempt> attempts) async {
+  Future<void> batchUpsert(List<model.Attempt> attempts) async {
     await _database.batch((batch) {
       for (final attempt in attempts) {
         batch.insert(
           _database.attempts,
-          attempt,
+          DriftMappers.toAttemptRow(attempt),
           mode: InsertMode.insertOrReplace,
         );
       }

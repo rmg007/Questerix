@@ -39,7 +39,7 @@ class AppDatabase extends _$AppDatabase {
 QueryExecutor _openConnection() {
   return driftDatabase(
     name: 'math7',
-    native: DriftNativeOptions(
+    native: const DriftNativeOptions(
       databaseDirectory: getApplicationDocumentsDirectory,
     ),
     web: DriftWebOptions(
@@ -47,8 +47,8 @@ QueryExecutor _openConnection() {
       driftWorker: Uri.parse('drift_worker.js'),
       onResult: (result) {
         if (result.missingFeatures.isNotEmpty) {
-          print('Drift Web: Missing features: ${result.missingFeatures}');
-          print('Drift Web: Using implementation: ${result.chosenImplementation}');
+          // print('Drift Web: Missing features: ${result.missingFeatures}');
+          // print('Drift Web: Using implementation: ${result.chosenImplementation}');
         }
       },
     ),

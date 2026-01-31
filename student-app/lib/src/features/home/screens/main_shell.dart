@@ -33,7 +33,7 @@ class MainShell extends ConsumerWidget {
         decoration: BoxDecoration(
           boxShadow: [
             BoxShadow(
-              color: Colors.black.withOpacity(0.1),
+              color: Colors.black.withValues(alpha: 0.1),
               blurRadius: 10,
               offset: const Offset(0, -2),
             ),
@@ -43,9 +43,9 @@ class MainShell extends ConsumerWidget {
           currentIndex: currentTab,
           onTap: (index) => ref.read(currentTabProvider.notifier).state = index,
           items: [
-            BottomNavigationBarItem(
-              icon: const Icon(Icons.home_outlined),
-              activeIcon: const Icon(Icons.home),
+            const BottomNavigationBarItem(
+              icon: Icon(Icons.home_outlined),
+              activeIcon: Icon(Icons.home),
               label: 'Home',
             ),
             BottomNavigationBarItem(
@@ -54,7 +54,7 @@ class MainShell extends ConsumerWidget {
                 children: [
                   const Icon(Icons.trending_up_outlined),
                   if (syncState.isSyncing)
-                    Positioned(
+                    const Positioned(
                       right: -4,
                       top: -4,
                       child: SizedBox(

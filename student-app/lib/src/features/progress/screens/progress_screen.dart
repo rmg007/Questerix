@@ -58,7 +58,7 @@ class ProgressScreen extends ConsumerWidget {
                     Container(
                       padding: const EdgeInsets.all(12),
                       decoration: BoxDecoration(
-                        color: AppColors.primary.withOpacity(0.1),
+                        color: AppColors.primary.withValues(alpha: 0.1),
                         borderRadius: BorderRadius.circular(12),
                       ),
                       child: const Icon(
@@ -142,7 +142,7 @@ class ProgressScreen extends ConsumerWidget {
     return Container(
       padding: const EdgeInsets.all(12),
       decoration: BoxDecoration(
-        color: color.withOpacity(0.1),
+        color: color.withValues(alpha: 0.1),
         borderRadius: BorderRadius.circular(12),
       ),
       child: Column(
@@ -285,7 +285,7 @@ class ProgressScreen extends ConsumerWidget {
                   child: Center(
                     child: Column(
                       children: [
-                        Icon(
+                        const Icon(
                           Icons.history,
                           size: 48,
                           color: AppColors.textTertiary,
@@ -319,7 +319,7 @@ class ProgressScreen extends ConsumerWidget {
                   margin: const EdgeInsets.only(bottom: 8),
                   child: ListTile(
                     leading: CircleAvatar(
-                      backgroundColor: _getMasteryColor(accuracy).withOpacity(0.1),
+                      backgroundColor: _getMasteryColor(accuracy).withValues(alpha: 0.1),
                       child: Icon(
                         Icons.quiz,
                         color: _getMasteryColor(accuracy),
@@ -333,7 +333,7 @@ class ProgressScreen extends ConsumerWidget {
                     trailing: Container(
                       padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
                       decoration: BoxDecoration(
-                        color: _getMasteryColor(accuracy).withOpacity(0.1),
+                        color: _getMasteryColor(accuracy).withValues(alpha: 0.1),
                         borderRadius: BorderRadius.circular(12),
                       ),
                       child: Text(

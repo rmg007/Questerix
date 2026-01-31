@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:math7_domain/math7_domain.dart' as model;
 import 'package:student_app/src/core/connectivity/connectivity_service.dart';
 import 'package:student_app/src/core/sync/sync_service.dart';
 import 'package:student_app/src/core/theme/app_theme.dart';
@@ -40,7 +41,7 @@ class DomainsScreen extends ConsumerWidget {
           ),
         ],
       ),
-      body: StreamBuilder(
+      body: StreamBuilder<List<model.Domain>>(
         stream: domainsStream,
         builder: (context, snapshot) {
           if (snapshot.connectionState == ConnectionState.waiting) {
@@ -63,7 +64,7 @@ class DomainsScreen extends ConsumerWidget {
                 child: Column(
                   mainAxisAlignment: MainAxisAlignment.center,
                   children: [
-                    Icon(
+                    const Icon(
                       Icons.error_outline,
                       size: 64,
                       color: AppColors.error,
@@ -103,10 +104,10 @@ class DomainsScreen extends ConsumerWidget {
                     Container(
                       padding: const EdgeInsets.all(24),
                       decoration: BoxDecoration(
-                        color: AppColors.primary.withOpacity(0.1),
+                        color: AppColors.primary.withValues(alpha: 0.1),
                         shape: BoxShape.circle,
                       ),
-                      child: Icon(
+                      child: const Icon(
                         Icons.school_outlined,
                         size: 64,
                         color: AppColors.primary,
@@ -180,7 +181,7 @@ class DomainsScreen extends ConsumerWidget {
             margin: const EdgeInsets.only(right: 8),
             padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
             decoration: BoxDecoration(
-              color: AppColors.offline.withOpacity(0.2),
+              color: AppColors.offline.withValues(alpha: 0.2),
               borderRadius: BorderRadius.circular(16),
             ),
             child: const Row(
@@ -209,7 +210,7 @@ class DomainsScreen extends ConsumerWidget {
 }
 
 class _DomainCard extends ConsumerWidget {
-  final dynamic domain;
+  final model.Domain domain;
   final VoidCallback onTap;
 
   const _DomainCard({
@@ -244,7 +245,7 @@ class _DomainCard extends ConsumerWidget {
                         width: 48,
                         height: 48,
                         decoration: BoxDecoration(
-                          color: AppColors.primary.withOpacity(0.1),
+                          color: AppColors.primary.withValues(alpha: 0.1),
                           borderRadius: BorderRadius.circular(12),
                         ),
                         child: const Icon(
@@ -320,13 +321,13 @@ class _DomainCard extends ConsumerWidget {
                       Container(
                         padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
                         decoration: BoxDecoration(
-                          color: AppColors.points.withOpacity(0.1),
+                          color: AppColors.points.withValues(alpha: 0.1),
                           borderRadius: BorderRadius.circular(16),
                         ),
                         child: Row(
                           mainAxisSize: MainAxisSize.min,
                           children: [
-                            Icon(
+                            const Icon(
                               Icons.star,
                               size: 16,
                               color: AppColors.points,
@@ -334,7 +335,7 @@ class _DomainCard extends ConsumerWidget {
                             const SizedBox(width: 4),
                             Text(
                               '$points pts',
-                              style: TextStyle(
+                              style: const TextStyle(
                                 fontSize: 12,
                                 fontWeight: FontWeight.bold,
                                 color: AppColors.points,

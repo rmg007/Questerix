@@ -36,7 +36,7 @@ class MultipleChoiceWidget extends StatelessWidget {
             curve: Curves.easeInOut,
             decoration: BoxDecoration(
               color: isSelected
-                  ? AppColors.primary.withOpacity(0.1)
+                  ? AppColors.primary.withValues(alpha: 0.1)
                   : AppColors.surface,
               borderRadius: BorderRadius.circular(16),
               border: Border.all(
@@ -159,7 +159,7 @@ class McqMultiWidget extends StatelessWidget {
             curve: Curves.easeInOut,
             decoration: BoxDecoration(
               color: isSelected
-                  ? AppColors.primary.withOpacity(0.1)
+                  ? AppColors.primary.withValues(alpha: 0.1)
                   : AppColors.surface,
               borderRadius: BorderRadius.circular(16),
               border: Border.all(
@@ -297,7 +297,7 @@ class _BooleanButton extends StatelessWidget {
       constraints: const BoxConstraints(minHeight: 100),
       decoration: BoxDecoration(
         color: isSelected
-            ? AppColors.primary.withOpacity(0.1)
+            ? AppColors.primary.withValues(alpha: 0.1)
             : AppColors.surface,
         borderRadius: BorderRadius.circular(16),
         border: Border.all(
@@ -569,7 +569,7 @@ class _ReorderStepsWidgetState extends State<ReorderStepsWidget> {
                   child: Material(
                     elevation: elevation,
                     borderRadius: BorderRadius.circular(12),
-                    color: AppColors.primary.withOpacity(0.1),
+                    color: AppColors.primary.withValues(alpha: 0.1),
                     child: child,
                   ),
                 );
@@ -629,7 +629,7 @@ class _ReorderableStepItem extends StatelessWidget {
                 width: 32,
                 height: 32,
                 decoration: BoxDecoration(
-                  color: AppColors.primary.withOpacity(0.1),
+                  color: AppColors.primary.withValues(alpha: 0.1),
                   borderRadius: BorderRadius.circular(8),
                 ),
                 child: Center(

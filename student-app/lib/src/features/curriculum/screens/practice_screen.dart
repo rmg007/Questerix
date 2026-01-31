@@ -1,10 +1,9 @@
 // ignore_for_file: deprecated_member_use
 import 'dart:async';
-import 'dart:convert';
 import 'dart:math';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:student_app/src/core/database/database.dart';
+import 'package:math7_domain/math7_domain.dart' as model;
 import 'package:student_app/src/core/theme/app_theme.dart';
 import 'package:student_app/src/features/curriculum/repositories/question_repository.dart';
 import 'package:student_app/src/features/curriculum/widgets/question_widgets.dart';
@@ -29,7 +28,7 @@ class PracticeScreen extends ConsumerStatefulWidget {
 }
 
 class _PracticeScreenState extends ConsumerState<PracticeScreen> {
-  List<Question> _questions = [];
+  List<model.Question> _questions = [];
   int _currentIndex = 0;
   Map<String, dynamic>? _selectedAnswer;
   bool _isAnswered = false;
@@ -120,7 +119,7 @@ class _PracticeScreenState extends ConsumerState<PracticeScreen> {
     _totalTimeMs += timeSpentMs;
 
     final question = _questions[_currentIndex];
-    final solution = jsonDecode(question.solution) as Map<String, dynamic>;
+    final solution = question.solution;
     final isCorrect = _checkAnswer(question.type, _selectedAnswer!, solution);
 
     int scoreAwarded = 0;
@@ -176,28 +175,28 @@ class _PracticeScreenState extends ConsumerState<PracticeScreen> {
   }
 
   bool _checkAnswer(
-    String type,
+    model.QuestionType type,
     Map<String, dynamic> response,
     Map<String, dynamic> solution,
   ) {
     switch (type) {
-      case 'multiple_choice':
+      case model.QuestionType.multipleChoice:
         return response['selected_option_id'] == solution['correct_option_id'];
-      case 'mcq_multi':
+      case model.QuestionType.mcqMulti:
         final userIds = List<String>.from(response['selected_ids'] ?? []);
         final correctIds = List<String>.from(solution['correct_ids'] ?? []);
         userIds.sort();
         correctIds.sort();
         return userIds.length == correctIds.length &&
             userIds.every((id) => correctIds.contains(id));
-      case 'boolean':
+      case model.QuestionType.boolean:
         return response['value'] == solution['correct_value'];
-      case 'text_input':
+      case model.QuestionType.textInput:
         final userAnswer = (response['text'] as String).toLowerCase().trim();
         final correctAnswer =
             (solution['exact_match'] as String).toLowerCase().trim();
         return userAnswer == correctAnswer;
-      case 'reorder_steps':
+      case model.QuestionType.reorderSteps:
         final userOrder = List<String>.from(response['order'] ?? []);
         final correctOrder = List<String>.from(solution['correct_order'] ?? []);
         if (userOrder.length != correctOrder.length) return false;
@@ -205,8 +204,7 @@ class _PracticeScreenState extends ConsumerState<PracticeScreen> {
           if (userOrder[i] != correctOrder[i]) return false;
         }
         return true;
-      default:
-        return false;
+
     }
   }
 
@@ -247,9 +245,9 @@ class _PracticeScreenState extends ConsumerState<PracticeScreen> {
   @override
   Widget build(BuildContext context) {
     if (_isLoading) {
-      return Scaffold(
+      return const Scaffold(
         backgroundColor: AppColors.background,
-        body: const Center(
+        body: Center(
           child: CircularProgressIndicator(color: AppColors.primary),
         ),
       );
@@ -298,7 +296,7 @@ class _PracticeScreenState extends ConsumerState<PracticeScreen> {
         ? _checkAnswer(
             question.type,
             _selectedAnswer!,
-            jsonDecode(question.solution),
+            question.solution,
           )
         : null;
 
@@ -313,7 +311,7 @@ class _PracticeScreenState extends ConsumerState<PracticeScreen> {
             margin: const EdgeInsets.only(right: 16),
             padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
             decoration: BoxDecoration(
-              color: Colors.white.withOpacity(0.2),
+              color: Colors.white.withValues(alpha: 0.2),
               borderRadius: BorderRadius.circular(16),
             ),
             child: Row(
@@ -343,7 +341,7 @@ class _PracticeScreenState extends ConsumerState<PracticeScreen> {
             Container(
               width: double.infinity,
               padding: const EdgeInsets.symmetric(vertical: 8),
-              color: AppColors.streak.withOpacity(0.1),
+              color: AppColors.streak.withValues(alpha: 0.1),
               child: Row(
                 mainAxisAlignment: MainAxisAlignment.center,
                 children: [
@@ -385,7 +383,7 @@ class _PracticeScreenState extends ConsumerState<PracticeScreen> {
                                   vertical: 4,
                                 ),
                                 decoration: BoxDecoration(
-                                  color: AppColors.primary.withOpacity(0.1),
+                                  color: AppColors.primary.withValues(alpha: 0.1),
                                   borderRadius: BorderRadius.circular(8),
                                 ),
                                 child: Text(
@@ -435,7 +433,7 @@ class _PracticeScreenState extends ConsumerState<PracticeScreen> {
               color: AppColors.surface,
               boxShadow: [
                 BoxShadow(
-                  color: Colors.black.withOpacity(0.05),
+                  color: Colors.black.withValues(alpha: 0.05),
                   blurRadius: 10,
                   offset: const Offset(0, -2),
                 ),
@@ -456,7 +454,7 @@ class _PracticeScreenState extends ConsumerState<PracticeScreen> {
                     padding: const EdgeInsets.symmetric(vertical: 16),
                     shape: RoundedRectangleBorder(
                       borderRadius: BorderRadius.circular(12),
-                    ),
+                      ),
                     disabledBackgroundColor: AppColors.cardBorder,
                   ),
                   child: Text(
@@ -479,7 +477,7 @@ class _PracticeScreenState extends ConsumerState<PracticeScreen> {
     );
   }
 
-  Widget _buildFeedbackCard(Question question, bool isCorrect) {
+  Widget _buildFeedbackCard(model.Question question, bool isCorrect) {
     return AnimatedContainer(
       duration: const Duration(milliseconds: 300),
       decoration: BoxDecoration(
@@ -533,7 +531,7 @@ class _PracticeScreenState extends ConsumerState<PracticeScreen> {
                       vertical: 6,
                     ),
                     decoration: BoxDecoration(
-                      color: AppColors.success.withOpacity(0.2),
+                      color: AppColors.success.withValues(alpha: 0.2),
                       borderRadius: BorderRadius.circular(16),
                     ),
                     child: Text(
@@ -554,8 +552,8 @@ class _PracticeScreenState extends ConsumerState<PracticeScreen> {
                 question.explanation!,
                 style: TextStyle(
                   color: isCorrect
-                      ? AppColors.success.withOpacity(0.8)
-                      : AppColors.error.withOpacity(0.8),
+                      ? AppColors.success.withValues(alpha: 0.8)
+                      : AppColors.error.withValues(alpha: 0.8),
                   fontSize: 14,
                   height: 1.5,
                 ),
@@ -567,74 +565,62 @@ class _PracticeScreenState extends ConsumerState<PracticeScreen> {
     );
   }
 
-  Widget _buildQuestionWidget(Question question) {
-    final options = jsonDecode(question.options);
+  Widget _buildQuestionWidget(model.Question question) {
+    final options = question.options;
 
     switch (question.type) {
-      case 'multiple_choice':
+      case model.QuestionType.multipleChoice:
         return MultipleChoiceWidget(
           options: options,
           selectedAnswer: _selectedAnswer,
           onAnswerChanged: _onAnswerChanged,
           isAnswered: _isAnswered,
         );
-      case 'mcq_multi':
+      case model.QuestionType.mcqMulti:
         return McqMultiWidget(
           options: options,
           selectedAnswer: _selectedAnswer,
           onAnswerChanged: _onAnswerChanged,
           isAnswered: _isAnswered,
         );
-      case 'boolean':
+      case model.QuestionType.boolean:
         return BooleanWidget(
           options: options,
           selectedAnswer: _selectedAnswer,
           onAnswerChanged: _onAnswerChanged,
           isAnswered: _isAnswered,
         );
-      case 'text_input':
+      case model.QuestionType.textInput:
         return TextInputWidget(
           options: options,
           selectedAnswer: _selectedAnswer,
           onAnswerChanged: _onAnswerChanged,
           isAnswered: _isAnswered,
         );
-      case 'reorder_steps':
+      case model.QuestionType.reorderSteps:
         return ReorderStepsWidget(
           options: options,
           selectedAnswer: _selectedAnswer,
           onAnswerChanged: _onAnswerChanged,
           isAnswered: _isAnswered,
         );
-      default:
-        return Container(
-          padding: const EdgeInsets.all(24),
-          decoration: BoxDecoration(
-            color: AppColors.warningLight,
-            borderRadius: BorderRadius.circular(16),
-          ),
-          child: Text(
-            'Unsupported question type: ${question.type}',
-            style: const TextStyle(color: AppColors.warning),
-          ),
-        );
+
     }
   }
 
-  String _getQuestionTypeLabel(String type) {
+  String _getQuestionTypeLabel(model.QuestionType type) {
     switch (type) {
-      case 'multiple_choice':
+      case model.QuestionType.multipleChoice:
         return 'Single Choice';
-      case 'mcq_multi':
+      case model.QuestionType.mcqMulti:
         return 'Multiple Choice';
-      case 'boolean':
+      case model.QuestionType.boolean:
         return 'True/False';
-      case 'text_input':
+      case model.QuestionType.textInput:
         return 'Text Answer';
-      case 'reorder_steps':
+      case model.QuestionType.reorderSteps:
         return 'Reorder';
-      default:
-        return type;
+
     }
   }
 

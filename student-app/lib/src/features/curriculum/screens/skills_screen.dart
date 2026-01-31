@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:math7_domain/math7_domain.dart' as model;
 import 'package:student_app/src/core/theme/app_theme.dart';
 import 'package:student_app/src/features/curriculum/repositories/skill_repository.dart';
 import 'package:student_app/src/features/curriculum/screens/practice_screen.dart';
@@ -23,7 +24,7 @@ class SkillsScreen extends ConsumerWidget {
       appBar: AppBar(
         title: Text(domainTitle),
       ),
-      body: StreamBuilder(
+      body: StreamBuilder<List<model.Skill>>(
         stream: skillsStream,
         builder: (context, snapshot) {
           if (snapshot.connectionState == ConnectionState.waiting) {
@@ -46,7 +47,7 @@ class SkillsScreen extends ConsumerWidget {
                 child: Column(
                   mainAxisAlignment: MainAxisAlignment.center,
                   children: [
-                    Icon(
+                    const Icon(
                       Icons.error_outline,
                       size: 64,
                       color: AppColors.error,
@@ -80,10 +81,10 @@ class SkillsScreen extends ConsumerWidget {
                     Container(
                       padding: const EdgeInsets.all(24),
                       decoration: BoxDecoration(
-                        color: AppColors.primary.withOpacity(0.1),
+                        color: AppColors.primary.withValues(alpha: 0.1),
                         shape: BoxShape.circle,
                       ),
-                      child: Icon(
+                      child: const Icon(
                         Icons.lightbulb_outline,
                         size: 64,
                         color: AppColors.primary,
@@ -135,7 +136,7 @@ class SkillsScreen extends ConsumerWidget {
 }
 
 class _SkillCard extends ConsumerWidget {
-  final dynamic skill;
+  final model.Skill skill;
   final VoidCallback onTap;
 
   const _SkillCard({
@@ -170,7 +171,7 @@ class _SkillCard extends ConsumerWidget {
                         width: 48,
                         height: 48,
                         decoration: BoxDecoration(
-                          color: _getDifficultyColor(skill.difficultyLevel).withOpacity(0.1),
+                          color: _getDifficultyColor(skill.difficultyLevel).withValues(alpha: 0.1),
                           borderRadius: BorderRadius.circular(12),
                         ),
                         child: Center(
@@ -274,7 +275,7 @@ class _SkillCard extends ConsumerWidget {
     return Container(
       padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
       decoration: BoxDecoration(
-        color: color.withOpacity(0.1),
+        color: color.withValues(alpha: 0.1),
         borderRadius: BorderRadius.circular(12),
       ),
       child: Row(

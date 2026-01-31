@@ -2,6 +2,11 @@
 
 This document describes how to validate the project phases locally and in CI, including Strict Mode behavior.
 
+See also:
+
+- `docs/DEVELOPMENT.md`
+- `docs/CI_CONTRACT.md`
+
 ## Running Validations Locally
 
 The project includes validation scripts for each phase in `scripts/`.
@@ -73,7 +78,7 @@ The deprecated `tools/flutter` directory should be removed if present.
 ## Codespaces Setup
 
 ### Installing Supabase CLI
-NPM installation is not supported on Linux. Use the binary release:
+CI uses an NPM global install for the Supabase CLI. If you run into issues with NPM-based installs on your environment, use the binary release instead.
 ```bash
 # Example for Linux AMD64
 wget https://github.com/supabase/cli/releases/download/v1.123.0/supabase_linux_amd64.tar.gz

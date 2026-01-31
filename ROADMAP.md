@@ -1,7 +1,7 @@
 # AppShell Project Roadmap
 
 > **Status**: ACTIVE
-> **Current Phase**: Phase 0 (Project Bootstrap)
+> **Current Phase**: Phase 4 (Hardening)
 
 This document visualizes the execution path defined in `AGENTS.md`.
 
@@ -28,11 +28,11 @@ graph TD
     end
     
     style P_1 fill:#d4edda,stroke:#28a745,stroke-width:2px
-    style P0 fill:#fff3cd,stroke:#ffc107,stroke-width:2px
-    style P1 fill:#e2e3e5,stroke:#6c757d,stroke-width:2px
-    style P2 fill:#e2e3e5,stroke:#6c757d,stroke-width:2px
-    style P3 fill:#e2e3e5,stroke:#6c757d,stroke-width:2px
-    style P4 fill:#e2e3e5,stroke:#6c757d,stroke-width:2px
+    style P0 fill:#d4edda,stroke:#28a745,stroke-width:2px
+    style P1 fill:#d4edda,stroke:#28a745,stroke-width:2px
+    style P2 fill:#d4edda,stroke:#28a745,stroke-width:2px
+    style P3 fill:#d4edda,stroke:#28a745,stroke-width:2px
+    style P4 fill:#d4edda,stroke:#28a745,stroke-width:2px
 ```
 
 ---
@@ -44,41 +44,41 @@ graph TD
 - [x] Node.js environment validated
 - [x] Supabase CLI authenticated
 
-### 🚧 Phase 0: Project Bootstrap (In Progress)
-- [ ] Initialize `student-app` (Flutter)
-- [ ] Initialize `admin-panel` (React + Vite)
-- [ ] Configure linting & tooling
-- [ ] Set up `.env.example` files
-- [ ] **Checkpoint**: Validation Script `validate-phase-0.ps1`
+### ✅ Phase 0: Project Bootstrap (Completed)
+- [x] Initialize `student-app` (Flutter)
+- [x] Initialize `admin-panel` (React + Vite)
+- [x] Configure linting & tooling
+- [x] Set up `.env.example` files
+- [x] **Checkpoint**: Validation Script `validate-phase-0.ps1`
 
 ### 📋 Phase 1: Data Model + Contracts
-- [ ] Apply Supabase Schema (`SCHEMA.md`)
-- [ ] Configure RLS Policies
-- [ ] Create Seed Scripts
-- [ ] Verify 7 core tables exist
-- [ ] **Checkpoint**: Validation Script `validate-phase-1.ps1`
+- [x] Apply Supabase Schema (`SCHEMA.md`)
+- [x] Configure RLS Policies
+- [x] Create Seed Scripts
+- [x] Verify 7 core tables exist
+- [x] **Checkpoint**: Validation Script `validate-phase-1.ps1`
 
 ### 📱 Phase 2: Student App Core Loop
-- [ ] Drift Database Implementation
-- [ ] Offline Sync Engine (Outbox)
-- [ ] UI: Domain/Skill Browsing
-- [ ] UI: Question Runners (5 types)
-- [ ] Conflict Resolution Logic
-- [ ] **Checkpoint**: Validation Script `validate-phase-2.ps1`
+- [x] Drift Database Implementation
+- [x] Offline Sync Engine (Outbox)
+- [x] UI: Domain/Skill Browsing
+- [x] UI: Question Runners (5 types)
+- [x] Conflict Resolution Logic
+- [x] **Checkpoint**: Validation Script `validate-phase-2.ps1`
 
 ### 🖥️ Phase 3: Admin Panel MVP
-- [ ] Admin Authentication (RBAC)
-- [ ] CRUD: Domains, Skills, Questions
-- [ ] Atomic Publish Workflow
-- [ ] JSON Import/Export
-- [ ] **Checkpoint**: Validation Script `validate-phase-3.ps1`
+- [x] Admin Authentication (RBAC)
+- [x] CRUD: Domains, Skills, Questions
+- [x] Atomic Publish Workflow
+- [x] JSON Import/Export
+- [x] **Checkpoint**: Validation Script `validate-phase-3.ps1`
 
-### 🛡️ Phase 4: Hardening
-- [ ] Error Handling (Sentry)
-- [ ] CI/CD Pipelines
-- [ ] Production Builds
-- [ ] Final Integration Tests
-- [ ] **Checkpoint**: Validation Script `validate-phase-4.ps1`
+### ✅ Phase 4: Hardening (Completed)
+- [x] Error Handling (Sentry)
+- [x] CI/CD Pipelines
+- [x] Production Builds
+- [x] Final Integration Tests
+- [x] **Checkpoint**: Validation Script `validate-phase-4.ps1`
 
 ---
 

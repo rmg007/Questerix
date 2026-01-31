@@ -20,9 +20,16 @@ The project consists of:
 ## 📂 Key Files
 
 - **`AGENTS.md`**: The Supreme Law. The execution protocol every agent must follow.
+- **`AI_CODING_INSTRUCTIONS.md`**: Short-form, code-grounded AI instructions (contracts, authority order, non-negotiables).
 - **`ROADMAP.md`**: The visual timeline of the project phases.
 - **`PHASE_STATE.json`**: The state file tracking the agent's progress.
 - **`AppShell/docs/specs/*`**: Detailed blueprints for UI, Data, and API.
+
+## 🧑‍💻 For Humans (Development)
+
+- `docs/DEVELOPMENT.md`
+- `docs/CI_CONTRACT.md`
+- `docs/VALIDATION.md`
 
 ## 🤖 For AI Agents
 

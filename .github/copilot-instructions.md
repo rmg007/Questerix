@@ -2,6 +2,8 @@
 
 You are working on the **Math7** offline-first educational platform. This project follows a strict **"Docs-Driven Development"** protocol.
 
+For the current short-form agent rules and repo contracts, read `AI_CODING_INSTRUCTIONS.md`.
+
 ## 1. The Laws of This Repository
 Before generating code/answers, you MUST consult the authority hierarchy:
 1. **`AppShell/docs/AGENTS.md`**: The Execution Contract and Tech Stack. **Read this first.**
@@ -17,7 +19,7 @@ This is a monorepo with distinct component stacks:
 - **Student App (`student-app/`)**:
   - **Framework**: Flutter >= 3.19.0 (Tablet target)
   - **State**: Riverpod ^2.5.0 (Providers for logic)
-  - **Local DB**: Drift ^2.15.0 (Offline-first data layer)
+  - **Local DB**: Drift ^2.24.0 (Offline-first data layer)
   - **Auth**: Anonymous device-bound auth.
 
 - **Admin Panel (`admin-panel/`)**:
@@ -38,6 +40,11 @@ This is a monorepo with distinct component stacks:
   - `make web_dev`: Start Admin Panel.
   - `make flutter_run_web`: Start Student App.
   - `make db_verify_rls`: Check security policies.
+
+For human onboarding and CI expectations:
+
+- `docs/DEVELOPMENT.md`
+- `docs/CI_CONTRACT.md`
 
 ## 4. Coding Conventions
 - **Data Consistency**: All tables MUST have `updated_at` and `deleted_at` (Soft Delete) for sync.

@@ -5,6 +5,13 @@ on:
   pull_request:
 
 jobs:
+  docs-freshness:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Check docs freshness
+        run: bash ./scripts/check-docs-freshness.sh
+
   flutter:
     runs-on: ubuntu-latest
     steps:

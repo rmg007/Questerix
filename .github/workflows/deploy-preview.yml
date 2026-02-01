@@ -1,0 +1,155 @@
+name: Deploy Preview
+
+on:
+  pull_request:
+    types: [opened, synchronize, reopened]
+    paths:
+      - 'student-app/**'
+      - 'admin-panel/**'
+      - '.github/workflows/deploy-preview.yml'
+
+jobs:
+  deploy-student-preview:
+    name: Deploy Student App Preview
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: ./student-app
+    
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v3
+      
+      - name: Setup Flutter
+        uses: subosito/flutter-action@v2
+        with:
+          flutter-version: '3.19.0'
+          channel: 'stable'
+          cache: true
+      
+      - name: Cache Flutter dependencies
+        uses: actions/cache@v3
+        with:
+          path: |
+            ~/.pub-cache
+            student-app/.dart_tool
+          key: flutter-${{ runner.os }}-${{ hashFiles('student-app/pubspec.lock') }}
+          restore-keys: |
+            flutter-${{ runner.os }}-
+      
+      - name: Install Dependencies
+        run: flutter pub get
+      
+      - name: Build Flutter Web
+        run: flutter build web --release --web-renderer html
+      
+      - name: Deploy to Cloudflare Pages (Preview)
+        uses: cloudflare/pages-action@v1
+        id: student-deploy
+        with:
+          apiToken: ${{ secrets.CLOUDFLARE_API_TOKEN }}
+          accountId: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
+          projectName: math7-student
+          directory: build/web
+          gitHubToken: ${{ secrets.GITHUB_TOKEN }}
+          branch: pr-${{ github.event.number }}
+
+  deploy-admin-preview:
+    name: Deploy Admin Panel Preview
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: ./admin-panel
+    
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v3
+      
+      - name: Setup Node.js
+        uses: actions/setup-node@v3
+        with:
+          node-version: '18'
+          cache: 'npm'
+          cache-dependency-path: admin-panel/package-lock.json
+      
+      - name: Install Dependencies
+        run: npm ci
+      
+      - name: Build React App (Preview)
+        run: npm run build
+        env:
+          VITE_SUPABASE_URL: ${{ secrets.VITE_SUPABASE_URL }}
+          VITE_SUPABASE_ANON_KEY: ${{ secrets.VITE_SUPABASE_ANON_KEY }}
+      
+      - name: Deploy to Cloudflare Pages (Preview)
+        uses: cloudflare/pages-action@v1
+        id: admin-deploy
+        with:
+          apiToken: ${{ secrets.CLOUDFLARE_API_TOKEN }}
+          accountId: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
+          projectName: math7-admin
+          directory: dist
+          gitHubToken: ${{ secrets.GITHUB_TOKEN }}
+          branch: pr-${{ github.event.number }}
+
+  comment-preview-urls:
+    name: Comment Preview URLs
+    needs: [deploy-student-preview, deploy-admin-preview]
+    runs-on: ubuntu-latest
+    if: always()
+    
+    steps:
+      - name: Comment PR with Preview URLs
+        uses: actions/github-script@v6
+        with:
+          script: |
+            const studentStatus = '${{ needs.deploy-student-preview.result }}';
+            const adminStatus = '${{ needs.deploy-admin-preview.result }}';
+            const prNumber = context.issue.number;
+            
+            let body = '## 🚀 Preview Deployment\n\n';
+            
+            if (studentStatus === 'success') {
+              body += `✅ **Student App**: https://pr-${prNumber}-math7-student.pages.dev\n`;
+            } else {
+              body += `❌ **Student App**: Deployment failed\n`;
+            }
+            
+            if (adminStatus === 'success') {
+              body += `✅ **Admin Panel**: https://pr-${prNumber}-math7-admin.pages.dev\n`;
+            } else {
+              body += `❌ **Admin Panel**: Deployment failed\n`;
+            }
+            
+            body += '\n---\n';
+            body += '_Preview deployments are automatically updated on each push to this PR._';
+            
+            // Find existing comment
+            const { data: comments } = await github.rest.issues.listComments({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              issue_number: prNumber,
+            });
+            
+            const botComment = comments.find(comment => 
+              comment.user.type === 'Bot' && 
+              comment.body.includes('Preview Deployment')
+            );
+            
+            if (botComment) {
+              // Update existing comment
+              await github.rest.issues.updateComment({
+                owner: context.repo.owner,
+                repo: context.repo.repo,
+                comment_id: botComment.id,
+                body: body
+              });
+            } else {
+              // Create new comment
+              await github.rest.issues.createComment({
+                owner: context.repo.owner,
+                repo: context.repo.repo,
+                issue_number: prNumber,
+                body: body
+              });
+            }

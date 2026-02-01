@@ -1,0 +1,105 @@
+name: Deploy to Production
+
+on:
+  push:
+    branches: [main]
+  workflow_dispatch:
+
+jobs:
+  deploy-student-app:
+    name: Deploy Student App (Flutter Web)
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: ./student-app
+    
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v3
+      
+      - name: Setup Flutter
+        uses: subosito/flutter-action@v2
+        with:
+          flutter-version: '3.19.0'
+          channel: 'stable'
+          cache: true
+      
+      - name: Cache Flutter dependencies
+        uses: actions/cache@v3
+        with:
+          path: |
+            ~/.pub-cache
+            student-app/.dart_tool
+          key: flutter-${{ runner.os }}-${{ hashFiles('student-app/pubspec.lock') }}
+          restore-keys: |
+            flutter-${{ runner.os }}-
+      
+      - name: Install Dependencies
+        run: flutter pub get
+      
+      - name: Build Flutter Web
+        run: flutter build web --release --web-renderer html
+      
+      - name: Deploy to Cloudflare Pages
+        uses: cloudflare/pages-action@v1
+        with:
+          apiToken: ${{ secrets.CLOUDFLARE_API_TOKEN }}
+          accountId: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
+          projectName: math7-student
+          directory: build/web
+          gitHubToken: ${{ secrets.GITHUB_TOKEN }}
+
+  deploy-admin-panel:
+    name: Deploy Admin Panel (React)
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: ./admin-panel
+    
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v3
+      
+      - name: Setup Node.js
+        uses: actions/setup-node@v3
+        with:
+          node-version: '18'
+          cache: 'npm'
+          cache-dependency-path: admin-panel/package-lock.json
+      
+      - name: Install Dependencies
+        run: npm ci
+      
+      - name: Build React App
+        run: npm run build
+        env:
+          VITE_SUPABASE_URL: ${{ secrets.VITE_SUPABASE_URL }}
+          VITE_SUPABASE_ANON_KEY: ${{ secrets.VITE_SUPABASE_ANON_KEY }}
+      
+      - name: Deploy to Cloudflare Pages
+        uses: cloudflare/pages-action@v1
+        with:
+          apiToken: ${{ secrets.CLOUDFLARE_API_TOKEN }}
+          accountId: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
+          projectName: math7-admin
+          directory: dist
+          gitHubToken: ${{ secrets.GITHUB_TOKEN }}
+
+  deployment-status:
+    name: Deployment Status
+    needs: [deploy-student-app, deploy-admin-panel]
+    runs-on: ubuntu-latest
+    if: always()
+    
+    steps:
+      - name: Check deployment status
+        run: |
+          if [ "${{ needs.deploy-student-app.result }}" == "success" ] && [ "${{ needs.deploy-admin-panel.result }}" == "success" ]; then
+            echo "✅ Both apps deployed successfully"
+            exit 0
+          else
+            echo "❌ Deployment failed"
+            echo "Student App: ${{ needs.deploy-student-app.result }}"
+            echo "Admin Panel: ${{ needs.deploy-admin-panel.result }}"
+            exit 1
+          fi

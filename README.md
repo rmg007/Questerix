@@ -29,10 +29,15 @@ The project consists of:
 
 ## 🧑‍💻 For Humans (Development)
 
-- `docs/DEVELOPMENT.md`
-- `docs/CI_CONTRACT.md`
-- `docs/VALIDATION.md`
-- `docs/MCP_SETUP_GUIDE.md`
+### Development & Testing
+- `docs/DEVELOPMENT.md` - Development environment setup and workflow
+- `docs/CI_CONTRACT.md` - CI/CD pipeline contract and expectations
+- `docs/VALIDATION.md` - Validation and testing strategies
+- `docs/MCP_SETUP_GUIDE.md` - Model Context Protocol setup
+
+### Deployment & Hosting
+- **`docs/HOSTING_DECISION_GUIDE.md`** - Production hosting platform analysis and recommendations
+- **`docs/DEPLOYMENT.md`** - Step-by-step deployment setup guide
 
 ## 🤖 For AI Agents
 

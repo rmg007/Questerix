@@ -91,7 +91,7 @@ class _Math7AppState extends ConsumerState<Math7App> {
     final sessionRepo = ref.read(practiceSessionRepositoryProvider);
     final activeSession = await sessionRepo.getActiveSession();
 
-    if (activeSession != null && mounted) {
+    if (activeSession != null && context.mounted) {
       final shouldResume = await showDialog<bool>(
         context: context,
         builder: (context) => AlertDialog(
@@ -115,7 +115,8 @@ class _Math7AppState extends ConsumerState<Math7App> {
         ),
       );
 
-      if (shouldResume == true && activeSession.skillId != null && mounted) {
+      if (shouldResume == true && activeSession.skillId != null) {
+        if (!context.mounted) return;
         Navigator.push(
           context,
           MaterialPageRoute(

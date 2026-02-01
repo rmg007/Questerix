@@ -44,7 +44,12 @@ For the full local gate run (similar to CI), run:
   - `make web_build`
 - **End-to-End Tests**:
   - `cd admin-panel && npm run test:e2e:ui` (Interactive UI)
+  - **Serial Mode**: Tests run in serial mode to avoid DB race conditions.
+  - **Multi-Tenant**: Requires seeding at least one App and Domain (see `admin-panel/tests/setup-test-users.js`).
   - See `admin-panel/tests/INDEX.md` for full documentation.
+- **UI Components**:
+  - We use `shadcn/ui` for components.
+  - See `docs/SHADCN_GUIDE.md` for usage instructions.
 
 ### Student App (Flutter)
 
@@ -57,6 +62,18 @@ For the full local gate run (similar to CI), run:
   - `make flutter_test`
 - Smoke test on web (binds to `0.0.0.0:3000`):
   - `make flutter_run_web`
+
+### Landing Pages
+- Install dependencies:
+  - `cd landing-pages && npm install`
+- Run dev server (binds to `localhost:5173`):
+  - `npm run dev`
+- Build & Lint:
+  - `npm run build`
+  - `npm run lint`
+- **Subdomain Verification**:
+  - Routing Logic relies on subdomain extraction (e.g., `math.math7.com` vs `math7.com`).
+  - Locally, this is simulated via query parameter: `http://localhost:5173/?subdomain=math`.
 
 ### Database (Supabase)
 
@@ -95,3 +112,62 @@ Validation runs write logs to:
 - **Low disk space**: validation scripts may skip/fail when Docker or Android build artifacts require more space.
 - **Supabase start failures**: ensure Docker is running and has enough free disk.
 - **Ports/hosts**: dev servers are expected to bind to `0.0.0.0` (not `localhost`) per the repo contract.
+
+## 🤖 Agent Workflows (Autonomous Development)
+
+This project is configured with **Agentic Workflows** that allow AI assistants to perform complex tasks autonomously.
+
+### `/autopilot`
+**Purpose:** Full autonomy for build, fix, and maintenance tasks.
+**Capabilities:**
+- Auto-runs commands for Flutter, npm, git, and Supabase.
+- Self-healing process management (kills stuck ports/processes).
+- Code formatting and auto-fixing.
+
+### `/test`
+**Purpose:** Enterprise-Grade Quality Assurance (QA).
+**Strategy:**
+1.  **Fast Gates:** Static Analysis (Lint/Format).
+2.  **Logic Verification:** Unit tests for Business Logic.
+3.  **Integration (Mobile):** Verifies "Offline-First" Sync (Drift <-> Supabase).
+4.  **E2E (Admin):** Playwright tests for the Web Dashboard.
+5.  **Visual Check:** Manual/Agentic verification of UI/UX.
+
+## 🧪 Testing Strategy
+
+### Mobile / Student App
+We use a **Hybrid Testing Approach** for speed and fidelity:
+
+1.  **Windows Desktop (Fast Logic):**
+    -   Used for rapid iteration of "Offline Sync" logic.
+    -   ~10x faster startup than emulators.
+    -   Verifies the exact same Drift/Supabase architecture as mobile.
+
+2.  **Android Emulator (High Fidelity):**
+    -   Used for final QA to verify **Feel**, **Animations**, and **Touch Inputs**.
+    -   Target AVD: `Medium_Phone_API_36.1` (or similar).
+    -   Required for validating "Offline" behavior in a realistic OS environment.
+
+3.  **Authentication & Onboarding (Automated):**
+    -   Verified via Widget Tests (`flutter test test/ui/app_flow_test.dart`).
+    -   Tests the user journey in a controlled, mock-driven environment (no manual clicking required).
+    -   **Under 13**: Verify "Parent Approval" flow triggers when birth year implies < 13.
+    -   **Over 13**: Verify "Standard Signup" flow triggers when birth year implies >= 13.
+    -   See `student-app/ARCHITECTURE.md` for flow details.
+
+### Admin Panel
+- **Playwright** is the source of truth for all regression testing.
+- Tests are located in `admin-panel/tests/`.
+
+## 🧩 Rules & Autonomy (.cursorrules)
+
+We use a `.cursorrules` file at the root to define:
+1.  **Command Whitelists**: Commands the agent can run without asking (e.g., `npm install`).
+2.  **Autonomous Protocol**: Steps the agent must take before labeling a task complete (Test -> Static Analysis -> Refactor -> Docs).
+
+Always refer to `.cursorrules` for the latest source of truth on agent permissions.
+
+## 🧩 Model Context Protocol (MCP)
+
+This project uses MCP servers to give the AI "Superpowers".
+See [MCP_SETUP_GUIDE.md](MCP_SETUP_GUIDE.md) for installation and configuration.

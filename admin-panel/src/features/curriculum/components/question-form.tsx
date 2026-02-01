@@ -124,7 +124,7 @@ export function QuestionForm({ initialData }: QuestionFormProps) {
     resolver: zodResolver(questionSchema),
     defaultValues: {
       skill_id: initialData?.skill_id || '',
-      type: initialType,
+      type: initialType as QuestionFormData['type'],
       content: initialData?.content || '',
       explanation: initialData?.explanation || '',
       points: initialData?.points || 1,
@@ -322,11 +322,11 @@ export function QuestionForm({ initialData }: QuestionFormProps) {
 
   return (
     <Form {...form}>
-      <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4 md:space-y-6 w-full max-w-3xl px-1">
+      <form onSubmit={form.handleSubmit(onSubmit as any)} className="space-y-4 md:space-y-6 w-full max-w-3xl px-1">
         
         <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
             <FormField
-            control={form.control}
+            control={form.control as any}
             name="skill_id"
             render={({ field }) => (
                 <FormItem>
@@ -351,7 +351,7 @@ export function QuestionForm({ initialData }: QuestionFormProps) {
             />
 
             <FormField
-            control={form.control}
+            control={form.control as any}
             name="type"
             render={({ field }) => (
                 <FormItem>
@@ -377,7 +377,7 @@ export function QuestionForm({ initialData }: QuestionFormProps) {
         </div>
 
         <FormField
-          control={form.control}
+          control={form.control as any}
           name="content"
           render={({ field }) => (
             <FormItem>
@@ -624,7 +624,7 @@ export function QuestionForm({ initialData }: QuestionFormProps) {
 
         <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
             <FormField
-            control={form.control}
+            control={form.control as any}
             name="points"
             render={({ field }) => (
                 <FormItem>
@@ -638,7 +638,7 @@ export function QuestionForm({ initialData }: QuestionFormProps) {
             />
 
             <FormField
-                control={form.control}
+                control={form.control as any}
                 name="status"
                 render={({ field }) => (
                     <FormItem>
@@ -664,7 +664,7 @@ export function QuestionForm({ initialData }: QuestionFormProps) {
         </div>
 
          <FormField
-          control={form.control}
+          control={form.control as any}
           name="explanation"
           render={({ field }) => (
             <FormItem>

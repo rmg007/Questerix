@@ -8,6 +8,10 @@ export 'src/models/domain.dart';
 export 'src/models/skill.dart';
 export 'src/models/question.dart';
 export 'src/models/attempt.dart';
+export 'src/models/user.dart';
+
+// Repositories
+export 'src/repositories/auth_repository.dart';
 
 // Validators
 export 'src/validation/validators.dart';

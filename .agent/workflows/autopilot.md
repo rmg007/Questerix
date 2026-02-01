@@ -2,57 +2,351 @@
 description: Autopilot // turbo-all
 ---
 
-This workflow enables autonomous execution for common project tasks.
-The `// turbo-all` directive above authorizes all command executions within this workflow.
+This workflow enables **full autonomous execution** for all project tasks.
+The `// turbo-all` directive authorizes ALL command executions within this workflow.
+
+---
 
 # Flutter & Dart Operations
-// turbo
-1. Run Flutter Tests with output redirection
-   `flutter test * > test_output.txt 2>&1`
-// turbo
-2. Run Dart Build Runner (Code Generation)
-   `dart run build_runner build --delete-conflicting-outputs`
-// turbo
-3. Get Flutter Dependencies
-   `flutter pub get`
-// turbo
-4. Analyze Project
-   `flutter analyze`
 
-# Admin Panel (NPM/Vite) Operations
 // turbo
-5. Install Node Dependencies
+1. Run Flutter Tests
+   `flutter test`
+   `flutter test --coverage`
+   `flutter test * > test_output.txt 2>&1`
+
+// turbo
+2. Code Generation (Build Runner)
+   `dart run build_runner build --delete-conflicting-outputs`
+   `dart run build_runner watch --delete-conflicting-outputs`
+
+// turbo
+3. Dependencies
+   `flutter pub get`
+   `flutter pub upgrade`
+   `flutter pub outdated`
+   `dart pub global activate *`
+
+// turbo
+4. Analysis & Formatting
+   `flutter analyze`
+   `dart analyze`
+   `dart format .`
+   `dart fix --apply`
+
+// turbo
+5. Build & Run
+   `flutter build web`
+   `flutter build apk`
+   `flutter build ios`
+   `flutter run -d chrome`
+   `flutter run -d windows`
+   `flutter run -d edge`
+
+// turbo
+6. Cleaning
+   `flutter clean`
+
+---
+
+# Admin Panel (NPM/Node/Vite)
+
+// turbo
+7. Install Dependencies (ANY packages)
    `npm install`
+   `npm install *`
+   `npm ci`
+   `npm uninstall *`
+
 // turbo
-6. Run Playwright Tests (E2E)
-   `npx playwright test`
-// turbo
-7. Build Admin Panel
+8. Run Scripts
+   `npm run dev`
    `npm run build`
+   `npm run test`
+   `npm run lint`
+   `npm run lint -- --fix`
+   `npm run preview`
+   `npm run test:e2e`
+
+// turbo
+9. Package Management
+   `npm update`
+   `npm audit`
+   `npm audit fix`
+   `npm audit fix --force`
+   `npm cache clean --force`
+
+// turbo
+10. NPX Commands (TypeScript, Vite, Playwright, etc.)
+    `npx tsc --noEmit`
+    `npx tsc --noEmit 2>&1 | Select-Object -First *`
+    `npx vite build`
+    `npx vite preview`
+    `npx playwright test`
+    `npx playwright install`
+    `npx playwright show-report`
+    `npx -y *`
+
+// turbo
+11. Compound Commands (chained with ; or &&)
+    `* ; *`
+    `* && *`
+    `npx tsc --noEmit > * 2>&1; type *`
+    `* > * 2>&1; type *`
+    `* > * 2>&1`
+    `* | Select-Object -First *`
+    `* | Select-Object -Last *`
+    `* | *`
+
+---
 
 # Supabase Operations
-// turbo
-8. Generate Types
-   `supabase gen types typescript --project-id [YOUR-PROJECT-ID] > src/lib/database.types.ts`
-// turbo
-9. Apply Migrations
-   `supabase db push`
 
-# MCP Server Installation
 // turbo
-13. Install/Run Code Scalpel MCP (Graph-based refactoring)
-    `uvx code-scalpel init`
-// turbo
-14. Verify Sequential Thinking MCP
-    `npx -y @modelcontextprotocol/server-sequential-thinking --help`
+11. Type Generation
+    `supabase gen types typescript --project-id * > *`
 
-# Git & File Operations
 // turbo
-10. Stage changes
+12. Database Operations
+    `supabase db push`
+    `supabase db pull`
+    `supabase db reset`
+    `supabase migration new *`
+    `supabase migration up`
+
+// turbo
+13. Local Development
+    `supabase start`
+    `supabase stop`
+    `supabase status`
+
+---
+
+# Git Operations
+
+// turbo
+14. Staging & Commits
     `git add .`
+    `git add *`
+    `git commit -m "*"`
+    `git commit --amend --no-edit`
+
 // turbo
-11. Commit changes
-    `git commit -m "update"`
+15. Branch Operations
+    `git checkout *`
+    `git checkout -b *`
+    `git branch`
+    `git branch -d *`
+    `git merge *`
+
 // turbo
-12. Create Logs/Files via Redirection
-    `echo "log" > output.txt`
+16. Remote Operations
+    `git pull`
+    `git push`
+    `git fetch`
+    `git remote -v`
+
+// turbo
+17. Information
+    `git status`
+    `git diff`
+    `git diff --staged`
+    `git log -n *`
+    `git log --oneline -n *`
+    `git show *`
+
+// turbo
+18. Stashing
+    `git stash`
+    `git stash pop`
+    `git stash list`
+
+---
+
+# PowerShell File Operations
+
+// turbo
+19. Delete Files/Folders
+    `Remove-Item *`
+    `Remove-Item -Recurse -Force *`
+    `Remove-Item -Force *`
+
+// turbo
+20. Create Files/Folders
+    `New-Item -ItemType Directory -Path *`
+    `New-Item -ItemType File -Path *`
+
+// turbo
+21. Copy/Move
+    `Copy-Item * *`
+    `Copy-Item -Recurse * *`
+    `Move-Item * *`
+
+// turbo
+22. Read/Write Content
+    `Get-Content *`
+    `Set-Content * *`
+    `Add-Content * *`
+    `Out-File *`
+
+// turbo
+23. Path Testing
+    `Test-Path *`
+    `if (Test-Path *) { * }`
+
+// turbo
+24. Output & Redirection
+    `echo *`
+    `Write-Output *`
+    `* > *`
+    `* >> *`
+    `* 2>&1`
+    `Select-Object -First *`
+    `Select-Object -Last *`
+
+---
+
+# Process Management (Self-Healing)
+
+// turbo
+25. Kill Processes by Port
+    `$proc = Get-NetTCPConnection -LocalPort * -ErrorAction SilentlyContinue; if ($proc) { Stop-Process -Id $proc.OwningProcess -Force }`
+
+// turbo
+26. Kill Processes by Name
+    `Stop-Process -Name * -Force -ErrorAction SilentlyContinue`
+    `Get-Process *`
+    `taskkill /F /IM *`
+
+// turbo
+27. Common Port Cleanup
+    `Stop-Process -Id (Get-NetTCPConnection -LocalPort 5000).OwningProcess -Force`
+    `Stop-Process -Id (Get-NetTCPConnection -LocalPort 5173).OwningProcess -Force`
+    `Stop-Process -Id (Get-NetTCPConnection -LocalPort 3000).OwningProcess -Force`
+
+---
+
+# MCP Server Operations
+
+// turbo
+28. Code Scalpel
+    `uvx code-scalpel init`
+    `uvx code-scalpel *`
+
+// turbo
+29. Sequential Thinking
+    `npx -y @modelcontextprotocol/server-sequential-thinking *`
+
+// turbo
+30. Playwright MCP
+    `npx -y @modelcontextprotocol/server-playwright *`
+
+---
+
+# Python/UV Operations
+
+// turbo
+31. Python Package Management
+    `pip install *`
+    `pip uninstall *`
+    `pip list`
+    `python -m *`
+    `python *`
+
+// turbo
+32. UV Tool
+    `uv *`
+    `uvx *`
+
+---
+
+# Environment & Config
+
+// turbo
+33. Environment Variables
+    `$env:* = *`
+    `Get-ChildItem Env:*`
+
+// turbo
+34. Directory Navigation (via compound commands)
+    `Set-Location *; *`
+    `Push-Location *; *; Pop-Location`
+
+---
+
+# Catch-All Patterns
+
+// turbo
+35. Any Flutter command
+    `flutter *`
+
+// turbo
+36. Any Dart command
+    `dart *`
+
+// turbo
+37. Any NPM command
+    `npm *`
+
+// turbo
+38. Any NPX command
+    `npx *`
+
+// turbo
+39. Any Git command
+    `git *`
+
+// turbo
+40. Any Supabase command
+    `supabase *`
+
+---
+
+// turbo
+41. Network Utilities
+    `Test-NetConnection *`
+    `Invoke-WebRequest *`
+    `curl *`
+    `ping *`
+    `nslookup *`
+
+// turbo
+42. System Diagnostics & Info
+    `Get-ComputerInfo`
+    `Get-Volume`
+    `Get-Date`
+    `Get-History`
+    `Get-Variable`
+
+// turbo
+43. File Search & Archiving
+    `Select-String *`
+    `findstr *`
+    `Compress-Archive *`
+    `Expand-Archive *`
+    `Get-ChildItem * -Recurse | Select-String *`
+
+// turbo
+44. Advanced Git Operations
+    `git reset *`
+    `git revert *`
+    `git clean *`
+    `git config *`
+    `git cherry-pick *`
+    `git rebase *`
+
+// turbo
+45. Docker Operations
+    `docker *`
+    `docker-compose *`
+
+// turbo
+46. Advanced Shell Logic (Loops & Errors)
+    `* | ForEach-Object { * }`
+    `try { * } catch { * }`
+    `if (*) { * } else { * }`
+    `while (*) { * }`
+
+// turbo
+47. Catch-All Patterns (General)
+    `*`

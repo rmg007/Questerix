@@ -460,6 +460,10 @@ export interface Database {
         Args: Record<PropertyKey, never>
         Returns: boolean
       }
+      publish_curriculum: {
+        Args: Record<PropertyKey, never>
+        Returns: void
+      }
     }
     Enums: {
       [_ in never]: never

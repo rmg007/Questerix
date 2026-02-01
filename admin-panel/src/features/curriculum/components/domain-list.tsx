@@ -550,7 +550,6 @@ export function DomainList() {
           </div>
         </div>
 
-        {/* @ts-expect-error - React types version mismatch with @dnd-kit */}
         <DndContext
           sensors={sensors}
           collisionDetection={closestCenter}

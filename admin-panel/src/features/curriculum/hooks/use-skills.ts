@@ -7,6 +7,17 @@ type Skill = Database['public']['Tables']['skills']['Row'];
 type SkillInsert = Database['public']['Tables']['skills']['Insert'];
 type SkillUpdate = Database['public']['Tables']['skills']['Update'];
 
+// Form input type - excludes auto-generated fields
+export type SkillFormInput = {
+  domain_id: string;
+  slug: string;
+  title: string;
+  description?: string;
+  difficulty_level: number;
+  sort_order: number;
+  status: 'draft' | 'live';
+};
+
 export type CurriculumStatus = 'draft' | 'published' | 'live';
 
 export interface PaginationParams {
@@ -126,7 +137,7 @@ export function useCreateSkill() {
   const queryClient = useQueryClient();
   
   return useMutation({
-    mutationFn: async (skill: SkillInsert) => {
+    mutationFn: async (skill: SkillFormInput) => {
       const { data, error } = await (supabase
         .from('skills') as any)
         .insert(skill)

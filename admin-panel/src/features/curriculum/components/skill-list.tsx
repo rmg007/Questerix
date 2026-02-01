@@ -618,7 +618,7 @@ export function SkillList() {
                     </div>
                 </div>
 
-                {/* @ts-expect-error - React types version mismatch with @dnd-kit */}
+                {/* Desktop Table View */}
                 <DndContext
                     sensors={sensors}
                     collisionDetection={closestCenter}

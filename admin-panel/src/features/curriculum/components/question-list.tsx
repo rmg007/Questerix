@@ -615,7 +615,7 @@ export function QuestionList() {
                     </div>
                 </div>
 
-                {/* @ts-expect-error - Known React types version mismatch with @dnd-kit */}
+                {/* Desktop Table View */}
                 <DndContext
                     sensors={sensors}
                     collisionDetection={closestCenter}

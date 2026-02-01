@@ -134,6 +134,25 @@ await _pullQuestions();
 ### Supabase Tables
 Mirror structure with additional RLS (Row Level Security) policies.
 
+### 5. Authentication & Onboarding
+The app implements a strict Age-Gated Onboarding flow (`OnboardingScreen`) to comply with COPPA best practices.
+
+**Flow**:
+1.  **Age Gate**: User enters birth date.
+2.  **Under 13**:
+    - App requests **Parent's Email**.
+    - System sends a Magic Link to the parent.
+    - Parent acts as the account owner/approver.
+    - Agreement is implicit in the approval request but explicitly noted.
+3.  **Over 13**:
+    - Student signs up with their own email.
+    - Must explicitly agree to Terms & Privacy Policy via checkbox.
+    - System sends Magic Link for passwordless login.
+
+**Data Model**:
+- `User` (Domain): Tracks `ageGroup` and `isParentManaged`.
+- **Note**: Currently uses a "One Email = One User" model.
+
 ## Development Workflow
 
 ### 1. Adding a New Feature
@@ -366,7 +385,7 @@ student-app/
 
 ## Next Steps
 
-- [ ] Implement user authentication
+- [x] Implement user authentication (Age-Gated, Email-only)
 - [ ] Add progress analytics dashboard
 - [ ] Implement adaptive learning algorithm
 - [ ] Add more question types (graphing, word problems)

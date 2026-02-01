@@ -7,6 +7,15 @@ type Domain = Database['public']['Tables']['domains']['Row'];
 type DomainInsert = Database['public']['Tables']['domains']['Insert'];
 type DomainUpdate = Database['public']['Tables']['domains']['Update'];
 
+// Form input type - excludes auto-generated fields
+export type DomainFormInput = {
+  slug: string;
+  title: string;
+  description?: string;
+  sort_order: number;
+  status: 'draft' | 'live';
+};
+
 export type CurriculumStatus = 'draft' | 'published' | 'live';
 
 export interface PaginationParams {
@@ -105,7 +114,7 @@ export function useCreateDomain() {
   const queryClient = useQueryClient();
   
   return useMutation({
-    mutationFn: async (domain: DomainInsert) => {
+    mutationFn: async (domain: DomainFormInput) => {
       const { data, error } = await (supabase
         .from('domains') as any)
         .insert(domain)

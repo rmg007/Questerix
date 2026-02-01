@@ -4,7 +4,7 @@ import 'package:student_app/src/core/connectivity/connectivity_service.dart';
 import 'package:student_app/src/core/providers/settings_provider.dart';
 import 'package:student_app/src/core/theme/app_theme.dart';
 import 'package:student_app/src/features/auth/providers/auth_provider.dart';
-import 'package:student_app/src/features/auth/screens/login_screen.dart';
+import 'package:student_app/src/features/auth/screens/onboarding_screen.dart';
 import 'package:student_app/src/features/home/screens/main_shell.dart';
 import 'package:student_app/src/features/progress/repositories/session_repository.dart';
 import 'package:student_app/src/features/curriculum/screens/practice_screen.dart';
@@ -52,7 +52,7 @@ class _Math7AppState extends ConsumerState<Math7App> {
                 }
               },
             )
-          : const LoginScreen(),
+          : const OnboardingScreen(),
     );
   }
 

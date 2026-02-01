@@ -42,6 +42,9 @@ For the full local gate run (similar to CI), run:
   - `make web_lint`
   - `make web_test`
   - `make web_build`
+- **End-to-End Tests**:
+  - `cd admin-panel && npm run test:e2e:ui` (Interactive UI)
+  - See `admin-panel/tests/INDEX.md` for full documentation.
 
 ### Student App (Flutter)
 

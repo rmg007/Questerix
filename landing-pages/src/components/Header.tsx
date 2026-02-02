@@ -7,12 +7,12 @@ export const Header = () => {
   return (
     <header className="fixed w-full top-0 z-50 bg-white/80 backdrop-blur-md border-b border-gray-100 transition-all duration-300">
       <div className="max-w-7xl mx-auto px-6 h-20 flex justify-between items-center">
-        <div className="flex items-center gap-3">
+        <a href="/" className="flex items-center gap-3 hover:opacity-80 transition-opacity">
           <div className="w-9 h-9 bg-gradient-to-br from-blue-600 to-indigo-600 rounded-xl flex items-center justify-center text-white shadow-lg shadow-blue-600/20">
             <Target size={20} className="stroke-[3]" />
           </div>
           <span className="text-xl font-bold tracking-tight text-gray-900">Questerix</span>
-        </div>
+        </a>
         
         {/* Desktop Navigation */}
         <nav className="hidden md:flex items-center gap-8">

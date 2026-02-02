@@ -5,12 +5,12 @@ export const Footer = () => {
     <footer className="bg-gray-900 text-white py-20 border-t border-gray-800">
       <div className="max-w-7xl mx-auto px-6 grid grid-cols-1 md:grid-cols-4 gap-12">
          <div className="col-span-1 md:col-span-2">
-           <div className="flex items-center gap-3 mb-6">
+           <a href="/" className="flex items-center gap-3 mb-6 hover:opacity-80 transition-opacity">
               <div className="w-8 h-8 bg-blue-600 rounded-lg flex items-center justify-center text-white shadow-lg shadow-blue-400/20">
                  <Target size={18} strokeWidth={3} />
               </div>
               <h4 className="font-bold text-2xl tracking-tight">Questerix</h4>
-           </div>
+           </a>
            <p className="text-gray-400 max-w-sm leading-relaxed text-lg">
              Empowering students worldwide with accessible, high-quality education technology.
            </p>

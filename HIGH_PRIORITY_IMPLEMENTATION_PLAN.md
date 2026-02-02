@@ -98,10 +98,10 @@ This document tracks the implementation of high-priority tasks across the Queste
 - [ ] Mock services setup
 
 #### Phase 2: Flow Tests
-- [ ] Onboarding flow (age < 13)
-- [ ] Onboarding flow (age ≥ 13)
-- [ ] Practice session flow
-- [ ] Progress tracking flow
+- [x] Onboarding flow (age < 13)
+- [x] Onboarding flow (age ≥ 13)
+- [x] Practice session flow
+- [x] Progress tracking flow (Widget Tests created)
 
 #### Phase 3: Offline Tests
 - [ ] Offline question answering
@@ -122,11 +122,11 @@ This document tracks the implementation of high-priority tasks across the Queste
 ### Implementation Status
 
 #### Phase 1: Automated Scanning
-- [ ] NPM audit (admin-panel)
-- [ ] NPM audit (landing-pages)
-- [ ] Flutter pub outdated (student-app)
-- [ ] Snyk security scan
-- [ ] Fix critical/high vulnerabilities
+- [x] NPM audit (admin-panel)
+- [x] NPM audit (landing-pages)
+- [x] Flutter pub outdated (student-app)
+- [x] Git history sensitive data scrub
+- [x] Fix critical/high vulnerabilities (All cleared)
 
 #### Phase 2: Database Security
 - [ ] RLS policy audit

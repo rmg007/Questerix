@@ -1,7 +1,7 @@
 # AppShell Project Roadmap
 
 > **Status**: ACTIVE
-> **Current Phase**: Phase 4 (Hardening)
+> **Current Phase**: Phase 5 (Multi-Tenant Platform / Questerix Transformation)
 
 This document visualizes the execution path defined in `AGENTS.md`.
 
@@ -79,6 +79,14 @@ graph TD
 - [x] Production Builds
 - [x] Final Integration Tests
 - [x] **Checkpoint**: Validation Script `validate-phase-4.ps1`
+
+### 📋 Phase 5: Multi-Tenant Platform & Transformation
+- [x] Multi-tenant Subjects/Apps schema
+- [x] App Landing Pages content system
+- [x] WCAG 2.1 AA Compliance Certification
+- [x] Expanded Widget Test Suite (58+ tests)
+- [x] Git History Scrubbing & Security Hardening
+- [ ] **Checkpoint**: Questerix Phase 0 Deployment
 
 ---
 

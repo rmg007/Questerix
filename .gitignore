@@ -41,3 +41,6 @@ pubspec.lock
 
 # Supabase
 supabase/.temp/
+
+scrub.ps1
+scrub.js

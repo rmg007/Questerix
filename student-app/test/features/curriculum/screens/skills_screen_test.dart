@@ -1,3 +1,4 @@
+import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
@@ -64,8 +65,11 @@ void main() {
 
   group('SkillsScreen Widget Tests', () {
     testWidgets('displays loading indicator initially', (WidgetTester tester) async {
+       final controller = StreamController<List<model.Skill>>();
+       addTearDown(() => controller.close());
+       
        when(() => mockSkillRepository.watchByDomain(any()))
-          .thenAnswer((_) => const Stream.empty());
+          .thenAnswer((_) => controller.stream);
 
       await tester.pumpWidget(createWidgetUnderTest());
       await tester.pump();
@@ -111,13 +115,17 @@ void main() {
 
     testWidgets('displays error message when loading fails', (WidgetTester tester) async {
         when(() => mockSkillRepository.watchByDomain(any()))
-          .thenAnswer((_) => Stream.error('Error loading skills'));
+          .thenAnswer((_) => Stream.error('API Error'));
 
       await tester.pumpWidget(createWidgetUnderTest());
       await tester.pumpAndSettle();
 
+      // Should find the error message from the exception
+      expect(find.text('API Error'), findsOneWidget);
+      // And the fixed title
       expect(find.text('Error loading skills'), findsOneWidget);
     });
+
 
     testWidgets('navigates to practice screen when skill is selected', (WidgetTester tester) async {
       final mockSkills = [

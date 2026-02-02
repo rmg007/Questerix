@@ -26,6 +26,38 @@ async function selectOption(page, triggerSelector, optionTextOrIndex) {
 test.describe('Admin Panel E2E Tests', () => {
   test.describe.configure({ mode: 'serial' });
 
+  // Database setup
+  let supabase: any;
+
+  test.beforeAll(async () => {
+    const supabaseUrl = process.env.VITE_SUPABASE_URL || process.env.NEXT_PUBLIC_SUPABASE_URL;
+    const supabaseKey = process.env.SUPABASE_SERVICE_ROLE_KEY || process.env.VITE_SUPABASE_ANON_KEY || process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY;
+
+    if (!supabaseUrl || !supabaseKey) {
+      console.warn('Supabase credentials not found in environment, skipping seed');
+      return;
+    }
+
+    const { createClient } = await import('@supabase/supabase-js');
+    const { cleanTestData, seedTestData } = await import('./helpers/seed-test-data');
+    
+    supabase = createClient(supabaseUrl, supabaseKey);
+    
+    // Clean and seed
+    console.log('Seeding test data...');
+    await cleanTestData(supabase);
+    await seedTestData(supabase);
+    console.log('Test data seeded.');
+  });
+  
+  test.afterAll(async () => {
+    if (supabase) {
+        const { cleanTestData } = await import('./helpers/seed-test-data');
+        console.log('Cleaning up test data...');
+        await cleanTestData(supabase);
+    }
+  });
+
   test.describe('Authentication', () => {
     test('should load login page', async ({ page }) => {
       await page.goto('/login');

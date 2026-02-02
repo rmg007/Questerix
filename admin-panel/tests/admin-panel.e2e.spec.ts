@@ -104,7 +104,7 @@ test.describe('Admin Panel E2E Tests', () => {
     test('should list all domains', async ({ page }) => {
       await page.goto('/domains');
       await expect(page.locator('h2:has-text("Domains")')).toBeVisible(); // Changed to h2 based on domain-form.tsx line 81
-      await expect(page.locator('a[href="/domains/new"]')).toBeVisible();
+      await expect(page.locator('a[href="/domains/new"]').first()).toBeVisible();
     });
 
     // test('should create a new domain', async ({ page }) => {
@@ -179,7 +179,7 @@ test.describe('Admin Panel E2E Tests', () => {
     test('should list all skills', async ({ page }) => {
         await page.goto('/skills');
         await expect(page.locator('h2:has-text("Skills")')).toBeVisible();
-        await expect(page.locator('a[href="/skills/new"]')).toBeVisible();
+        await expect(page.locator('a[href="/skills/new"]').first()).toBeVisible();
     });
 
     test('should create a new skill', async ({ page }) => {

@@ -53,3 +53,21 @@ pubspec.lock
 scrub.ps1
 scrub.js
 replacements.txt
+
+# =============================================================================
+# DEPLOYMENT PIPELINE SECURITY
+# =============================================================================
+# Secrets file (CRITICAL - contains API tokens)
+.secrets
+
+# Generated environment files (recreated each deploy)
+.flutter-defines.tmp
+admin-panel/.env.local
+admin-panel/.env.production.local
+
+# Deployment logs
+deploy-*.log
+
+# Build artifacts (regenerated each deploy)
+admin-panel/dist/
+student-app/build/

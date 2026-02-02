@@ -4,17 +4,27 @@ import 'package:sentry_flutter/sentry_flutter.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 
 import 'src/app.dart';
-
-const String _sentryDsn =
-    String.fromEnvironment('SENTRY_DSN', defaultValue: '');
-const bool _sentryEnabled =
-    bool.fromEnvironment('SENTRY_ENABLED', defaultValue: false);
+import 'src/core/config/env.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
 
+  // Validate environment configuration early (fail-fast)
+  // In debug mode, this will throw if SUPABASE_URL or SUPABASE_ANON_KEY are missing
+  try {
+    Env.validate();
+  } catch (e) {
+    // In debug builds, show a helpful error
+    debugPrint('⚠️ Environment validation failed: $e');
+    debugPrint('📋 Current configuration: ${Env.summary}');
+    // Continue anyway in debug mode for local development
+    if (Env.isProduction) {
+      rethrow;
+    }
+  }
+
   // If Sentry is not enabled (or no DSN), run normally.
-  if (!_sentryEnabled || _sentryDsn.isEmpty) {
+  if (!Env.sentryEnabled || Env.sentryDsn.isEmpty) {
     await _initializeDependencies();
     runApp(
       const ProviderScope(
@@ -26,11 +36,8 @@ void main() async {
 
   await SentryFlutter.init(
     (options) {
-      options.dsn = _sentryDsn;
-      options.environment = const String.fromEnvironment(
-        'ENV',
-        defaultValue: 'development',
-      );
+      options.dsn = Env.sentryDsn;
+      options.environment = Env.environment;
       options.tracesSampleRate = 1.0;
     },
     appRunner: () async {
@@ -45,15 +52,15 @@ void main() async {
 }
 
 Future<void> _initializeDependencies() async {
+  // Use centralized Env configuration
+  // Falls back to placeholder values for local development without .env
   await Supabase.initialize(
-    url: const String.fromEnvironment(
-      'SUPABASE_URL',
-      defaultValue: 'https://[YOUR-PROJECT-ID].supabase.co',
-    ),
-    anonKey: const String.fromEnvironment(
-      'SUPABASE_ANON_KEY',
-      defaultValue:
-          '[YOUR-ANON-KEY]',
-    ),
+    url: Env.supabaseUrl.isNotEmpty 
+        ? Env.supabaseUrl 
+        : 'https://placeholder.supabase.co',
+    anonKey: Env.supabaseAnonKey.isNotEmpty 
+        ? Env.supabaseAnonKey 
+        : 'placeholder-anon-key',
   );
 }
+

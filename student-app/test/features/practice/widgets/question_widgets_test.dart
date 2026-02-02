@@ -1,226 +1,114 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
-import 'package:student_app/src/features/practice/widgets/multiple_choice_question.dart';
-import 'package:student_app/src/features/practice/widgets/text_input_question.dart';
-import 'package:student_app/src/features/practice/widgets/boolean_question.dart';
+import 'package:student_app/src/features/curriculum/widgets/question_widgets.dart';
 
 void main() {
-  group('MultipleChoiceQuestion Widget Tests', () {
-    const questionText = 'What is 2 + 2?';
-    const choices = ['2', '3', '4', '5'];
-    const correctAnswer = '4';
-
-    testWidgets('displays question text', (WidgetTester tester) async {
-      await tester.pumpWidget(
-        MaterialApp(
-          home: Scaffold(
-            body: MultipleChoiceQuestion(
-              questionText: questionText,
-              choices: choices,
-              onAnswerSelected: (_) {},
-            ),
-          ),
-        ),
-      );
-
-      expect(find.text(questionText), findsOneWidget);
-    });
+  group('MultipleChoiceWidget Tests', () {
+    // Provide options in the format expected by the widget: List of maps with 'id' and 'text'
+    final options = [
+      {'id': 'opt1', 'text': 'Choice 1'},
+      {'id': 'opt2', 'text': 'Choice 2'},
+      {'id': 'opt3', 'text': 'Choice 3'},
+    ];
 
     testWidgets('displays all answer choices', (WidgetTester tester) async {
       await tester.pumpWidget(
         MaterialApp(
           home: Scaffold(
-            body: MultipleChoiceQuestion(
-              questionText: questionText,
-              choices: choices,
-              onAnswerSelected: (_) {},
+            body: MultipleChoiceWidget(
+              options: options,
+              selectedAnswer: null,
+              onAnswerChanged: (_) {},
+              isAnswered: false,
             ),
           ),
         ),
       );
 
-      for (final choice in choices) {
-        expect(find.text(choice), findsOneWidget);
+      for (var opt in options) {
+        expect(find.text(opt['text']!), findsOneWidget);
       }
     });
 
     testWidgets('allows selecting an answer', (WidgetTester tester) async {
-      String? selectedAnswer;
+      Map<String, dynamic>? result;
 
       await tester.pumpWidget(
         MaterialApp(
           home: Scaffold(
-            body: MultipleChoiceQuestion(
-              questionText: questionText,
-              choices: choices,
-              onAnswerSelected: (answer) {
-                selectedAnswer = answer;
+            body: MultipleChoiceWidget(
+              options: options,
+              selectedAnswer: null,
+              onAnswerChanged: (answer) {
+                result = answer;
               },
+              isAnswered: false,
             ),
           ),
         ),
       );
 
-      // Tap on answer choice
-      await tester.tap(find.text('4'));
-      await tester.pumpAndSettle();
+      // Tap on first choice
+      await tester.tap(find.text('Choice 1'));
+      await tester.pump();
 
-      expect(selectedAnswer, equals('4'));
+      expect(result, isNotNull);
+      expect(result!['selected_option_id'], equals('opt1'));
     });
 
     testWidgets('highlights selected answer', (WidgetTester tester) async {
       await tester.pumpWidget(
         MaterialApp(
           home: Scaffold(
-            body: MultipleChoiceQuestion(
-              questionText: questionText,
-              choices: choices,
-              selectedAnswer: '4',
-              onAnswerSelected: (_) {},
-            ),
-          ),
-        ),
-      );
-
-      // Verify visual feedback for selected answer
-      // Check for different styling on selected choice
-      expect(find.text('4'), findsOneWidget);
-    });
-
-    testWidgets('has accessibility semantics', (WidgetTester tester) async {
-      await tester.pumpWidget(
-        MaterialApp(
-          home: Scaffold(
-            body: MultipleChoiceQuestion(
-              questionText: questionText,
-              choices: choices,
-              onAnswerSelected: (_) {},
-            ),
-          ),
-        ),
-      );
-
-      // Verify question has semantic label
-      final questionSemantics = tester.getSemantics(find.text(questionText));
-      expect(questionSemantics.label, contains(questionText));
-    });
-  });
-
-  group('TextInputQuestion Widget Tests', () {
-    const questionText = 'What is the capital of France?';
-
-    testWidgets('displays question text', (WidgetTester tester) async {
-      await tester.pumpWidget(
-        MaterialApp(
-          home: Scaffold(
-            body: TextInputQuestion(
-              questionText: questionText,
+            body: MultipleChoiceWidget(
+              options: options,
+              selectedAnswer: const {'selected_option_id': 'opt1'},
               onAnswerChanged: (_) {},
+              isAnswered: false,
             ),
           ),
         ),
       );
 
-      expect(find.text(questionText), findsOneWidget);
+      // Verify visual feedback (Check icon is shown when selected)
+      expect(find.byIcon(Icons.check), findsOneWidget);
     });
 
-    testWidgets('displays text input field', (WidgetTester tester) async {
-      await tester.pumpWidget(
-        MaterialApp(
-          home: Scaffold(
-            body: TextInputQuestion(
-              questionText: questionText,
-              onAnswerChanged: (_) {},
-            ),
-          ),
-        ),
-      );
-
-      expect(find.byType(TextField), findsOneWidget);
-    });
-
-    testWidgets('allows entering text', (WidgetTester tester) async {
-      String? enteredAnswer;
+    testWidgets('disabled when isAnswered is true', (WidgetTester tester) async {
+      bool callbackCalled = false;
 
       await tester.pumpWidget(
         MaterialApp(
           home: Scaffold(
-            body: TextInputQuestion(
-              questionText: questionText,
-              onAnswerChanged: (answer) {
-                enteredAnswer = answer;
+            body: MultipleChoiceWidget(
+              options: options,
+              selectedAnswer: null,
+              onAnswerChanged: (_) {
+                callbackCalled = true;
               },
+              isAnswered: true,
             ),
           ),
         ),
       );
 
-      // Enter text
-      await tester.enterText(find.byType(TextField), 'Paris');
-      await tester.pumpAndSettle();
+      await tester.tap(find.text('Choice 1'));
+      await tester.pump();
 
-      expect(enteredAnswer, equals('Paris'));
-    });
-
-    testWidgets('has hint text in input field', (WidgetTester tester) async {
-      await tester.pumpWidget(
-        MaterialApp(
-          home: Scaffold(
-            body: TextInputQuestion(
-              questionText: questionText,
-              hintText: 'Enter your answer',
-              onAnswerChanged: (_) {},
-            ),
-          ),
-        ),
-      );
-
-      expect(find.text('Enter your answer'), findsOneWidget);
-    });
-
-    testWidgets('has proper keyboard type', (WidgetTester tester) async {
-      await tester.pumpWidget(
-        MaterialApp(
-          home: Scaffold(
-            body: TextInputQuestion(
-              questionText: 'What is 5 x 6?',
-              keyboardType: TextInputType.number,
-              onAnswerChanged: (_) {},
-            ),
-          ),
-        ),
-      );
-
-      final textField = tester.widget<TextField>(find.byType(TextField));
-      expect(textField.keyboardType, equals(TextInputType.number));
+      expect(callbackCalled, isFalse);
     });
   });
 
-  group('BooleanQuestion Widget Tests', () {
-    const questionText = 'Is 4 greater than 2?';
-
-    testWidgets('displays question text', (WidgetTester tester) async {
+  group('BooleanWidget Tests', () {
+    testWidgets('displays True and False options', (WidgetTester tester) async {
       await tester.pumpWidget(
         MaterialApp(
           home: Scaffold(
-            body: BooleanQuestion(
-              questionText: questionText,
-              onAnswerSelected: (_) {},
-            ),
-          ),
-        ),
-      );
-
-      expect(find.text(questionText), findsOneWidget);
-    });
-
-    testWidgets('displays True and False buttons', (WidgetTester tester) async {
-      await tester.pumpWidget(
-        MaterialApp(
-          home: Scaffold(
-            body: BooleanQuestion(
-              questionText: questionText,
-              onAnswerSelected: (_) {},
+            body: BooleanWidget(
+              options: const {},
+              selectedAnswer: null,
+              onAnswerChanged: (_) {},
+              isAnswered: false,
             ),
           ),
         ),
@@ -231,143 +119,152 @@ void main() {
     });
 
     testWidgets('allows selecting True', (WidgetTester tester) async {
-      bool? selectedAnswer;
+      Map<String, dynamic>? result;
 
       await tester.pumpWidget(
         MaterialApp(
           home: Scaffold(
-            body: BooleanQuestion(
-              questionText: questionText,
-              onAnswerSelected: (answer) {
-                selectedAnswer = answer;
+            body: BooleanWidget(
+              options: const {},
+              selectedAnswer: null,
+              onAnswerChanged: (answer) {
+                result = answer;
               },
+              isAnswered: false,
             ),
           ),
         ),
       );
 
       await tester.tap(find.text('True'));
-      await tester.pumpAndSettle();
+      await tester.pump();
 
-      expect(selectedAnswer, isTrue);
+      expect(result, equals({'value': true}));
     });
 
     testWidgets('allows selecting False', (WidgetTester tester) async {
-      bool? selectedAnswer;
+      Map<String, dynamic>? result;
 
       await tester.pumpWidget(
         MaterialApp(
           home: Scaffold(
-            body: BooleanQuestion(
-              questionText: questionText,
-              onAnswerSelected: (answer) {
-                selectedAnswer = answer;
+            body: BooleanWidget(
+              options: const {},
+              selectedAnswer: null,
+              onAnswerChanged: (answer) {
+                result = answer;
               },
+              isAnswered: false,
             ),
           ),
         ),
       );
 
       await tester.tap(find.text('False'));
-      await tester.pumpAndSettle();
+      await tester.pump();
 
-      expect(selectedAnswer, isFalse);
+      expect(result, equals({'value': false}));
     });
+  });
 
-    testWidgets('highlights selected button', (WidgetTester tester) async {
+  group('TextInputWidget Tests', () {
+    testWidgets('displays text field', (WidgetTester tester) async {
       await tester.pumpWidget(
         MaterialApp(
           home: Scaffold(
-            body: BooleanQuestion(
-              questionText: questionText,
-              selectedAnswer: true,
-              onAnswerSelected: (_) {},
+            body: TextInputWidget(
+              options: const {},
+              selectedAnswer: null,
+              onAnswerChanged: (_) {},
+              isAnswered: false,
             ),
           ),
         ),
       );
 
-      // Verify True button is highlighted
-      expect(find.text('True'), findsOneWidget);
+      expect(find.byType(TextField), findsOneWidget);
+    });
+
+    testWidgets('updates value on text entry', (WidgetTester tester) async {
+      Map<String, dynamic>? result;
+
+      await tester.pumpWidget(
+        MaterialApp(
+          home: Scaffold(
+            body: TextInputWidget(
+              options: const {},
+              selectedAnswer: null,
+              onAnswerChanged: (answer) {
+                result = answer;
+              },
+              isAnswered: false,
+            ),
+          ),
+        ),
+      );
+
+      await tester.enterText(find.byType(TextField), 'Answer Text');
+      await tester.pump();
+
+      expect(result, equals({'text': 'Answer Text'}));
+    });
+
+    testWidgets('pre-fills existing answer', (WidgetTester tester) async {
+      await tester.pumpWidget(
+        MaterialApp(
+          home: Scaffold(
+            body: TextInputWidget(
+              options: const {},
+              selectedAnswer: const {'text': 'Pre-filled'},
+              onAnswerChanged: (_) {},
+              isAnswered: false,
+            ),
+          ),
+        ),
+      );
+
+      expect(find.text('Pre-filled'), findsOneWidget);
     });
   });
 
-  group('Progress Indicator Widget Tests', () {
-    testWidgets('displays current question number', (WidgetTester tester) async {
-      await tester.pumpWidget(
-        const MaterialApp(
+  group('McqMultiWidget Tests', () {
+     final options = [
+      {'id': 'opt1', 'text': 'Option 1'},
+      {'id': 'opt2', 'text': 'Option 2'},
+    ];
+
+    testWidgets('allows multiple selections', (WidgetTester tester) async {
+       Map<String, dynamic>? lastResult;
+       
+       await tester.pumpWidget(
+        MaterialApp(
           home: Scaffold(
-            body: QuestionProgressIndicator(
-              currentQuestion: 3,
-              totalQuestions: 10,
+            body: McqMultiWidget(
+              options: options,
+              selectedAnswer: const {'selected_ids': ['opt1']},
+              onAnswerChanged: (val) => lastResult = val,
+              isAnswered: false,
             ),
           ),
         ),
       );
-
-      expect(find.text('3 / 10'), findsOneWidget);
-    });
-
-    testWidgets('displays linear progress bar', (WidgetTester tester) async {
-      await tester.pumpWidget(
-        const MaterialApp(
-          home: Scaffold(
-            body: QuestionProgressIndicator(
-              currentQuestion: 5,
-              totalQuestions: 10,
-            ),
-          ),
-        ),
-      );
-
-      expect(find.byType(LinearProgressIndicator), findsOneWidget);
       
-      final progressBar = tester.widget<LinearProgressIndicator>(
-        find.byType(LinearProgressIndicator),
-      );
-      expect(progressBar.value, equals(0.5));
-    });
-
-    testWidgets('updates progress correctly', (WidgetTester tester) async {
-      await tester.pumpWidget(
-        const MaterialApp(
-          home: Scaffold(
-            body: QuestionProgressIndicator(
-              currentQuestion: 7,
-              totalQuestions: 10,
-            ),
-          ),
-        ),
-      );
-
-      final progressBar = tester.widget<LinearProgressIndicator>(
-        find.byType(LinearProgressIndicator),
-      );
-      expect(progressBar.value, equals(0.7));
+      // Tap Option 2. Should result in ['opt1', 'opt2']
+      await tester.tap(find.text('Option 2'));
+      await tester.pump();
+      
+      expect(lastResult!['selected_ids'], containsAll(['opt1', 'opt2']));
+      
+      // Tap Option 1 (deselect). Should result in ['opt2'] (from previous state perspective if we updated)
+      // HOWEVER, the widget is stateless regarding 'selectedAnswer' prop - it relies on parent to update it.
+      // But the callback logic calculates new list based on prop.
+      // Since we haven't updated the prop in this test frame, tapping Option 1 should remove it from the initially passed ['opt1']
+      
+      await tester.tap(find.text('Option 1'));
+      await tester.pump();
+      
+      // Logic: currentIds (['opt1']) remove 'opt1' -> []
+      expect(lastResult!['selected_ids'], isEmpty);
     });
   });
-}
-
-// Placeholder widget for testing
-class QuestionProgressIndicator extends StatelessWidget {
-  final int currentQuestion;
-  final int totalQuestions;
-
-  const QuestionProgressIndicator({
-    super.key,
-    required this.currentQuestion,
-    required this.totalQuestions,
-  });
-
-  @override
-  Widget build(BuildContext context) {
-    return Column(
-      children: [
-        Text('$currentQuestion / $totalQuestions'),
-        LinearProgressIndicator(
-          value: currentQuestion / totalQuestions,
-        ),
-      ],
-    );
-  }
 }

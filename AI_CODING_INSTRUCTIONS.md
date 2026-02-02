@@ -68,5 +68,35 @@ If two sources conflict, follow the highest-ranked source.
 
 - Local development: `docs/DEVELOPMENT.md`
 - CI expectations and Strict mode: `docs/CI_CONTRACT.md`
+- **Deployment**: `docs/DEPLOYMENT_PIPELINE.md`
 - Validation scripts: `scripts/validate-phase-*.sh` and `scripts/common.sh`
 - Database schema and RLS: `supabase/migrations/*.sql` and `supabase/scripts/verify_rls.sql`
+
+## Deployment Pipeline
+
+The project uses a unified deployment orchestrator for deploying all three applications (Landing Pages, Admin Panel, Student App) to Cloudflare Pages.
+
+### Key Files
+- `master-config.json` - Single source of truth for all environment variables
+- `orchestrator.ps1` - Main deployment script (PowerShell)
+- `scripts/deploy/` - Supporting deployment scripts
+- `.secrets.template` - Template for local secrets file
+
+### Environment Configuration
+- **Flutter/Student App**: Uses `lib/src/core/config/env.dart` for environment access
+- **React/Admin Panel**: Uses `src/config/env.ts` for environment access
+- **Configuration Source**: All values flow from `master-config.json`
+
+### Deployment Commands
+```powershell
+# Full deployment
+./orchestrator.ps1
+
+# Staging deployment  
+./orchestrator.ps1 -Env staging
+
+# Dry run (validate only)
+./orchestrator.ps1 -DryRun
+```
+
+See `docs/DEPLOYMENT_PIPELINE.md` for complete documentation.

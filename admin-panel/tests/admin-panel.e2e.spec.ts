@@ -30,12 +30,22 @@ test.describe('Admin Panel E2E Tests', () => {
   let supabase: any;
 
   test.beforeAll(async () => {
+    // Load environment variables if not already present
+    if (!process.env.VITE_SUPABASE_URL) {
+      try {
+        const dotenv = await import('dotenv');
+        dotenv.config({ path: '.env' });
+        dotenv.config({ path: '.env.local' });
+      } catch (e) {
+        console.warn('Could not load dotenv, assuming environment is set');
+      }
+    }
+
     const supabaseUrl = process.env.VITE_SUPABASE_URL || process.env.NEXT_PUBLIC_SUPABASE_URL;
     const supabaseKey = process.env.SUPABASE_SERVICE_ROLE_KEY || process.env.VITE_SUPABASE_ANON_KEY || process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY;
 
     if (!supabaseUrl || !supabaseKey) {
-      console.warn('Supabase credentials not found in environment, skipping seed');
-      return;
+      throw new Error('Supabase credentials not found in environment. Cannot seed test data.');
     }
 
     const { createClient } = await import('@supabase/supabase-js');
@@ -45,9 +55,14 @@ test.describe('Admin Panel E2E Tests', () => {
     
     // Clean and seed
     console.log('Seeding test data...');
-    await cleanTestData(supabase);
-    await seedTestData(supabase);
-    console.log('Test data seeded.');
+    try {
+      await cleanTestData(supabase);
+      await seedTestData(supabase);
+      console.log('Test data seeded successfully.');
+    } catch (error) {
+       console.error('Seeding failed:', error);
+       throw error;
+    }
   });
   
   test.afterAll(async () => {

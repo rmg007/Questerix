@@ -1,4 +1,5 @@
 import { Header } from '../components/Header';
+import { Footer } from '../components/Footer';
 
 export const PrivacyPage = () => {
   return (
@@ -94,11 +95,7 @@ export const PrivacyPage = () => {
         </div>
       </main>
 
-      <footer className="bg-gray-900 text-white py-12 mt-20">
-        <div className="max-w-7xl mx-auto px-6 text-center">
-          <p className="text-gray-400">© 2024 Questerix Inc. All rights reserved.</p>
-        </div>
-      </footer>
+      <Footer />
     </div>
   );
 };

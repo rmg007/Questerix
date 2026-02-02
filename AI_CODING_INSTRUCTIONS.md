@@ -58,6 +58,32 @@ If two sources conflict, follow the highest-ranked source.
 - **Soft delete + timestamps**: tables use `updated_at` and `deleted_at` for sync.
 - **Student attempt submission**: use the `batch_submit_attempts` RPC (not direct REST writes to `attempts`).
 
+## Testing Conventions
+
+### Flutter Widget Tests
+- **Stream Mocking**: Avoid using `Stream.empty()` or `Stream.value()` for mocking repositories that feed `StreamBuilder`. These often complete too quickly (race condition) or confusingly for the widget tester.
+- **Preferred Pattern**: Use `StreamController`.
+  ```dart
+  // Setup
+  final controller = StreamController<T>();
+  addTearDown(() => controller.close()); // Critical: prevent leaks
+  when(() => mockRepo.watchData()).thenAnswer((_) => controller.stream);
+  
+  // Test Loading
+  await tester.pumpWidget(buildApp());
+  await tester.pump(); // Pump a frame (don't settle)
+  expect(find.byType(LoadingWidget), findsOneWidget);
+  
+  // Test Data
+  controller.add(data);
+  await tester.pumpAndSettle();
+  expect(find.text('Data'), findsOneWidget);
+  ```
+
+### E2E Tests (Playwright)
+- **Data Seeding**: Never rely on pre-existing database state. Use `seed-test-data.ts` in `beforeAll` hooks to ensure a consistent test environment.
+- **Port config**: Explicitly target port `5000` for local dev server consistency.
+
 ## Safe change principles
 
 - Prefer small, reviewable change sets.

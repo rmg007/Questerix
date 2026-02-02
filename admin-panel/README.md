@@ -60,4 +60,11 @@ npm run test:e2e
 npm run test:e2e:headed
 ```
 
-See [tests/README.md](tests/README.md) for detailed instructions on setting up test users and configuration.
+## ✨ Features
+ 
+- **AI Curriculum Assistant**: Generate smart, curriculum-aligned questions from PDF, Word, and Text documents using Google Gemini. Found in the **Questions** tab.
+- **Bulk Import/Export**: Robust CSV/JSON handling for large datasets.
+- **Dynamic Curriculum**: Real-time management of Domains, Skills, and Questions.
+- **Multi-Tenant**: Support for different app contexts and domains.
+
+See [AI_SETUP_INSTRUCTIONS.md](AI_SETUP_INSTRUCTIONS.md) for details on the AI feature.

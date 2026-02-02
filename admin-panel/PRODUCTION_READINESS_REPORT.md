@@ -148,10 +148,11 @@ await expect(page.locator('a[href="/skills/new"]').first()).toBeVisible();
 1. **Authentication**: Supabase Auth with RLS
 2. **Multi-Tenant Support**: App-scoped data isolation
 3. **Curriculum Management**: CRUD for Domains, Skills, Questions
-4. **Rich Text Editing**: TipTap editor with KaTeX math support
-5. **Drag-and-Drop**: @dnd-kit for question sorting
-6. **Responsive Design**: Mobile-first with Tailwind
-7. **Error Tracking**: Sentry integration
+4. **AI Curriculum Assistant**: Gemini-powered question generation from docs (PDF/Word/Text)
+5. **Rich Text Editing**: TipTap editor with KaTeX math support
+6. **Drag-and-Drop**: @dnd-kit for question sorting
+7. **Responsive Design**: Mobile-first with Tailwind
+8. **Error Tracking**: Sentry integration
 
 ---
 

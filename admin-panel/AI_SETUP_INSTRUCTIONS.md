@@ -45,7 +45,7 @@ Specifically, we added: `pdfjs-dist`, `mammoth`, `@google/generative-ai`, `react
 1.  Open the downloaded CSV in Excel/Numbers.
 2.  **Verify mapped columns:** Ensure `skill_title` matches exactly what is in your system.
 3.  **Check Options:** For Multiple Choice, ensure the JSON string looks correct (e.g., `["A", "B"]`).
-4.  (Once Import is Re-enabled): Use the "Upload" button on the Questions page to bulk-insert these into the database.
+4.  **Upload to System:** Use the **Upload** button on the Questions page to bulk-insert these into the database. Ensure you select the correct domain/app context.
 
 ---
 

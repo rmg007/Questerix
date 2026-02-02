@@ -44,8 +44,14 @@ export const Header = () => {
           <div className="md:hidden absolute top-20 left-0 w-full bg-white border-b border-gray-100 shadow-xl animate-fade-in-down h-[calc(100vh-80px)] overflow-y-auto">
             <div className="p-6 flex flex-col gap-6">
               <div className="flex flex-col gap-4">
-                <a href="#" className="text-lg font-medium text-gray-900 hover:text-blue-600 transition-colors">Methodology</a>
-                <a href="/#subjects" className="text-lg font-medium text-gray-900 hover:text-blue-600 transition-colors">Subjects</a>
+                <a href="#" onClick={() => setIsMenuOpen(false)} className="text-lg font-medium text-gray-900 hover:text-blue-600 transition-colors">Methodology</a>
+                <a 
+                  href="/#subjects" 
+                  onClick={() => setIsMenuOpen(false)}
+                  className="text-lg font-medium text-gray-900 hover:text-blue-600 transition-colors"
+                >
+                  Subjects
+                </a>
               </div>
               
               <hr className="border-gray-100" />
@@ -65,12 +71,14 @@ export const Header = () => {
               <div className="mt-auto flex flex-col gap-3">
                 <a 
                   href="http://localhost:3000" 
+                  onClick={() => setIsMenuOpen(false)}
                   className="w-full py-3 text-lg font-medium text-gray-900 hover:bg-gray-50 rounded-xl text-center border border-gray-200"
                 >
                   Log in
                 </a>
                 <a 
                   href="http://localhost:3000" 
+                  onClick={() => setIsMenuOpen(false)}
                   className="w-full py-3 bg-blue-600 text-white rounded-xl text-lg font-bold hover:bg-blue-700 transition-all shadow-lg shadow-blue-600/20 active:scale-[0.98] text-center"
                 >
                   Get Started

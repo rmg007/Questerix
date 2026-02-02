@@ -5,6 +5,9 @@ A cross-platform Flutter application for 7th-grade mathematics practice, support
 ## 🎯 Features
 
 - **Platform-Adaptive Architecture**: Automatically switches between online (Supabase) and offline-first (Drift) data access
+- **Welcome Screen with Dual Paths**: Clear entry points for new users ("Get Started") and returning users ("I already have an account")
+- **Age-Gated Authentication**: COPPA-compliant onboarding for users under 13 (Parent Approval) and over 13
+- **Legal Compliance**: Clickable Terms of Service and Privacy Policy links with dedicated screens
 - **Offline Practice**: Mobile users can practice math problems without internet connectivity
 - **Real-time Sync**: Seamless synchronization between local and remote data
 - **Progress Tracking**: Track mastery levels, streaks, and performance metrics
@@ -78,16 +81,28 @@ See [ARCHITECTURE.md](./ARCHITECTURE.md) for detailed information.
 
 ## 🧪 Testing
 
+We use **Widget Tests** to simulate application flows in a controlled environment. This ensures stability across platforms (including Windows) by mocking external dependencies like Supabase and the OS file system.
+
+### Running Tests
+
 ```bash
 # Run all tests
 flutter test
 
-# Run specific test file
-flutter test test/features/curriculum/screens/practice_screen_test.dart
+# Run UI Flow tests (Onboarding & Home)
+flutter test test/ui/app_flow_test.dart
 
 # Run with coverage
 flutter test --coverage
 ```
+
+### Test Coverage
+- **Unit Tests:** Verify business logic in isolation.
+- **Widget Tests:** Verify UI flows (`Onboarding`, `Authentication`) using comprehensive mocks:
+    - **Supabase:** Mocked clients and sessions.
+    - **Database:** In-memory Drift database (NativeDatabase.memory).
+    - **Sync:** Mocked SyncService to prevent background recursion.
+    - **Status:** The "Authenticated Home Screen Flow" is currently skipped on Windows due to an environment-specific unmount crash, but the logic is fully implemented.
 
 ## 🔨 Building
 

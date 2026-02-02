@@ -6,6 +6,9 @@ import { useNavigate } from "react-router-dom"
 import { supabase } from "@/lib/supabase"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
+import { Card, CardHeader, CardTitle, CardDescription, CardContent, CardFooter } from "@/components/ui/card"
+import { Label } from "@/components/ui/label"
+import { Rocket, Loader2, AlertCircle } from "lucide-react"
 
 const loginSchema = z.object({
   email: z.string().email("Please enter a valid email"),
@@ -87,141 +90,146 @@ export function LoginPage() {
   }
 
   return (
-    <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-slate-900 via-purple-900 to-slate-900">
-      <div className="w-full max-w-md px-6">
-        <div className="bg-white rounded-2xl shadow-2xl p-8">
-          <div className="text-center mb-8">
-            <div className="inline-flex items-center justify-center w-16 h-16 rounded-full bg-gradient-to-r from-purple-600 to-blue-600 mb-4">
-              <svg className="w-8 h-8 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 7h6m0 10v-3m-3 3h.01M9 17h.01M9 14h.01M12 14h.01M15 11h.01M12 11h.01M9 11h.01M7 21h10a2 2 0 002-2V5a2 2 0 00-2-2H7a2 2 0 00-2 2v14a2 2 0 002 2z" />
-              </svg>
-            </div>
-            <h1 className="text-2xl font-bold text-gray-900">Math7 Admin</h1>
-            <p className="text-gray-500 mt-2">
-              {isRegister ? "Create your account" : "Sign in to your dashboard"}
-            </p>
+    <div className="min-h-screen flex items-center justify-center bg-zinc-50 dark:bg-zinc-900">
+      <div className="w-full max-w-md px-4">
+        <div className="text-center mb-6">
+          <div className="inline-flex items-center justify-center w-12 h-12 rounded-full bg-primary/10 mb-4">
+            <Rocket className="w-6 h-6 text-primary" />
           </div>
-          
-          {isRegister ? (
-            <form onSubmit={registerForm.handleSubmit(onRegister)} className="space-y-5">
-              <div className="space-y-2">
-                <label className="text-sm font-medium text-gray-700">Full Name</label>
-                <Input 
-                  type="text" 
-                  placeholder="Enter your full name" 
-                  {...registerForm.register("fullName")} 
-                  className={`h-12 px-4 rounded-lg border-gray-200 focus:border-purple-500 focus:ring-purple-500 ${registerForm.formState.errors.fullName ? "border-red-500" : ""}`}
-                />
-                {registerForm.formState.errors.fullName && <p className="text-sm text-red-500">{registerForm.formState.errors.fullName.message}</p>}
-              </div>
-              
-              <div className="space-y-2">
-                <label className="text-sm font-medium text-gray-700">Email</label>
-                <Input 
-                  type="email" 
-                  placeholder="Enter your email" 
-                  {...registerForm.register("email")} 
-                  className={`h-12 px-4 rounded-lg border-gray-200 focus:border-purple-500 focus:ring-purple-500 ${registerForm.formState.errors.email ? "border-red-500" : ""}`}
-                />
-                {registerForm.formState.errors.email && <p className="text-sm text-red-500">{registerForm.formState.errors.email.message}</p>}
-              </div>
-              
-              <div className="space-y-2">
-                <label className="text-sm font-medium text-gray-700">Password</label>
-                <Input 
-                  type="password" 
-                  placeholder="Enter your password" 
-                  {...registerForm.register("password")} 
-                  className={`h-12 px-4 rounded-lg border-gray-200 focus:border-purple-500 focus:ring-purple-500 ${registerForm.formState.errors.password ? "border-red-500" : ""}`}
-                />
-                {registerForm.formState.errors.password && <p className="text-sm text-red-500">{registerForm.formState.errors.password.message}</p>}
-              </div>
-              
-              <div className="space-y-2">
-                <label className="text-sm font-medium text-gray-700">Invitation Code</label>
-                <Input 
-                  type="text" 
-                  placeholder="Enter your invitation code" 
-                  {...registerForm.register("inviteCode")} 
-                  className={`h-12 px-4 rounded-lg border-gray-200 focus:border-purple-500 focus:ring-purple-500 ${registerForm.formState.errors.inviteCode ? "border-red-500" : ""}`}
-                />
-                {registerForm.formState.errors.inviteCode && <p className="text-sm text-red-500">{registerForm.formState.errors.inviteCode.message}</p>}
-              </div>
+          <h1 className="text-2xl font-bold tracking-tight">Math7 Admin</h1>
+          <p className="text-muted-foreground mt-2">
+            Curriculum Management System
+          </p>
+        </div>
 
-              {error && (
-                <div className="bg-red-50 border border-red-200 rounded-lg p-3">
-                  <p className="text-sm text-red-600 text-center">{error}</p>
+        <Card className="border-border/40 shadow-xl">
+          <CardHeader>
+            <CardTitle>{isRegister ? "Create Account" : "Welcome Back"}</CardTitle>
+            <CardDescription>
+              {isRegister ? "Enter your details to get started" : "Enter your credentials to access the admin panel"}
+            </CardDescription>
+          </CardHeader>
+          <CardContent>
+            {isRegister ? (
+              <form onSubmit={registerForm.handleSubmit(onRegister)} className="space-y-4">
+                <div className="space-y-2">
+                  <Label htmlFor="fullName">Full Name</Label>
+                  <Input 
+                    id="fullName"
+                    placeholder="John Doe" 
+                    {...registerForm.register("fullName")} 
+                  />
+                  {registerForm.formState.errors.fullName && (
+                    <p className="text-sm text-destructive">{registerForm.formState.errors.fullName.message}</p>
+                  )}
                 </div>
-              )}
-
-              <Button 
-                type="submit" 
-                className="w-full h-12 bg-gradient-to-r from-purple-600 to-blue-600 hover:from-purple-700 hover:to-blue-700 text-white font-medium rounded-lg transition-all duration-200 shadow-lg hover:shadow-xl" 
-                disabled={registerForm.formState.isSubmitting}
-              >
-                {registerForm.formState.isSubmitting ? "Creating account..." : "Create Account"}
-              </Button>
-            </form>
-          ) : (
-            <form onSubmit={loginForm.handleSubmit(onLogin)} className="space-y-5">
-              <div className="space-y-2">
-                <label className="text-sm font-medium text-gray-700">Email</label>
-                <Input 
-                  type="email" 
-                  placeholder="Enter your email" 
-                  {...loginForm.register("email")} 
-                  className={`h-12 px-4 rounded-lg border-gray-200 focus:border-purple-500 focus:ring-purple-500 ${loginForm.formState.errors.email ? "border-red-500" : ""}`}
-                />
-                {loginForm.formState.errors.email && <p className="text-sm text-red-500">{loginForm.formState.errors.email.message}</p>}
-              </div>
-              
-              <div className="space-y-2">
-                <label className="text-sm font-medium text-gray-700">Password</label>
-                <Input 
-                  type="password" 
-                  placeholder="Enter your password" 
-                  {...loginForm.register("password")} 
-                  className={`h-12 px-4 rounded-lg border-gray-200 focus:border-purple-500 focus:ring-purple-500 ${loginForm.formState.errors.password ? "border-red-500" : ""}`}
-                />
-                {loginForm.formState.errors.password && <p className="text-sm text-red-500">{loginForm.formState.errors.password.message}</p>}
-              </div>
-
-              {error && (
-                <div className="bg-red-50 border border-red-200 rounded-lg p-3">
-                  <p className="text-sm text-red-600 text-center">{error}</p>
+                
+                <div className="space-y-2">
+                  <Label htmlFor="email">Email</Label>
+                  <Input 
+                    id="email"
+                    type="email" 
+                    placeholder="name@example.com" 
+                    {...registerForm.register("email")} 
+                  />
+                  {registerForm.formState.errors.email && (
+                    <p className="text-sm text-destructive">{registerForm.formState.errors.email.message}</p>
+                  )}
                 </div>
-              )}
+                
+                <div className="space-y-2">
+                  <Label htmlFor="password">Password</Label>
+                  <Input 
+                    id="password"
+                    type="password" 
+                    {...registerForm.register("password")} 
+                  />
+                  {registerForm.formState.errors.password && (
+                    <p className="text-sm text-destructive">{registerForm.formState.errors.password.message}</p>
+                  )}
+                </div>
+                
+                <div className="space-y-2">
+                  <Label htmlFor="inviteCode">Invitation Code</Label>
+                  <Input 
+                    id="inviteCode"
+                    placeholder="INV-..." 
+                    {...registerForm.register("inviteCode")} 
+                  />
+                  {registerForm.formState.errors.inviteCode && (
+                    <p className="text-sm text-destructive">{registerForm.formState.errors.inviteCode.message}</p>
+                  )}
+                </div>
 
-              <Button 
-                type="submit" 
-                className="w-full h-12 bg-gradient-to-r from-purple-600 to-blue-600 hover:from-purple-700 hover:to-blue-700 text-white font-medium rounded-lg transition-all duration-200 shadow-lg hover:shadow-xl" 
-                disabled={loginForm.formState.isSubmitting}
-              >
-                {loginForm.formState.isSubmitting ? "Signing in..." : "Sign In"}
-              </Button>
-            </form>
-          )}
+                {error && (
+                  <div className="bg-destructive/10 text-destructive text-sm p-3 rounded-md flex items-center gap-2">
+                    <AlertCircle className="w-4 h-4" />
+                    {error}
+                  </div>
+                )}
 
-          <div className="mt-6 text-center">
-            <button
-              type="button"
+                <Button className="w-full" type="submit" disabled={registerForm.formState.isSubmitting}>
+                  {registerForm.formState.isSubmitting && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
+                  Create Account
+                </Button>
+              </form>
+            ) : (
+              <form onSubmit={loginForm.handleSubmit(onLogin)} className="space-y-4">
+                <div className="space-y-2">
+                  <Label htmlFor="login-email">Email</Label>
+                  <Input 
+                    id="login-email"
+                    type="email" 
+                    placeholder="name@example.com" 
+                    {...loginForm.register("email")} 
+                  />
+                  {loginForm.formState.errors.email && (
+                    <p className="text-sm text-destructive">{loginForm.formState.errors.email.message}</p>
+                  )}
+                </div>
+                
+                <div className="space-y-2">
+                  <Label htmlFor="login-password">Password</Label>
+                  <Input 
+                    id="login-password"
+                    type="password" 
+                    {...loginForm.register("password")} 
+                  />
+                  {loginForm.formState.errors.password && (
+                    <p className="text-sm text-destructive">{loginForm.formState.errors.password.message}</p>
+                  )}
+                </div>
+
+                {error && (
+                  <div className="bg-destructive/10 text-destructive text-sm p-3 rounded-md flex items-center gap-2">
+                    <AlertCircle className="w-4 h-4" />
+                    {error}
+                  </div>
+                )}
+
+                <Button className="w-full" type="submit" disabled={loginForm.formState.isSubmitting}>
+                  {loginForm.formState.isSubmitting && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
+                  Sign In
+                </Button>
+              </form>
+            )}
+          </CardContent>
+          <CardFooter className="flex justify-center">
+            <Button
+              variant="link"
               onClick={() => {
                 setIsRegister(!isRegister)
                 setError(null)
               }}
-              className="text-purple-600 hover:text-purple-700 font-medium text-sm"
+              className="text-muted-foreground"
             >
               {isRegister 
                 ? "Already have an account? Sign in" 
                 : "Don't have an account? Register"
               }
-            </button>
-          </div>
-          
-          <p className="text-center text-gray-400 text-sm mt-6">
-            Curriculum Management System
-          </p>
-        </div>
+            </Button>
+          </CardFooter>
+        </Card>
       </div>
     </div>
   )

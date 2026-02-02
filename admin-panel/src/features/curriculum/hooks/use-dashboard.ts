@@ -1,6 +1,7 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 import { useQuery } from '@tanstack/react-query';
 import { supabase } from '@/lib/supabase';
+import { useApp } from '@/contexts/AppContext';
 
 interface DashboardStats {
   totalDomains: number;
@@ -29,9 +30,13 @@ interface RecentActivity {
 }
 
 export function useDashboardStats() {
+  const { currentApp } = useApp();
+
   return useQuery({
-    queryKey: ['dashboard-stats'],
+    queryKey: ['dashboard-stats', currentApp?.app_id],
     queryFn: async (): Promise<DashboardStats> => {
+      if (!currentApp?.app_id) throw new Error('No app selected');
+
       const [
         domainsResult,
         liveDomainsResult,
@@ -47,18 +52,22 @@ export function useDashboardStats() {
         draftQuestionsResult,
         metaResult,
       ] = await Promise.all([
-        supabase.from('domains').select('*', { count: 'exact', head: true }).is('deleted_at', null),
-        supabase.from('domains').select('*', { count: 'exact', head: true }).is('deleted_at', null).eq('status', 'live'),
-        supabase.from('domains').select('*', { count: 'exact', head: true }).is('deleted_at', null).eq('status', 'published'),
-        supabase.from('domains').select('*', { count: 'exact', head: true }).is('deleted_at', null).eq('status', 'draft'),
-        supabase.from('skills').select('*', { count: 'exact', head: true }).is('deleted_at', null),
-        supabase.from('skills').select('*', { count: 'exact', head: true }).is('deleted_at', null).eq('status', 'live'),
-        supabase.from('skills').select('*', { count: 'exact', head: true }).is('deleted_at', null).eq('status', 'published'),
-        supabase.from('skills').select('*', { count: 'exact', head: true }).is('deleted_at', null).eq('status', 'draft'),
-        supabase.from('questions').select('*', { count: 'exact', head: true }).is('deleted_at', null),
-        supabase.from('questions').select('*', { count: 'exact', head: true }).is('deleted_at', null).eq('status', 'live'),
-        supabase.from('questions').select('*', { count: 'exact', head: true }).is('deleted_at', null).eq('status', 'published'),
-        supabase.from('questions').select('*', { count: 'exact', head: true }).is('deleted_at', null).eq('status', 'draft'),
+        supabase.from('domains').select('*', { count: 'exact', head: true }).eq('app_id', currentApp.app_id).is('deleted_at', null),
+        supabase.from('domains').select('*', { count: 'exact', head: true }).eq('app_id', currentApp.app_id).is('deleted_at', null).eq('status', 'live'),
+        supabase.from('domains').select('*', { count: 'exact', head: true }).eq('app_id', currentApp.app_id).is('deleted_at', null).eq('status', 'published'),
+        supabase.from('domains').select('*', { count: 'exact', head: true }).eq('app_id', currentApp.app_id).is('deleted_at', null).eq('status', 'draft'),
+        supabase.from('skills').select('*', { count: 'exact', head: true }).eq('app_id', currentApp.app_id).is('deleted_at', null),
+        supabase.from('skills').select('*', { count: 'exact', head: true }).eq('app_id', currentApp.app_id).is('deleted_at', null).eq('status', 'live'),
+        supabase.from('skills').select('*', { count: 'exact', head: true }).eq('app_id', currentApp.app_id).is('deleted_at', null).eq('status', 'published'),
+        supabase.from('skills').select('*', { count: 'exact', head: true }).eq('app_id', currentApp.app_id).is('deleted_at', null).eq('status', 'draft'),
+        supabase.from('questions').select('*', { count: 'exact', head: true }).eq('app_id', currentApp.app_id).is('deleted_at', null),
+        supabase.from('questions').select('*', { count: 'exact', head: true }).eq('app_id', currentApp.app_id).is('deleted_at', null).eq('status', 'live'),
+        supabase.from('questions').select('*', { count: 'exact', head: true }).eq('app_id', currentApp.app_id).is('deleted_at', null).eq('status', 'published'),
+        supabase.from('questions').select('*', { count: 'exact', head: true }).eq('app_id', currentApp.app_id).is('deleted_at', null).eq('status', 'draft'),
+        // Meta is per-app? Or global? Ideally per-app. For now assuming singleton is global, but lets verify.
+        // If meta is global, we can't really version per app easily without changing schema.
+        // Current schema for curriculum_meta likely assumes one curriculum. 
+        // For now, let's just keep using the singleton as is, but acknowledged as a limitation.
         supabase.from('curriculum_meta').select('version, last_published_at').eq('id', 'singleton').single(),
       ]);
 
@@ -86,30 +95,38 @@ export function useDashboardStats() {
         readyToPublish: publishedCount,
       };
     },
+    enabled: !!currentApp?.app_id,
     refetchInterval: 60000,
   });
 }
 
 export function useRecentActivity() {
+  const { currentApp } = useApp();
+
   return useQuery({
-    queryKey: ['recent-activity'],
+    queryKey: ['recent-activity', currentApp?.app_id],
     queryFn: async (): Promise<RecentActivity[]> => {
+      if (!currentApp?.app_id) throw new Error('No app selected');
+
       const [domainsResult, skillsResult, questionsResult] = await Promise.all([
         supabase
           .from('domains')
           .select('id, title, created_at, updated_at')
+          .eq('app_id', currentApp.app_id)
           .is('deleted_at', null)
           .order('updated_at', { ascending: false })
           .limit(4),
         supabase
           .from('skills')
           .select('id, title, created_at, updated_at')
+          .eq('app_id', currentApp.app_id)
           .is('deleted_at', null)
           .order('updated_at', { ascending: false })
           .limit(4),
         supabase
           .from('questions')
           .select('id, content, created_at, updated_at')
+          .eq('app_id', currentApp.app_id)
           .is('deleted_at', null)
           .order('updated_at', { ascending: false })
           .limit(4),
@@ -158,6 +175,7 @@ export function useRecentActivity() {
         .sort((a, b) => new Date(b.timestamp).getTime() - new Date(a.timestamp).getTime())
         .slice(0, 10);
     },
+    enabled: !!currentApp?.app_id,
     refetchInterval: 30000,
   });
 }

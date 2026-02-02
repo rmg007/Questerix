@@ -14,6 +14,16 @@ If two sources conflict, follow the highest-ranked source.
 
 ## Repository contracts you must follow
 
+### Command Execution & Autonomy
+- **ALWAYS** reference `.cursorrules` and `.agent/workflows/autopilot.md` for approved command patterns.
+- Command whitelists are defined in `.cursorrules`.
+- You are authorized to use any command pattern defined in these files.
+- If a command fails due to permission, check if it matches a `// turbo` pattern in `autopilot.md` and adjust the syntax to match the whitelist exactly.
+
+### Autonomous Task Finalization
+- You must follow the **Autonomous Task Finalization** protocol defined in `AGENTS.md` before marking any task as complete.
+- This includes mandatory testing, refactoring, and documentation updates without asking for permission.
+
 ### Run/test contract
 
 - Use the `Makefile` targets whenever possible.

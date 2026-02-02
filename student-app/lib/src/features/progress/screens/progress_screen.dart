@@ -39,13 +39,14 @@ class ProgressScreen extends ConsumerWidget {
     return FutureBuilder<Map<String, dynamic>>(
       future: ref.read(skillProgressRepositoryProvider).getOverallStats(),
       builder: (context, snapshot) {
-        final stats = snapshot.data ?? {
-          'totalPoints': 0,
-          'totalAttempts': 0,
-          'totalCorrect': 0,
-          'averageMastery': 0,
-          'longestStreak': 0,
-        };
+        final stats = snapshot.data ??
+            {
+              'totalPoints': 0,
+              'totalAttempts': 0,
+              'totalCorrect': 0,
+              'averageMastery': 0,
+              'longestStreak': 0,
+            };
 
         return Card(
           child: Padding(
@@ -74,16 +75,22 @@ class ProgressScreen extends ConsumerWidget {
                         children: [
                           Text(
                             'Total Points',
-                            style: Theme.of(context).textTheme.bodyMedium?.copyWith(
-                              color: AppColors.textSecondary,
-                            ),
+                            style: Theme.of(context)
+                                .textTheme
+                                .bodyMedium
+                                ?.copyWith(
+                                  color: AppColors.textSecondary,
+                                ),
                           ),
                           Text(
                             '${stats['totalPoints']}',
-                            style: Theme.of(context).textTheme.headlineMedium?.copyWith(
-                              fontWeight: FontWeight.bold,
-                              color: AppColors.points,
-                            ),
+                            style: Theme.of(context)
+                                .textTheme
+                                .headlineMedium
+                                ?.copyWith(
+                                  fontWeight: FontWeight.bold,
+                                  color: AppColors.points,
+                                ),
                           ),
                         ],
                       ),
@@ -152,9 +159,9 @@ class ProgressScreen extends ConsumerWidget {
           Text(
             value,
             style: Theme.of(context).textTheme.titleLarge?.copyWith(
-              fontWeight: FontWeight.bold,
-              color: color,
-            ),
+                  fontWeight: FontWeight.bold,
+                  color: color,
+                ),
           ),
           const SizedBox(height: 4),
           Text(
@@ -168,7 +175,8 @@ class ProgressScreen extends ConsumerWidget {
   }
 
   Widget _buildDomainProgress(BuildContext context, WidgetRef ref) {
-    final domainsStream = ref.watch(domainRepositoryProvider).watchAllPublished();
+    final domainsStream =
+        ref.watch(domainRepositoryProvider).watchAllPublished();
 
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
@@ -195,8 +203,8 @@ class ProgressScreen extends ConsumerWidget {
                     child: Text(
                       'No domains available yet',
                       style: Theme.of(context).textTheme.bodyMedium?.copyWith(
-                        color: AppColors.textSecondary,
-                      ),
+                            color: AppColors.textSecondary,
+                          ),
                     ),
                   ),
                 ),
@@ -206,7 +214,9 @@ class ProgressScreen extends ConsumerWidget {
             return Column(
               children: domains.map((domain) {
                 return FutureBuilder<int>(
-                  future: ref.read(skillProgressRepositoryProvider).getMasteryForDomain(domain.id),
+                  future: ref
+                      .read(skillProgressRepositoryProvider)
+                      .getMasteryForDomain(domain.id),
                   builder: (context, masterySnapshot) {
                     final mastery = masterySnapshot.data ?? 0;
 
@@ -222,15 +232,19 @@ class ProgressScreen extends ConsumerWidget {
                                 Expanded(
                                   child: Text(
                                     domain.title,
-                                    style: Theme.of(context).textTheme.titleMedium,
+                                    style:
+                                        Theme.of(context).textTheme.titleMedium,
                                   ),
                                 ),
                                 Text(
                                   '$mastery%',
-                                  style: Theme.of(context).textTheme.titleMedium?.copyWith(
-                                    fontWeight: FontWeight.bold,
-                                    color: _getMasteryColor(mastery),
-                                  ),
+                                  style: Theme.of(context)
+                                      .textTheme
+                                      .titleMedium
+                                      ?.copyWith(
+                                        fontWeight: FontWeight.bold,
+                                        color: _getMasteryColor(mastery),
+                                      ),
                                 ),
                               ],
                             ),
@@ -240,7 +254,8 @@ class ProgressScreen extends ConsumerWidget {
                               child: LinearProgressIndicator(
                                 value: mastery / 100,
                                 backgroundColor: AppColors.cardBorder,
-                                valueColor: AlwaysStoppedAnimation(_getMasteryColor(mastery)),
+                                valueColor: AlwaysStoppedAnimation(
+                                    _getMasteryColor(mastery)),
                                 minHeight: 8,
                               ),
                             ),
@@ -259,7 +274,9 @@ class ProgressScreen extends ConsumerWidget {
   }
 
   Widget _buildRecentActivity(BuildContext context, WidgetRef ref) {
-    final sessionsStream = ref.watch(practiceSessionRepositoryProvider).watchRecentSessions(limit: 5);
+    final sessionsStream = ref
+        .watch(practiceSessionRepositoryProvider)
+        .watchRecentSessions(limit: 5);
 
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
@@ -293,9 +310,10 @@ class ProgressScreen extends ConsumerWidget {
                         const SizedBox(height: 12),
                         Text(
                           'No practice sessions yet',
-                          style: Theme.of(context).textTheme.bodyMedium?.copyWith(
-                            color: AppColors.textSecondary,
-                          ),
+                          style:
+                              Theme.of(context).textTheme.bodyMedium?.copyWith(
+                                    color: AppColors.textSecondary,
+                                  ),
                         ),
                         const SizedBox(height: 4),
                         Text(
@@ -312,28 +330,35 @@ class ProgressScreen extends ConsumerWidget {
             return Column(
               children: sessions.map((session) {
                 final accuracy = session.questionsAttempted > 0
-                    ? (session.questionsCorrect / session.questionsAttempted * 100).round()
+                    ? (session.questionsCorrect /
+                            session.questionsAttempted *
+                            100)
+                        .round()
                     : 0;
 
                 return Card(
                   margin: const EdgeInsets.only(bottom: 8),
                   child: ListTile(
                     leading: CircleAvatar(
-                      backgroundColor: _getMasteryColor(accuracy).withValues(alpha: 0.1),
+                      backgroundColor:
+                          _getMasteryColor(accuracy).withValues(alpha: 0.1),
                       child: Icon(
                         Icons.quiz,
                         color: _getMasteryColor(accuracy),
                       ),
                     ),
-                    title: Text('${session.questionsCorrect}/${session.questionsAttempted} correct'),
+                    title: Text(
+                        '${session.questionsCorrect}/${session.questionsAttempted} correct'),
                     subtitle: Text(
                       _formatDate(session.startedAt),
                       style: Theme.of(context).textTheme.bodySmall,
                     ),
                     trailing: Container(
-                      padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
+                      padding: const EdgeInsets.symmetric(
+                          horizontal: 12, vertical: 6),
                       decoration: BoxDecoration(
-                        color: _getMasteryColor(accuracy).withValues(alpha: 0.1),
+                        color:
+                            _getMasteryColor(accuracy).withValues(alpha: 0.1),
                         borderRadius: BorderRadius.circular(12),
                       ),
                       child: Text(

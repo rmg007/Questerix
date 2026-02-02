@@ -27,6 +27,8 @@ import {
     SelectTrigger,
     SelectValue,
 } from "@/components/ui/select"
+import { Card, CardHeader, CardTitle, CardContent } from "@/components/ui/card"
+import { Separator } from "@/components/ui/separator"
 import { Database } from '@/lib/database.types';
 
 type Question = Database['public']['Tables']['questions']['Row'];
@@ -234,9 +236,6 @@ export function QuestionForm({ initialData }: QuestionFormProps) {
   const isSubmitting = createQuestion.isPending || updateQuestion.isPending;
 
   // Custom Field Array for MCQ Options
-  // We need to access control for dynamic fields
-  // Since `options` is `any`, we need to cast or manage carefully.
-  // Let's manually manage the options array in the render for now, updating the form value.
   const currentOptions = (form.watch('options') as any)?.options || [];
   const setOptions = (newOptions: any[]) => {
       form.setValue('options', { options: newOptions });
@@ -318,377 +317,435 @@ export function QuestionForm({ initialData }: QuestionFormProps) {
       form.setValue('solution', newOrder);
   };
 
-  if (isLoadingSkills) return <Loader2 className="animate-spin" />;
+  if (isLoadingSkills) return <div className="flex justify-center p-8"><Loader2 className="animate-spin w-8 h-8 text-primary" /></div>;
 
   return (
     <Form {...form}>
-      <form onSubmit={form.handleSubmit(onSubmit as any)} className="space-y-4 md:space-y-6 w-full max-w-3xl px-1">
+      <form onSubmit={form.handleSubmit(onSubmit as any)} className="space-y-8 w-full max-w-5xl mx-auto pb-10">
         
-        <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-            <FormField
-            control={form.control as any}
-            name="skill_id"
-            render={({ field }) => (
-                <FormItem>
-                <FormLabel>Skill</FormLabel>
-                <Select onValueChange={field.onChange} defaultValue={field.value}>
-                    <FormControl>
-                    <SelectTrigger className="min-h-[48px] text-base">
-                        <SelectValue placeholder="Select a skill" />
-                    </SelectTrigger>
-                    </FormControl>
-                    <SelectContent>
-                        {skills?.map((skill) => (
-                            <SelectItem key={skill.id} value={skill.id}>
-                                {skill.title}
-                            </SelectItem>
-                        ))}
-                    </SelectContent>
-                </Select>
-                <FormMessage />
-                </FormItem>
-            )}
-            />
-
-            <FormField
-            control={form.control as any}
-            name="type"
-            render={({ field }) => (
-                <FormItem>
-                <FormLabel>Question Type</FormLabel>
-                <Select onValueChange={field.onChange} defaultValue={field.value}>
-                    <FormControl>
-                    <SelectTrigger className="min-h-[48px] text-base">
-                        <SelectValue placeholder="Select type" />
-                    </SelectTrigger>
-                    </FormControl>
-                    <SelectContent>
-                        {QUESTION_TYPES.map((t) => (
-                            <SelectItem key={t} value={t}>
-                                {t.replace('_', ' ').toUpperCase()}
-                            </SelectItem>
-                        ))}
-                    </SelectContent>
-                </Select>
-                <FormMessage />
-                </FormItem>
-            )}
-            />
+        <div className="flex items-center justify-between">
+            <div>
+                <h2 className="text-2xl font-bold tracking-tight">{initialData ? 'Edit Question' : 'Create Question'}</h2>
+                <p className="text-muted-foreground">Define the content and answers for this practice problem.</p>
+            </div>
+            <div className="flex items-center gap-3">
+                <Button type="button" variant="outline" onClick={() => navigate('/questions')}>
+                    Cancel
+                </Button>
+                <Button type="submit" disabled={isSubmitting}>
+                    {isSubmitting && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
+                    {initialData ? 'Save Changes' : 'Create Question'}
+                </Button>
+            </div>
         </div>
 
-        <FormField
-          control={form.control as any}
-          name="content"
-          render={({ field }) => (
-            <FormItem>
-              <FormLabel>Question Text</FormLabel>
-              <FormControl>
-                <RichTextEditor 
-                  value={field.value}
-                  onChange={field.onChange}
-                  placeholder="What is 2 + 2?"
-                />
-              </FormControl>
-              <FormMessage />
-            </FormItem>
-          )}
-        />
-
-        {questionType === 'multiple_choice' && (
-            <div className="space-y-4 border p-4 rounded-md">
-                <h3 className="font-medium text-sm">Multiple Choice Options</h3>
-                <RadioGroup 
-                    onValueChange={(val) => form.setValue('solution', val)} 
-                    defaultValue={form.watch('solution') as string}
-                >
-                    {currentOptions.map((opt: any, index: number) => (
-                        <div key={index} className="flex items-center gap-4">
-                            <RadioGroupItem value={opt.id} id={opt.id} />
-                            <div className="flex-1 flex gap-2">
-                                <span className="flex h-10 w-8 items-center justify-center rounded-md border bg-muted text-sm font-medium">
-                                    {opt.id.toUpperCase()}
-                                </span>
-                                <Input 
-                                    value={opt.text} 
-                                    onChange={(e) => updateOptionText(index, e.target.value)}
-                                    placeholder={`Option ${opt.id.toUpperCase()}`}
-                                />
-                            </div>
-                            <Button type="button" variant="ghost" size="icon" onClick={() => removeOption(index)}>
-                                <Trash className="h-4 w-4 text-muted-foreground" />
-                            </Button>
-                        </div>
-                    ))}
-                </RadioGroup>
-                 <Button type="button" variant="outline" size="sm" onClick={addOption} className="mt-2">
-                    <Plus className="mr-2 h-4 w-4" /> Add Option
-                </Button>
-                {form.formState.errors.solution && (
-                     <p className="text-sm font-medium text-destructive">
-                        {form.formState.errors.solution.message as string}
-                     </p>
-                )}
-            </div>
-        )}
-
-        {questionType === 'mcq_multi' && (
-            <div className="space-y-4 border p-4 rounded-md">
-                <h3 className="font-medium text-sm">Multiple Choice (Multiple Answers)</h3>
-                <p className="text-sm text-muted-foreground">Select all correct answers using the checkboxes.</p>
-                <div className="space-y-3">
-                    {currentOptions.map((opt: any, index: number) => (
-                        <div key={index} className="flex items-center gap-4">
-                            <Checkbox 
-                                checked={currentSelectedIds.includes(opt.id)}
-                                onCheckedChange={() => toggleSelectedId(opt.id)}
-                            />
-                            <div className="flex-1 flex gap-2">
-                                <span className="flex h-10 w-8 items-center justify-center rounded-md border bg-muted text-sm font-medium">
-                                    {opt.id.toUpperCase()}
-                                </span>
-                                <Input 
-                                    value={opt.text} 
-                                    onChange={(e) => updateOptionText(index, e.target.value)}
-                                    placeholder={`Option ${opt.id.toUpperCase()}`}
-                                />
-                            </div>
-                            <Button type="button" variant="ghost" size="icon" onClick={() => removeOption(index)}>
-                                <Trash className="h-4 w-4 text-muted-foreground" />
-                            </Button>
-                        </div>
-                    ))}
-                </div>
-                <Button type="button" variant="outline" size="sm" onClick={addOption} className="mt-2">
-                    <Plus className="mr-2 h-4 w-4" /> Add Option
-                </Button>
-                {form.formState.errors.solution && (
-                     <p className="text-sm font-medium text-destructive">
-                        {form.formState.errors.solution.message as string}
-                     </p>
-                )}
-            </div>
-        )}
-
-        {questionType === 'boolean' && (
-            <div className="space-y-4 border p-4 rounded-md">
-                <h3 className="font-medium text-sm">True/False Question</h3>
-                <div className="grid grid-cols-2 gap-4">
-                    <div className="space-y-2">
-                        <FormLabel>True Label (optional)</FormLabel>
-                        <Input 
-                            value={currentBooleanOpts.true_label || ''} 
-                            onChange={(e) => form.setValue('options', { ...currentBooleanOpts, true_label: e.target.value })}
-                            placeholder="True"
+        <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
+            <div className="lg:col-span-2 space-y-6">
+                <Card>
+                    <CardHeader>
+                        <CardTitle>Question Content</CardTitle>
+                    </CardHeader>
+                    <CardContent className="space-y-6">
+                        <FormField
+                            control={form.control as any}
+                            name="type"
+                            render={({ field }) => (
+                                <FormItem>
+                                <FormLabel>Question Type</FormLabel>
+                                <Select onValueChange={field.onChange} defaultValue={field.value}>
+                                    <FormControl>
+                                    <SelectTrigger>
+                                        <SelectValue placeholder="Select type" />
+                                    </SelectTrigger>
+                                    </FormControl>
+                                    <SelectContent>
+                                        {QUESTION_TYPES.map((t) => (
+                                            <SelectItem key={t} value={t}>
+                                                {t.replace('_', ' ').toUpperCase()}
+                                            </SelectItem>
+                                        ))}
+                                    </SelectContent>
+                                </Select>
+                                <FormMessage />
+                                </FormItem>
+                            )}
                         />
-                    </div>
-                    <div className="space-y-2">
-                        <FormLabel>False Label (optional)</FormLabel>
-                        <Input 
-                            value={currentBooleanOpts.false_label || ''} 
-                            onChange={(e) => form.setValue('options', { ...currentBooleanOpts, false_label: e.target.value })}
-                            placeholder="False"
-                        />
-                    </div>
-                </div>
-                <div className="space-y-2">
-                    <FormLabel>Correct Answer</FormLabel>
-                    <div className="flex gap-4">
-                        <Button 
-                            type="button" 
-                            variant={booleanAnswer === true ? 'default' : 'outline'}
-                            onClick={() => form.setValue('solution', true)}
-                            className="flex-1"
-                        >
-                            {currentBooleanOpts.true_label || 'True'}
-                        </Button>
-                        <Button 
-                            type="button" 
-                            variant={booleanAnswer === false ? 'default' : 'outline'}
-                            onClick={() => form.setValue('solution', false)}
-                            className="flex-1"
-                        >
-                            {currentBooleanOpts.false_label || 'False'}
-                        </Button>
-                    </div>
-                </div>
-                {form.formState.errors.solution && (
-                     <p className="text-sm font-medium text-destructive">
-                        {form.formState.errors.solution.message as string}
-                     </p>
-                )}
-            </div>
-        )}
 
-        {questionType === 'text_input' && (
-            <div className="space-y-4 border p-4 rounded-md">
-                <h3 className="font-medium text-sm">Text Input Question</h3>
-                <div className="space-y-2">
-                    <FormLabel>Placeholder (optional)</FormLabel>
-                    <Input 
-                        value={currentTextOpts.placeholder || ''} 
-                        onChange={(e) => form.setValue('options', { placeholder: e.target.value })}
-                        placeholder="Enter your answer..."
-                    />
-                </div>
-                <div className="space-y-2">
-                    <FormLabel>Correct Answer (exact match)</FormLabel>
-                    <Input 
-                        value={textAnswer} 
-                        onChange={(e) => form.setValue('solution', e.target.value)}
-                        placeholder="The exact correct answer"
-                    />
-                </div>
-                {form.formState.errors.solution && (
-                     <p className="text-sm font-medium text-destructive">
-                        {form.formState.errors.solution.message as string}
-                     </p>
-                )}
-            </div>
-        )}
-
-        {questionType === 'reorder_steps' && (
-            <div className="space-y-4 border p-4 rounded-md">
-                <h3 className="font-medium text-sm">Reorder Steps</h3>
-                <p className="text-sm text-muted-foreground">Add steps and set their correct order using the arrows.</p>
-                
-                <div className="space-y-2">
-                    <h4 className="text-sm font-medium">Steps (define the content)</h4>
-                    <div className="space-y-3">
-                        {currentSteps.map((step: any, index: number) => (
-                            <div key={step.id} className="flex items-center gap-4">
-                                <span className="flex h-10 w-8 items-center justify-center rounded-md border bg-muted text-sm font-medium">
-                                    {step.id}
-                                </span>
-                                <Input 
-                                    value={step.text} 
-                                    onChange={(e) => updateStepText(index, e.target.value)}
-                                    placeholder={`Step ${step.id} text`}
-                                    className="flex-1"
+                        <FormField
+                          control={form.control as any}
+                          name="content"
+                          render={({ field }) => (
+                            <FormItem>
+                              <FormLabel>Question Text & Media</FormLabel>
+                              <FormControl>
+                                <RichTextEditor 
+                                  value={field.value}
+                                  onChange={field.onChange}
+                                  placeholder="What is 2 + 2?"
                                 />
-                                <Button type="button" variant="ghost" size="icon" onClick={() => removeStep(index)} disabled={currentSteps.length <= 2}>
-                                    <Trash className="h-4 w-4 text-muted-foreground" />
+                              </FormControl>
+                              <FormMessage />
+                            </FormItem>
+                          )}
+                        />
+                    </CardContent>
+                </Card>
+
+                <Card>
+                    <CardHeader>
+                        <div className="flex items-center justify-between">
+                            <CardTitle>Answer Configuration</CardTitle>
+                            <span className="text-sm text-muted-foreground bg-muted px-2 py-1 rounded capitalize">
+                                {questionType.replace('_', ' ')}
+                            </span>
+                        </div>
+                    </CardHeader>
+                    <CardContent>
+                        {questionType === 'multiple_choice' && (
+                            <div className="space-y-4">
+                                <RadioGroup 
+                                    onValueChange={(val) => form.setValue('solution', val)} 
+                                    defaultValue={form.watch('solution') as string}
+                                    className="space-y-3"
+                                >
+                                    {currentOptions.map((opt: any, index: number) => (
+                                        <div key={index} className="flex items-center gap-3">
+                                            <RadioGroupItem value={opt.id} id={opt.id} />
+                                            <div className="flex-1 flex gap-2">
+                                                <span className="flex h-10 w-10 items-center justify-center rounded-md border bg-muted text-sm font-medium shrink-0">
+                                                    {opt.id.toUpperCase()}
+                                                </span>
+                                                <Input 
+                                                    value={opt.text} 
+                                                    onChange={(e) => updateOptionText(index, e.target.value)}
+                                                    placeholder={`Option ${opt.id.toUpperCase()}`}
+                                                />
+                                            </div>
+                                            <Button type="button" variant="ghost" size="icon" onClick={() => removeOption(index)}>
+                                                <Trash className="h-4 w-4 text-muted-foreground" />
+                                            </Button>
+                                        </div>
+                                    ))}
+                                </RadioGroup>
+                                <Button type="button" variant="outline" size="sm" onClick={addOption} className="mt-2 text-primary hover:text-primary">
+                                    <Plus className="mr-2 h-4 w-4" /> Add Option
                                 </Button>
+                                {form.formState.errors.solution && (
+                                     <p className="text-sm font-medium text-destructive">
+                                        {form.formState.errors.solution.message as string}
+                                     </p>
+                                )}
                             </div>
-                        ))}
-                    </div>
-                    <Button type="button" variant="outline" size="sm" onClick={addStep} className="mt-2">
-                        <Plus className="mr-2 h-4 w-4" /> Add Step
-                    </Button>
-                </div>
+                        )}
 
-                <div className="space-y-2 pt-4 border-t">
-                    <h4 className="text-sm font-medium">Correct Order</h4>
-                    <p className="text-xs text-muted-foreground">Use the arrows to arrange steps in the correct order.</p>
-                    <div className="space-y-2">
-                        {currentOrder.map((stepId: string, index: number) => {
-                            const step = currentSteps.find((s: any) => s.id === stepId);
-                            return (
-                                <div key={stepId} className="flex items-center gap-2 p-2 border rounded-md bg-muted/50">
-                                    <span className="font-medium text-sm w-6">{index + 1}.</span>
-                                    <span className="flex-1 text-sm">{step?.text || `Step ${stepId}`}</span>
-                                    <Button 
-                                        type="button" 
-                                        variant="ghost" 
-                                        size="icon" 
-                                        onClick={() => moveStepInOrder(index, 'up')}
-                                        disabled={index === 0}
-                                    >
-                                        <ArrowUp className="h-4 w-4" />
-                                    </Button>
-                                    <Button 
-                                        type="button" 
-                                        variant="ghost" 
-                                        size="icon" 
-                                        onClick={() => moveStepInOrder(index, 'down')}
-                                        disabled={index === currentOrder.length - 1}
-                                    >
-                                        <ArrowDown className="h-4 w-4" />
-                                    </Button>
+                        {questionType === 'mcq_multi' && (
+                            <div className="space-y-4">
+                                <p className="text-sm text-muted-foreground mb-2">Check the boxes for all correct answers.</p>
+                                <div className="space-y-3">
+                                    {currentOptions.map((opt: any, index: number) => (
+                                        <div key={index} className="flex items-center gap-3">
+                                            <Checkbox 
+                                                checked={currentSelectedIds.includes(opt.id)}
+                                                onCheckedChange={() => toggleSelectedId(opt.id)}
+                                            />
+                                            <div className="flex-1 flex gap-2">
+                                                <span className="flex h-10 w-10 items-center justify-center rounded-md border bg-muted text-sm font-medium shrink-0">
+                                                    {opt.id.toUpperCase()}
+                                                </span>
+                                                <Input 
+                                                    value={opt.text} 
+                                                    onChange={(e) => updateOptionText(index, e.target.value)}
+                                                    placeholder={`Option ${opt.id.toUpperCase()}`}
+                                                />
+                                            </div>
+                                            <Button type="button" variant="ghost" size="icon" onClick={() => removeOption(index)}>
+                                                <Trash className="h-4 w-4 text-muted-foreground" />
+                                            </Button>
+                                        </div>
+                                    ))}
                                 </div>
-                            );
-                        })}
-                    </div>
-                </div>
-                {form.formState.errors.solution && (
-                     <p className="text-sm font-medium text-destructive">
-                        {form.formState.errors.solution.message as string}
-                     </p>
-                )}
-                {form.formState.errors.options && (
-                     <p className="text-sm font-medium text-destructive">
-                        {form.formState.errors.options.message as string}
-                     </p>
-                )}
+                                <Button type="button" variant="outline" size="sm" onClick={addOption} className="mt-2 text-primary hover:text-primary">
+                                    <Plus className="mr-2 h-4 w-4" /> Add Option
+                                </Button>
+                                {form.formState.errors.solution && (
+                                     <p className="text-sm font-medium text-destructive">
+                                        {form.formState.errors.solution.message as string}
+                                     </p>
+                                )}
+                            </div>
+                        )}
+
+                        {questionType === 'boolean' && (
+                            <div className="space-y-6">
+                                <div className="grid grid-cols-2 gap-4">
+                                    <div className="space-y-2">
+                                        <FormLabel>True Label (Optional)</FormLabel>
+                                        <Input 
+                                            value={currentBooleanOpts.true_label || ''} 
+                                            onChange={(e) => form.setValue('options', { ...currentBooleanOpts, true_label: e.target.value })}
+                                            placeholder="True"
+                                        />
+                                    </div>
+                                    <div className="space-y-2">
+                                        <FormLabel>False Label (Optional)</FormLabel>
+                                        <Input 
+                                            value={currentBooleanOpts.false_label || ''} 
+                                            onChange={(e) => form.setValue('options', { ...currentBooleanOpts, false_label: e.target.value })}
+                                            placeholder="False"
+                                        />
+                                    </div>
+                                </div>
+                                <Separator />
+                                <div className="space-y-3">
+                                    <FormLabel>Correct Answer</FormLabel>
+                                    <div className="flex gap-4">
+                                        <Button 
+                                            type="button" 
+                                            size="lg"
+                                            variant={booleanAnswer === true ? 'default' : 'outline'}
+                                            onClick={() => form.setValue('solution', true)}
+                                            className="flex-1"
+                                        >
+                                            {currentBooleanOpts.true_label || 'True'}
+                                        </Button>
+                                        <Button 
+                                            type="button" 
+                                            size="lg"
+                                            variant={booleanAnswer === false ? 'default' : 'outline'}
+                                            onClick={() => form.setValue('solution', false)}
+                                            className="flex-1"
+                                        >
+                                            {currentBooleanOpts.false_label || 'False'}
+                                        </Button>
+                                    </div>
+                                </div>
+                                {form.formState.errors.solution && (
+                                     <p className="text-sm font-medium text-destructive">
+                                        {form.formState.errors.solution.message as string}
+                                     </p>
+                                )}
+                            </div>
+                        )}
+
+                        {questionType === 'text_input' && (
+                            <div className="space-y-6">
+                                <div className="space-y-2">
+                                    <FormLabel>Correct Answer (Exact Match)</FormLabel>
+                                    <Input 
+                                        value={textAnswer} 
+                                        onChange={(e) => form.setValue('solution', e.target.value)}
+                                        placeholder="Enter the exact answer key"
+                                        className="h-12 text-lg font-medium"
+                                    />
+                                    <p className="text-xs text-muted-foreground">The student's input must match this exactly (case-insensitive depending on implementation).</p>
+                                </div>
+                                <div className="space-y-2">
+                                    <FormLabel>Placeholder Text (Optional)</FormLabel>
+                                    <Input 
+                                        value={currentTextOpts.placeholder || ''} 
+                                        onChange={(e) => form.setValue('options', { placeholder: e.target.value })}
+                                        placeholder="e.g. Type your answer here..."
+                                    />
+                                </div>
+                                {form.formState.errors.solution && (
+                                     <p className="text-sm font-medium text-destructive">
+                                        {form.formState.errors.solution.message as string}
+                                     </p>
+                                )}
+                            </div>
+                        )}
+
+                        {questionType === 'reorder_steps' && (
+                            <div className="space-y-6">
+                                <div className="space-y-4">
+                                    <div className="flex justify-between items-center">
+                                        <h4 className="text-sm font-medium">Step Definitions</h4>
+                                        <Button type="button" variant="outline" size="sm" onClick={addStep}>
+                                            <Plus className="mr-2 h-4 w-4" /> Add Step
+                                        </Button>
+                                    </div>
+                                    <div className="space-y-2">
+                                        {currentSteps.map((step: any, index: number) => (
+                                            <div key={step.id} className="flex items-center gap-3">
+                                                <span className="flex h-10 w-10 items-center justify-center rounded-md border bg-muted text-sm font-medium shrink-0">
+                                                    {step.id}
+                                                </span>
+                                                <Input 
+                                                    value={step.text} 
+                                                    onChange={(e) => updateStepText(index, e.target.value)}
+                                                    placeholder={`Step ${step.id} text`}
+                                                    className="flex-1"
+                                                />
+                                                <Button type="button" variant="ghost" size="icon" onClick={() => removeStep(index)} disabled={currentSteps.length <= 2}>
+                                                    <Trash className="h-4 w-4 text-muted-foreground" />
+                                                </Button>
+                                            </div>
+                                        ))}
+                                    </div>
+                                </div>
+
+                                <Separator />
+
+                                <div className="space-y-2">
+                                    <h4 className="text-sm font-medium">Set Correct Order</h4>
+                                    <p className="text-xs text-muted-foreground mb-4">Use arrows to arrange steps in the solution order.</p>
+                                    <div className="space-y-2 bg-muted/30 p-4 rounded-lg">
+                                        {currentOrder.map((stepId: string, index: number) => {
+                                            const step = currentSteps.find((s: any) => s.id === stepId);
+                                            return (
+                                                <div key={stepId} className="flex items-center gap-3 p-3 border rounded-md bg-white shadow-sm">
+                                                    <span className="font-bold text-muted-foreground w-6">{index + 1}.</span>
+                                                    <span className="flex-1 font-medium">{step?.text || `Step ${stepId}`}</span>
+                                                    <div className="flex gap-1">
+                                                        <Button 
+                                                            type="button" 
+                                                            variant="ghost" 
+                                                            size="icon" 
+                                                            onClick={() => moveStepInOrder(index, 'up')}
+                                                            disabled={index === 0}
+                                                        >
+                                                            <ArrowUp className="h-4 w-4" />
+                                                        </Button>
+                                                        <Button 
+                                                            type="button" 
+                                                            variant="ghost" 
+                                                            size="icon" 
+                                                            onClick={() => moveStepInOrder(index, 'down')}
+                                                            disabled={index === currentOrder.length - 1}
+                                                        >
+                                                            <ArrowDown className="h-4 w-4" />
+                                                        </Button>
+                                                    </div>
+                                                </div>
+                                            );
+                                        })}
+                                    </div>
+                                </div>
+                                {form.formState.errors.solution && (
+                                     <p className="text-sm font-medium text-destructive">
+                                        {form.formState.errors.solution.message as string}
+                                     </p>
+                                )}
+                                {form.formState.errors.options && (
+                                     <p className="text-sm font-medium text-destructive">
+                                        {form.formState.errors.options.message as string}
+                                     </p>
+                                )}
+                            </div>
+                        )}
+                    </CardContent>
+                </Card>
+
+                <Card>
+                    <CardHeader>
+                        <CardTitle>Explanation</CardTitle>
+                    </CardHeader>
+                    <CardContent>
+                        <FormField
+                            control={form.control as any}
+                            name="explanation"
+                            render={({ field }) => (
+                                <FormItem>
+                                <FormControl>
+                                    <RichTextEditor 
+                                    value={field.value || ''}
+                                    onChange={field.onChange}
+                                    placeholder="Explain why the answer is correct (optional)..."
+                                    className="min-h-[100px]"
+                                    />
+                                </FormControl>
+                                <FormMessage />
+                                </FormItem>
+                            )}
+                        />
+                    </CardContent>
+                </Card>
             </div>
-        )}
 
-        <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-            <FormField
-            control={form.control as any}
-            name="points"
-            render={({ field }) => (
-                <FormItem>
-                <FormLabel>Points</FormLabel>
-                <FormControl>
-                    <Input type="number" min={1} {...field} className="min-h-[48px] text-base" />
-                </FormControl>
-                <FormMessage />
-                </FormItem>
-            )}
-            />
+            <div className="space-y-6">
+                <Card>
+                    <CardHeader>
+                        <CardTitle>Settings</CardTitle>
+                    </CardHeader>
+                    <CardContent className="space-y-6">
+                        <FormField
+                            control={form.control as any}
+                            name="status"
+                            render={({ field }) => (
+                                <FormItem>
+                                <FormLabel>Status</FormLabel>
+                                <Select onValueChange={field.onChange} defaultValue={field.value}>
+                                    <FormControl>
+                                    <SelectTrigger>
+                                        <SelectValue placeholder="Select status" />
+                                    </SelectTrigger>
+                                    </FormControl>
+                                    <SelectContent>
+                                    {STATUS_OPTIONS.map((option) => (
+                                        <SelectItem key={option.value} value={option.value}>
+                                        <div className="flex flex-col items-start">
+                                            <span className="font-medium">{option.label}</span>
+                                            {option.description && (
+                                                <span className="text-xs text-muted-foreground">{option.description}</span>
+                                            )}
+                                        </div>
+                                        </SelectItem>
+                                    ))}
+                                    </SelectContent>
+                                </Select>
+                                <FormMessage />
+                                </FormItem>
+                            )}
+                        />
 
-            <FormField
-                control={form.control as any}
-                name="status"
-                render={({ field }) => (
-                    <FormItem>
-                    <FormLabel>Status</FormLabel>
-                    <Select onValueChange={field.onChange} defaultValue={field.value}>
-                        <FormControl>
-                        <SelectTrigger className="min-h-[48px] text-base">
-                            <SelectValue placeholder="Select status" />
-                        </SelectTrigger>
-                        </FormControl>
-                        <SelectContent>
-                        {STATUS_OPTIONS.map((option) => (
-                            <SelectItem key={option.value} value={option.value}>
-                            {option.label}{option.description ? ` - ${option.description}` : ''}
-                            </SelectItem>
-                        ))}
-                        </SelectContent>
-                    </Select>
-                    <FormMessage />
-                    </FormItem>
-                )}
-            />
-        </div>
+                        <FormField
+                            control={form.control as any}
+                            name="points"
+                            render={({ field }) => (
+                                <FormItem>
+                                <FormLabel>Points</FormLabel>
+                                <FormControl>
+                                    <Input type="number" min={1} {...field} />
+                                </FormControl>
+                                <FormMessage />
+                                </FormItem>
+                            )}
+                        />
+                    </CardContent>
+                </Card>
 
-         <FormField
-          control={form.control as any}
-          name="explanation"
-          render={({ field }) => (
-            <FormItem>
-              <FormLabel>Explanation</FormLabel>
-              <FormControl>
-                <RichTextEditor 
-                  value={field.value || ''}
-                  onChange={field.onChange}
-                  placeholder="Explain why the answer is correct..."
-                />
-              </FormControl>
-              <FormMessage />
-            </FormItem>
-          )}
-        />
-
-        <div className="flex flex-col-reverse gap-3 pt-4 sm:flex-row sm:gap-4">
-          <Button type="button" variant="outline" onClick={() => navigate('/questions')} className="w-full sm:w-auto min-h-[48px] px-6">
-            Cancel
-          </Button>
-          <Button type="submit" disabled={isSubmitting} className="w-full sm:w-auto min-h-[48px] px-6">
-            {isSubmitting && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
-            {initialData ? 'Update Question' : 'Create Question'}
-          </Button>
+                <Card>
+                    <CardHeader>
+                        <CardTitle>Categorization</CardTitle>
+                    </CardHeader>
+                    <CardContent>
+                         <FormField
+                            control={form.control as any}
+                            name="skill_id"
+                            render={({ field }) => (
+                                <FormItem>
+                                <FormLabel>Skill</FormLabel>
+                                <Select onValueChange={field.onChange} defaultValue={field.value}>
+                                    <FormControl>
+                                    <SelectTrigger>
+                                        <SelectValue placeholder="Select a skill" />
+                                    </SelectTrigger>
+                                    </FormControl>
+                                    <SelectContent>
+                                        {skills?.map((skill) => (
+                                            <SelectItem key={skill.id} value={skill.id}>
+                                                {skill.title}
+                                            </SelectItem>
+                                        ))}
+                                    </SelectContent>
+                                </Select>
+                                <FormMessage />
+                                </FormItem>
+                            )}
+                            />
+                    </CardContent>
+                </Card>
+            </div>
         </div>
       </form>
     </Form>

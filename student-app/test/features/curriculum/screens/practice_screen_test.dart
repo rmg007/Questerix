@@ -10,9 +10,14 @@ import 'package:student_app/src/features/progress/repositories/session_repositor
 import 'package:student_app/src/features/progress/repositories/skill_progress_repository.dart';
 
 class MockQuestionRepository extends Mock implements QuestionRepository {}
+
 class MockAttemptRepository extends Mock implements AttemptRepository {}
-class MockSkillProgressRepository extends Mock implements SkillProgressRepository {}
-class MockPracticeSessionRepository extends Mock implements PracticeSessionRepository {}
+
+class MockSkillProgressRepository extends Mock
+    implements SkillProgressRepository {}
+
+class MockPracticeSessionRepository extends Mock
+    implements PracticeSessionRepository {}
 
 void main() {
   late MockQuestionRepository mockQuestionRepository;
@@ -52,8 +57,9 @@ void main() {
 
     when(() => mockQuestionRepository.getRandomBySkill(any(), any()))
         .thenAnswer((_) async => questions);
-    
-    when(() => mockSessionRepository.startSession(skillId: any(named: 'skillId')))
+
+    when(() =>
+            mockSessionRepository.startSession(skillId: any(named: 'skillId')))
         .thenAnswer((_) async => 'session-1');
 
     // Act
@@ -62,8 +68,10 @@ void main() {
         overrides: [
           questionRepositoryProvider.overrideWithValue(mockQuestionRepository),
           attemptRepositoryProvider.overrideWithValue(mockAttemptRepository),
-          skillProgressRepositoryProvider.overrideWithValue(mockSkillProgressRepository),
-          practiceSessionRepositoryProvider.overrideWithValue(mockSessionRepository),
+          skillProgressRepositoryProvider
+              .overrideWithValue(mockSkillProgressRepository),
+          practiceSessionRepositoryProvider
+              .overrideWithValue(mockSessionRepository),
         ],
         child: const MaterialApp(
           home: PracticeScreen(
@@ -87,7 +95,8 @@ void main() {
     expect(find.text('Single Choice'), findsOneWidget); // Type label
   });
 
-  testWidgets('PracticeScreen handles answer selection and submission', (tester) async {
+  testWidgets('PracticeScreen handles answer selection and submission',
+      (tester) async {
     // Arrange
     final questions = [
       model.Question(
@@ -112,7 +121,8 @@ void main() {
 
     when(() => mockQuestionRepository.getRandomBySkill(any(), any()))
         .thenAnswer((_) async => questions);
-    when(() => mockSessionRepository.startSession(skillId: any(named: 'skillId')))
+    when(() =>
+            mockSessionRepository.startSession(skillId: any(named: 'skillId')))
         .thenAnswer((_) async => 'session-1');
     when(() => mockAttemptRepository.submitAttempt(
           questionId: any(named: 'questionId'),
@@ -133,14 +143,15 @@ void main() {
           totalTimeMs: any(named: 'totalTimeMs'),
         )).thenAnswer((_) async => {});
 
-
     await tester.pumpWidget(
       ProviderScope(
         overrides: [
           questionRepositoryProvider.overrideWithValue(mockQuestionRepository),
           attemptRepositoryProvider.overrideWithValue(mockAttemptRepository),
-          skillProgressRepositoryProvider.overrideWithValue(mockSkillProgressRepository),
-          practiceSessionRepositoryProvider.overrideWithValue(mockSessionRepository),
+          skillProgressRepositoryProvider
+              .overrideWithValue(mockSkillProgressRepository),
+          practiceSessionRepositoryProvider
+              .overrideWithValue(mockSessionRepository),
         ],
         child: const MaterialApp(
           home: PracticeScreen(
@@ -176,14 +187,14 @@ void main() {
 
     // Assert Feedback
     expect(find.text('Correct!'), findsOneWidget);
-    
+
     // Verify mocks called
     verify(() => mockAttemptRepository.submitAttempt(
-      questionId: 'q1',
-      response: any(named: 'response'),
-      isCorrect: true,
-      scoreAwarded: 10,
-      timeSpentMs: any(named: 'timeSpentMs'),
-    )).called(1);
+          questionId: 'q1',
+          response: any(named: 'response'),
+          isCorrect: true,
+          scoreAwarded: 10,
+          timeSpentMs: any(named: 'timeSpentMs'),
+        )).called(1);
   });
 }

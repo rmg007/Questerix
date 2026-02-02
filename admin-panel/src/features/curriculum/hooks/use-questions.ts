@@ -2,10 +2,10 @@
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { supabase } from '@/lib/supabase';
 import { Database } from '@/lib/database.types';
+import { useApp } from '@/contexts/AppContext';
 
 type Question = Database['public']['Tables']['questions']['Row'];
 type QuestionInsert = Database['public']['Tables']['questions']['Insert'];
-type QuestionUpdate = Database['public']['Tables']['questions']['Update'];
 
 export type CurriculumStatus = 'draft' | 'published' | 'live';
 
@@ -28,9 +28,13 @@ export interface PaginatedResponse<T> {
 }
 
 export function useQuestions(skillId?: string) {
+  const { currentApp } = useApp();
+
   return useQuery({
-    queryKey: ['questions', skillId],
+    queryKey: ['questions', skillId, currentApp?.app_id],
     queryFn: async () => {
+      if (!currentApp?.app_id) throw new Error('No app selected');
+
       let query = supabase
         .from('questions')
         .select(`
@@ -40,6 +44,7 @@ export function useQuestions(skillId?: string) {
             domains ( title )
           )
         `)
+        .eq('app_id', currentApp.app_id)
         .is('deleted_at', null)
         .order('created_at', { ascending: false });
 
@@ -52,13 +57,18 @@ export function useQuestions(skillId?: string) {
       if (error) throw error;
       return data as unknown as (Question & { skills: { title: string, domains: { title: string } | null } | null })[];
     },
+    enabled: !!currentApp?.app_id,
   });
 }
 
 export function usePaginatedQuestions(params: PaginationParams) {
+  const { currentApp } = useApp();
+
   return useQuery({
-    queryKey: ['questions-paginated', params],
+    queryKey: ['questions-paginated', params, currentApp?.app_id],
     queryFn: async (): Promise<PaginatedResponse<Question & { skills: { title: string, domains: { title: string } | null } | null }>> => {
+      if (!currentApp?.app_id) throw new Error('No app selected');
+
       const { page, pageSize, search, status, skillId, sortBy = 'created_at', sortOrder = 'desc' } = params;
       const from = (page - 1) * pageSize;
       const to = from + pageSize - 1;
@@ -72,6 +82,7 @@ export function usePaginatedQuestions(params: PaginationParams) {
             domains ( title )
           )
         `, { count: 'exact' })
+        .eq('app_id', currentApp.app_id)
         .is('deleted_at', null);
 
       if (search) {
@@ -79,7 +90,7 @@ export function usePaginatedQuestions(params: PaginationParams) {
       }
 
       if (status && status !== 'all') {
-        query = query.eq('status', status);
+        query = query.eq('status', status as any); // Cast as expected by SB types
       }
 
       if (skillId && skillId !== 'all') {
@@ -93,25 +104,24 @@ export function usePaginatedQuestions(params: PaginationParams) {
 
       if (error) throw error;
 
-      const totalCount = count ?? 0;
-      const totalPages = Math.ceil(totalCount / pageSize);
-
       return {
         data: data as unknown as (Question & { skills: { title: string, domains: { title: string } | null } | null })[],
-        totalCount,
+        totalCount: count ?? 0,
         page,
         pageSize,
-        totalPages,
+        totalPages: Math.ceil((count ?? 0) / pageSize),
       };
     },
+    enabled: !!currentApp?.app_id,
   });
 }
 
 export function useQuestion(id: string) {
+    const { currentApp } = useApp();
     return useQuery({
-        queryKey: ['question', id],
+        queryKey: ['question', id, currentApp?.app_id],
         queryFn: async () => {
-            const { data, error } = await supabase
+             const { data, error } = await supabase
                 .from('questions')
                 .select('*')
                 .eq('id', id)
@@ -120,18 +130,26 @@ export function useQuestion(id: string) {
             if (error) throw error;
             return data as Question;
         },
-        enabled: !!id,
+        enabled: !!id && !!currentApp?.app_id,
     });
 }
 
 export function useCreateQuestion() {
   const queryClient = useQueryClient();
+  const { currentApp } = useApp();
   
   return useMutation({
     mutationFn: async (question: QuestionInsert) => {
+      if (!currentApp?.app_id) throw new Error('No app selected');
+
+      const payload = {
+        ...question,
+        app_id: currentApp.app_id
+      };
+
       const { data, error } = await (supabase
         .from('questions') as any)
-        .insert(question)
+        .insert(payload)
         .select()
         .single();
       
@@ -149,7 +167,7 @@ export function useUpdateQuestion() {
     const queryClient = useQueryClient();
 
     return useMutation({
-        mutationFn: async ({ id, ...updates }: { id: string } & QuestionUpdate) => {
+        mutationFn: async ({ id, ...updates }: { id: string } & Partial<Question>) => {
             const { data, error } = await (supabase
                 .from('questions') as any)
                 .update(updates)
@@ -230,9 +248,12 @@ export function useBulkUpdateQuestionsStatus() {
 
 export function useDuplicateQuestion() {
     const queryClient = useQueryClient();
+    const { currentApp } = useApp();
 
     return useMutation({
         mutationFn: async (id: string) => {
+            if (!currentApp?.app_id) throw new Error('No app selected');
+
             const { data: original, error: fetchError } = await supabase
                 .from('questions')
                 .select('*')
@@ -242,9 +263,11 @@ export function useDuplicateQuestion() {
             if (fetchError) throw fetchError;
             if (!original) throw new Error('Question not found');
 
-            const { id: _, created_at, updated_at, ...rest } = original as any;
+            // eslint-disable-next-line @typescript-eslint/no-unused-vars
+            const { id: _, created_at, updated_at, app_id, ...rest } = original as any;
             const duplicate = {
                 ...rest,
+                app_id: currentApp.app_id,
                 content: `${rest.content} (Copy)`,
                 status: 'draft',
             };

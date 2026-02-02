@@ -4,7 +4,7 @@ import 'package:student_app/src/core/connectivity/connectivity_service.dart';
 import 'package:student_app/src/core/providers/settings_provider.dart';
 import 'package:student_app/src/core/theme/app_theme.dart';
 import 'package:student_app/src/features/auth/providers/auth_provider.dart';
-import 'package:student_app/src/features/auth/screens/onboarding_screen.dart';
+import 'package:student_app/src/features/auth/screens/welcome_screen.dart';
 import 'package:student_app/src/features/home/screens/main_shell.dart';
 import 'package:student_app/src/features/progress/repositories/session_repository.dart';
 import 'package:student_app/src/features/curriculum/screens/practice_screen.dart';
@@ -43,7 +43,7 @@ class _Math7AppState extends ConsumerState<Math7App> {
       theme: AppTheme.light(textScale: settings.textScale),
       darkTheme: AppTheme.dark(textScale: settings.textScale),
       themeMode: settings.darkMode ? ThemeMode.dark : ThemeMode.light,
-      home: session != null 
+      home: session != null
           ? _AuthenticatedHome(
               onFirstBuild: () {
                 if (!_hasCheckedResume) {
@@ -52,17 +52,17 @@ class _Math7AppState extends ConsumerState<Math7App> {
                 }
               },
             )
-          : const OnboardingScreen(),
+          : const WelcomeScreen(),
     );
   }
 
-  void _showConnectivitySnackbar(BuildContext context, ConnectivityStatus status) {
+  void _showConnectivitySnackbar(
+      BuildContext context, ConnectivityStatus status) {
     final message = status == ConnectivityStatus.online
         ? 'You are back online'
         : 'You are offline - changes will sync later';
-    final icon = status == ConnectivityStatus.online
-        ? Icons.wifi
-        : Icons.wifi_off;
+    final icon =
+        status == ConnectivityStatus.online ? Icons.wifi : Icons.wifi_off;
     final color = status == ConnectivityStatus.online
         ? AppColors.success
         : AppColors.warning;
@@ -83,9 +83,10 @@ class _Math7AppState extends ConsumerState<Math7App> {
     );
   }
 
-  Future<void> _checkForResumeSession(BuildContext context, WidgetRef ref) async {
+  Future<void> _checkForResumeSession(
+      BuildContext context, WidgetRef ref) async {
     await Future.delayed(const Duration(milliseconds: 500));
-    
+
     if (!mounted) return;
 
     final sessionRepo = ref.read(practiceSessionRepositoryProvider);

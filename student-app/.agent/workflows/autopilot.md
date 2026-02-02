@@ -135,8 +135,8 @@ For commands that may produce extensive output or take significant time:
 
 // turbo
 ```bash
-# Run mappers and practice screen tests
-flutter test test/core/database/mappers_test.dart test/features/curriculum/screens/practice_screen_test.dart
+# Run mappers and App Flow tests
+flutter test test/core/database/mappers_test.dart test/ui/app_flow_test.dart
 ```
 
 // turbo

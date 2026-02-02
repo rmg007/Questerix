@@ -111,9 +111,9 @@ class SettingsScreen extends ConsumerWidget {
             Text(
               isOnline ? 'Online' : 'Offline',
               style: Theme.of(context).textTheme.bodyMedium?.copyWith(
-                color: isOnline ? AppColors.online : AppColors.offline,
-                fontWeight: FontWeight.w500,
-              ),
+                    color: isOnline ? AppColors.online : AppColors.offline,
+                    fontWeight: FontWeight.w500,
+                  ),
             ),
             const Spacer(),
             if (!isOnline)
@@ -183,8 +183,8 @@ class SettingsScreen extends ConsumerWidget {
           child: Text(
             statusText,
             style: Theme.of(context).textTheme.bodyMedium?.copyWith(
-              color: statusColor,
-            ),
+                  color: statusColor,
+                ),
           ),
         ),
       ],
@@ -207,8 +207,9 @@ class SettingsScreen extends ConsumerWidget {
             Text(
               count > 0 ? '$count pending changes' : 'All changes synced',
               style: Theme.of(context).textTheme.bodyMedium?.copyWith(
-                color: count > 0 ? AppColors.warning : AppColors.textSecondary,
-              ),
+                    color:
+                        count > 0 ? AppColors.warning : AppColors.textSecondary,
+                  ),
             ),
           ],
         );

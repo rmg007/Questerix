@@ -5,7 +5,8 @@ import 'package:student_app/src/core/database/database.dart';
 import 'package:student_app/src/core/database/providers.dart';
 import 'package:student_app/src/core/supabase/providers.dart';
 
-final skillProgressRepositoryProvider = Provider<SkillProgressRepository>((ref) {
+final skillProgressRepositoryProvider =
+    Provider<SkillProgressRepository>((ref) {
   final database = ref.watch(databaseProvider);
   final userId = ref.watch(currentUserIdProvider);
   return SkillProgressRepository(database, userId);
@@ -55,27 +56,29 @@ class SkillProgressRepository {
       final masteryLevel = _calculateMastery(1, isCorrect ? 1 : 0);
 
       await _database.into(_database.skillProgress).insert(
-        SkillProgressCompanion(
-          id: Value(progressId),
-          userId: Value(_userId),
-          skillId: Value(skillId),
-          totalAttempts: const Value(1),
-          correctAttempts: Value(isCorrect ? 1 : 0),
-          totalPoints: Value(pointsEarned),
-          masteryLevel: Value(masteryLevel),
-          currentStreak: Value(newStreak),
-          longestStreak: Value(newStreak),
-          lastAttemptAt: Value(now),
-          createdAt: Value(now),
-          updatedAt: Value(now),
-        ),
-      );
+            SkillProgressCompanion(
+              id: Value(progressId),
+              userId: Value(_userId),
+              skillId: Value(skillId),
+              totalAttempts: const Value(1),
+              correctAttempts: Value(isCorrect ? 1 : 0),
+              totalPoints: Value(pointsEarned),
+              masteryLevel: Value(masteryLevel),
+              currentStreak: Value(newStreak),
+              longestStreak: Value(newStreak),
+              lastAttemptAt: Value(now),
+              createdAt: Value(now),
+              updatedAt: Value(now),
+            ),
+          );
     } else {
       final newTotal = existing.totalAttempts + 1;
       final newCorrect = existing.correctAttempts + (isCorrect ? 1 : 0);
       final newPoints = existing.totalPoints + pointsEarned;
       final newStreak = isCorrect ? existing.currentStreak + 1 : 0;
-      final newLongest = newStreak > existing.longestStreak ? newStreak : existing.longestStreak;
+      final newLongest = newStreak > existing.longestStreak
+          ? newStreak
+          : existing.longestStreak;
       final masteryLevel = _calculateMastery(newTotal, newCorrect);
 
       await (_database.update(_database.skillProgress)
@@ -148,7 +151,8 @@ class SkillProgressRepository {
       'totalPoints': totalPoints,
       'totalAttempts': totalAttempts,
       'totalCorrect': totalCorrect,
-      'averageMastery': progress.isNotEmpty ? (totalMastery / progress.length).round() : 0,
+      'averageMastery':
+          progress.isNotEmpty ? (totalMastery / progress.length).round() : 0,
       'longestStreak': longestStreak,
       'currentStreak': currentStreak,
     };

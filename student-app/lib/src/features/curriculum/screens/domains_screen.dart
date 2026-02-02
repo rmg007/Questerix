@@ -13,7 +13,8 @@ class DomainsScreen extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    final domainsStream = ref.watch(domainRepositoryProvider).watchAllPublished();
+    final domainsStream =
+        ref.watch(domainRepositoryProvider).watchAllPublished();
     final connectivityAsync = ref.watch(connectivityServiceProvider);
     final syncState = ref.watch(syncServiceProvider);
 
@@ -82,7 +83,8 @@ class DomainsScreen extends ConsumerWidget {
                     ),
                     const SizedBox(height: 24),
                     ElevatedButton.icon(
-                      onPressed: () => ref.read(syncServiceProvider.notifier).sync(),
+                      onPressed: () =>
+                          ref.read(syncServiceProvider.notifier).sync(),
                       icon: const Icon(Icons.refresh),
                       label: const Text('Try Again'),
                     ),
@@ -122,13 +124,14 @@ class DomainsScreen extends ConsumerWidget {
                     Text(
                       'Pull down to refresh or sync to get the latest content',
                       style: Theme.of(context).textTheme.bodyMedium?.copyWith(
-                        color: AppColors.textSecondary,
-                      ),
+                            color: AppColors.textSecondary,
+                          ),
                       textAlign: TextAlign.center,
                     ),
                     const SizedBox(height: 24),
                     ElevatedButton.icon(
-                      onPressed: () => ref.read(syncServiceProvider.notifier).sync(),
+                      onPressed: () =>
+                          ref.read(syncServiceProvider.notifier).sync(),
                       icon: const Icon(Icons.sync),
                       label: const Text('Sync Now'),
                     ),
@@ -222,7 +225,9 @@ class _DomainCard extends ConsumerWidget {
   Widget build(BuildContext context, WidgetRef ref) {
     return FutureBuilder<List<int>>(
       future: Future.wait([
-        ref.read(skillProgressRepositoryProvider).getMasteryForDomain(domain.id),
+        ref
+            .read(skillProgressRepositoryProvider)
+            .getMasteryForDomain(domain.id),
         ref.read(skillProgressRepositoryProvider).getPointsForDomain(domain.id),
       ]),
       builder: (context, snapshot) {
@@ -260,9 +265,12 @@ class _DomainCard extends ConsumerWidget {
                           children: [
                             Text(
                               domain.title,
-                              style: Theme.of(context).textTheme.titleMedium?.copyWith(
-                                fontWeight: FontWeight.bold,
-                              ),
+                              style: Theme.of(context)
+                                  .textTheme
+                                  .titleMedium
+                                  ?.copyWith(
+                                    fontWeight: FontWeight.bold,
+                                  ),
                             ),
                             if (domain.description != null)
                               Text(
@@ -297,10 +305,13 @@ class _DomainCard extends ConsumerWidget {
                                 ),
                                 Text(
                                   '$mastery%',
-                                  style: Theme.of(context).textTheme.bodySmall?.copyWith(
-                                    fontWeight: FontWeight.bold,
-                                    color: _getMasteryColor(mastery),
-                                  ),
+                                  style: Theme.of(context)
+                                      .textTheme
+                                      .bodySmall
+                                      ?.copyWith(
+                                        fontWeight: FontWeight.bold,
+                                        color: _getMasteryColor(mastery),
+                                      ),
                                 ),
                               ],
                             ),
@@ -310,7 +321,8 @@ class _DomainCard extends ConsumerWidget {
                               child: LinearProgressIndicator(
                                 value: mastery / 100,
                                 backgroundColor: AppColors.cardBorder,
-                                valueColor: AlwaysStoppedAnimation(_getMasteryColor(mastery)),
+                                valueColor: AlwaysStoppedAnimation(
+                                    _getMasteryColor(mastery)),
                                 minHeight: 6,
                               ),
                             ),
@@ -319,7 +331,8 @@ class _DomainCard extends ConsumerWidget {
                       ),
                       const SizedBox(width: 16),
                       Container(
-                        padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
+                        padding: const EdgeInsets.symmetric(
+                            horizontal: 12, vertical: 6),
                         decoration: BoxDecoration(
                           color: AppColors.points.withValues(alpha: 0.1),
                           borderRadius: BorderRadius.circular(16),

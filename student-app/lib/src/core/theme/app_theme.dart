@@ -4,26 +4,26 @@ class AppColors {
   static const primary = Color(0xFF6366F1);
   static const primaryDark = Color(0xFF4F46E5);
   static const primaryLight = Color(0xFF818CF8);
-  
+
   static const success = Color(0xFF22C55E);
   static const successLight = Color(0xFFDCFCE7);
   static const error = Color(0xFFEF4444);
   static const errorLight = Color(0xFFFEE2E2);
   static const warning = Color(0xFFF59E0B);
   static const warningLight = Color(0xFFFEF3C7);
-  
+
   static const background = Color(0xFFF8FAFC);
   static const surface = Color(0xFFFFFFFF);
   static const textPrimary = Color(0xFF1E293B);
   static const textSecondary = Color(0xFF64748B);
   static const textTertiary = Color(0xFF94A3B8);
-  
+
   static const offline = Color(0xFFEF4444);
   static const online = Color(0xFF22C55E);
-  
+
   static const cardBorder = Color(0xFFE2E8F0);
   static const divider = Color(0xFFE2E8F0);
-  
+
   static const streak = Color(0xFFF97316);
   static const points = Color(0xFFEAB308);
   static const mastery = Color(0xFF8B5CF6);
@@ -110,7 +110,8 @@ class AppTheme {
           borderRadius: BorderRadius.circular(12),
           borderSide: const BorderSide(color: AppColors.error),
         ),
-        contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 16),
+        contentPadding:
+            const EdgeInsets.symmetric(horizontal: 16, vertical: 16),
       ),
       bottomNavigationBarTheme: const BottomNavigationBarThemeData(
         backgroundColor: AppColors.surface,
@@ -130,21 +131,60 @@ class AppTheme {
         ),
       ),
       textTheme: TextTheme(
-        displayLarge: TextStyle(fontSize: 32 * textScale, fontWeight: FontWeight.bold, color: AppColors.textPrimary),
-        displayMedium: TextStyle(fontSize: 28 * textScale, fontWeight: FontWeight.bold, color: AppColors.textPrimary),
-        displaySmall: TextStyle(fontSize: 24 * textScale, fontWeight: FontWeight.bold, color: AppColors.textPrimary),
-        headlineLarge: TextStyle(fontSize: 22 * textScale, fontWeight: FontWeight.w600, color: AppColors.textPrimary),
-        headlineMedium: TextStyle(fontSize: 20 * textScale, fontWeight: FontWeight.w600, color: AppColors.textPrimary),
-        headlineSmall: TextStyle(fontSize: 18 * textScale, fontWeight: FontWeight.w600, color: AppColors.textPrimary),
-        titleLarge: TextStyle(fontSize: 16 * textScale, fontWeight: FontWeight.w600, color: AppColors.textPrimary),
-        titleMedium: TextStyle(fontSize: 14 * textScale, fontWeight: FontWeight.w500, color: AppColors.textPrimary),
-        titleSmall: TextStyle(fontSize: 12 * textScale, fontWeight: FontWeight.w500, color: AppColors.textPrimary),
-        bodyLarge: TextStyle(fontSize: 16 * textScale, color: AppColors.textPrimary),
-        bodyMedium: TextStyle(fontSize: 14 * textScale, color: AppColors.textPrimary),
-        bodySmall: TextStyle(fontSize: 12 * textScale, color: AppColors.textSecondary),
-        labelLarge: TextStyle(fontSize: 14 * textScale, fontWeight: FontWeight.w500, color: AppColors.textPrimary),
-        labelMedium: TextStyle(fontSize: 12 * textScale, fontWeight: FontWeight.w500, color: AppColors.textSecondary),
-        labelSmall: TextStyle(fontSize: 10 * textScale, fontWeight: FontWeight.w500, color: AppColors.textTertiary),
+        displayLarge: TextStyle(
+            fontSize: 32 * textScale,
+            fontWeight: FontWeight.bold,
+            color: AppColors.textPrimary),
+        displayMedium: TextStyle(
+            fontSize: 28 * textScale,
+            fontWeight: FontWeight.bold,
+            color: AppColors.textPrimary),
+        displaySmall: TextStyle(
+            fontSize: 24 * textScale,
+            fontWeight: FontWeight.bold,
+            color: AppColors.textPrimary),
+        headlineLarge: TextStyle(
+            fontSize: 22 * textScale,
+            fontWeight: FontWeight.w600,
+            color: AppColors.textPrimary),
+        headlineMedium: TextStyle(
+            fontSize: 20 * textScale,
+            fontWeight: FontWeight.w600,
+            color: AppColors.textPrimary),
+        headlineSmall: TextStyle(
+            fontSize: 18 * textScale,
+            fontWeight: FontWeight.w600,
+            color: AppColors.textPrimary),
+        titleLarge: TextStyle(
+            fontSize: 16 * textScale,
+            fontWeight: FontWeight.w600,
+            color: AppColors.textPrimary),
+        titleMedium: TextStyle(
+            fontSize: 14 * textScale,
+            fontWeight: FontWeight.w500,
+            color: AppColors.textPrimary),
+        titleSmall: TextStyle(
+            fontSize: 12 * textScale,
+            fontWeight: FontWeight.w500,
+            color: AppColors.textPrimary),
+        bodyLarge:
+            TextStyle(fontSize: 16 * textScale, color: AppColors.textPrimary),
+        bodyMedium:
+            TextStyle(fontSize: 14 * textScale, color: AppColors.textPrimary),
+        bodySmall:
+            TextStyle(fontSize: 12 * textScale, color: AppColors.textSecondary),
+        labelLarge: TextStyle(
+            fontSize: 14 * textScale,
+            fontWeight: FontWeight.w500,
+            color: AppColors.textPrimary),
+        labelMedium: TextStyle(
+            fontSize: 12 * textScale,
+            fontWeight: FontWeight.w500,
+            color: AppColors.textSecondary),
+        labelSmall: TextStyle(
+            fontSize: 10 * textScale,
+            fontWeight: FontWeight.w500,
+            color: AppColors.textTertiary),
       ),
     );
   }
@@ -185,21 +225,58 @@ class AppTheme {
         elevation: 8,
       ),
       textTheme: TextTheme(
-        displayLarge: TextStyle(fontSize: 32 * textScale, fontWeight: FontWeight.bold, color: Colors.white),
-        displayMedium: TextStyle(fontSize: 28 * textScale, fontWeight: FontWeight.bold, color: Colors.white),
-        displaySmall: TextStyle(fontSize: 24 * textScale, fontWeight: FontWeight.bold, color: Colors.white),
-        headlineLarge: TextStyle(fontSize: 22 * textScale, fontWeight: FontWeight.w600, color: Colors.white),
-        headlineMedium: TextStyle(fontSize: 20 * textScale, fontWeight: FontWeight.w600, color: Colors.white),
-        headlineSmall: TextStyle(fontSize: 18 * textScale, fontWeight: FontWeight.w600, color: Colors.white),
-        titleLarge: TextStyle(fontSize: 16 * textScale, fontWeight: FontWeight.w600, color: Colors.white),
-        titleMedium: TextStyle(fontSize: 14 * textScale, fontWeight: FontWeight.w500, color: Colors.white),
-        titleSmall: TextStyle(fontSize: 12 * textScale, fontWeight: FontWeight.w500, color: Colors.white),
+        displayLarge: TextStyle(
+            fontSize: 32 * textScale,
+            fontWeight: FontWeight.bold,
+            color: Colors.white),
+        displayMedium: TextStyle(
+            fontSize: 28 * textScale,
+            fontWeight: FontWeight.bold,
+            color: Colors.white),
+        displaySmall: TextStyle(
+            fontSize: 24 * textScale,
+            fontWeight: FontWeight.bold,
+            color: Colors.white),
+        headlineLarge: TextStyle(
+            fontSize: 22 * textScale,
+            fontWeight: FontWeight.w600,
+            color: Colors.white),
+        headlineMedium: TextStyle(
+            fontSize: 20 * textScale,
+            fontWeight: FontWeight.w600,
+            color: Colors.white),
+        headlineSmall: TextStyle(
+            fontSize: 18 * textScale,
+            fontWeight: FontWeight.w600,
+            color: Colors.white),
+        titleLarge: TextStyle(
+            fontSize: 16 * textScale,
+            fontWeight: FontWeight.w600,
+            color: Colors.white),
+        titleMedium: TextStyle(
+            fontSize: 14 * textScale,
+            fontWeight: FontWeight.w500,
+            color: Colors.white),
+        titleSmall: TextStyle(
+            fontSize: 12 * textScale,
+            fontWeight: FontWeight.w500,
+            color: Colors.white),
         bodyLarge: TextStyle(fontSize: 16 * textScale, color: Colors.white),
         bodyMedium: TextStyle(fontSize: 14 * textScale, color: Colors.white),
-        bodySmall: TextStyle(fontSize: 12 * textScale, color: const Color(0xFF94A3B8)),
-        labelLarge: TextStyle(fontSize: 14 * textScale, fontWeight: FontWeight.w500, color: Colors.white),
-        labelMedium: TextStyle(fontSize: 12 * textScale, fontWeight: FontWeight.w500, color: const Color(0xFF94A3B8)),
-        labelSmall: TextStyle(fontSize: 10 * textScale, fontWeight: FontWeight.w500, color: const Color(0xFF64748B)),
+        bodySmall:
+            TextStyle(fontSize: 12 * textScale, color: const Color(0xFF94A3B8)),
+        labelLarge: TextStyle(
+            fontSize: 14 * textScale,
+            fontWeight: FontWeight.w500,
+            color: Colors.white),
+        labelMedium: TextStyle(
+            fontSize: 12 * textScale,
+            fontWeight: FontWeight.w500,
+            color: const Color(0xFF94A3B8)),
+        labelSmall: TextStyle(
+            fontSize: 10 * textScale,
+            fontWeight: FontWeight.w500,
+            color: const Color(0xFF64748B)),
       ),
     );
   }

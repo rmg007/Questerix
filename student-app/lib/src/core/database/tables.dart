@@ -77,7 +77,8 @@ class Sessions extends Table {
   TextColumn get skillId => text().references(Skills, #id).nullable()();
   DateTimeColumn get startedAt => dateTime()();
   DateTimeColumn get endedAt => dateTime().nullable()();
-  IntColumn get questionsAttempted => integer().withDefault(const Constant(0))();
+  IntColumn get questionsAttempted =>
+      integer().withDefault(const Constant(0))();
   IntColumn get questionsCorrect => integer().withDefault(const Constant(0))();
   IntColumn get totalTimeMs => integer().withDefault(const Constant(0))();
   DateTimeColumn get createdAt => dateTime()();
@@ -96,7 +97,8 @@ class SkillProgress extends Table {
   IntColumn get totalAttempts => integer().withDefault(const Constant(0))();
   IntColumn get correctAttempts => integer().withDefault(const Constant(0))();
   IntColumn get totalPoints => integer().withDefault(const Constant(0))();
-  IntColumn get masteryLevel => integer().withDefault(const Constant(0))(); // 0-100
+  IntColumn get masteryLevel =>
+      integer().withDefault(const Constant(0))(); // 0-100
   IntColumn get currentStreak => integer().withDefault(const Constant(0))();
   IntColumn get longestStreak => integer().withDefault(const Constant(0))();
   DateTimeColumn get lastAttemptAt => dateTime().nullable()();

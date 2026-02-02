@@ -126,11 +126,11 @@ class _PracticeScreenState extends ConsumerState<PracticeScreen> {
     if (isCorrect) {
       _correctCount++;
       _currentStreak++;
-      
+
       final multiplier = _getStreakMultiplier(_currentStreak);
       scoreAwarded = (question.points * multiplier).round();
       _totalScore += scoreAwarded;
-      
+
       if (_currentStreak > _longestStreak) {
         _longestStreak = _currentStreak;
       }
@@ -204,7 +204,6 @@ class _PracticeScreenState extends ConsumerState<PracticeScreen> {
           if (userOrder[i] != correctOrder[i]) return false;
         }
         return true;
-
     }
   }
 
@@ -225,7 +224,9 @@ class _PracticeScreenState extends ConsumerState<PracticeScreen> {
     } else {
       if (_sessionId != null) {
         try {
-          await ref.read(practiceSessionRepositoryProvider).endSession(_sessionId!);
+          await ref
+              .read(practiceSessionRepositoryProvider)
+              .endSession(_sessionId!);
         } catch (e) {
           debugPrint('Failed to end session: $e');
         }
@@ -383,7 +384,8 @@ class _PracticeScreenState extends ConsumerState<PracticeScreen> {
                                   vertical: 4,
                                 ),
                                 decoration: BoxDecoration(
-                                  color: AppColors.primary.withValues(alpha: 0.1),
+                                  color:
+                                      AppColors.primary.withValues(alpha: 0.1),
                                   borderRadius: BorderRadius.circular(8),
                                 ),
                                 child: Text(
@@ -408,7 +410,10 @@ class _PracticeScreenState extends ConsumerState<PracticeScreen> {
                           const SizedBox(height: 16),
                           Text(
                             question.content,
-                            style: Theme.of(context).textTheme.titleLarge?.copyWith(
+                            style: Theme.of(context)
+                                .textTheme
+                                .titleLarge
+                                ?.copyWith(
                                   color: AppColors.textPrimary,
                                   height: 1.4,
                                 ),
@@ -448,13 +453,15 @@ class _PracticeScreenState extends ConsumerState<PracticeScreen> {
                       : null,
                   style: ElevatedButton.styleFrom(
                     backgroundColor: _isAnswered
-                        ? (isCurrentCorrect! ? AppColors.success : AppColors.primary)
+                        ? (isCurrentCorrect!
+                            ? AppColors.success
+                            : AppColors.primary)
                         : AppColors.primary,
                     foregroundColor: Colors.white,
                     padding: const EdgeInsets.symmetric(vertical: 16),
                     shape: RoundedRectangleBorder(
                       borderRadius: BorderRadius.circular(12),
-                      ),
+                    ),
                     disabledBackgroundColor: AppColors.cardBorder,
                   ),
                   child: Text(
@@ -510,7 +517,8 @@ class _PracticeScreenState extends ConsumerState<PracticeScreen> {
                         style: TextStyle(
                           fontWeight: FontWeight.bold,
                           fontSize: 18,
-                          color: isCorrect ? AppColors.success : AppColors.error,
+                          color:
+                              isCorrect ? AppColors.success : AppColors.error,
                         ),
                       ),
                       if (isCorrect && _currentStreak > 1)
@@ -604,7 +612,6 @@ class _PracticeScreenState extends ConsumerState<PracticeScreen> {
           onAnswerChanged: _onAnswerChanged,
           isAnswered: _isAnswered,
         );
-
     }
   }
 
@@ -620,7 +627,6 @@ class _PracticeScreenState extends ConsumerState<PracticeScreen> {
         return 'Text Answer';
       case model.QuestionType.reorderSteps:
         return 'Reorder';
-
     }
   }
 
@@ -1055,7 +1061,8 @@ class _ConfettiPainter extends CustomPainter {
         ..style = PaintingStyle.fill;
 
       final x = particle.x * size.width;
-      final y = (particle.startY + progress * particle.speed * 1.5) * size.height;
+      final y =
+          (particle.startY + progress * particle.speed * 1.5) * size.height;
 
       if (y > size.height) continue;
 

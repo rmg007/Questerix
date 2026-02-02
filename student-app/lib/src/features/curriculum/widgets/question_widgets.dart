@@ -517,12 +517,15 @@ class _ReorderStepsWidgetState extends State<ReorderStepsWidget> {
     if (existingOrder != null && existingOrder is List) {
       _orderedSteps = List<String>.from(existingOrder);
     } else {
-      final stepsList = (widget.options is Map && widget.options['steps'] != null)
-          ? widget.options['steps'] as List<dynamic>
-          : widget.options as List<dynamic>;
+      final stepsList =
+          (widget.options is Map && widget.options['steps'] != null)
+              ? widget.options['steps'] as List<dynamic>
+              : widget.options as List<dynamic>;
       _orderedSteps = stepsList.map<String>((step) {
         if (step is Map) {
-          return step['text'] as String? ?? step['id'] as String? ?? step.toString();
+          return step['text'] as String? ??
+              step['id'] as String? ??
+              step.toString();
         }
         return step.toString();
       }).toList();
@@ -674,4 +677,3 @@ class _ReorderableStepItem extends StatelessWidget {
     );
   }
 }
-

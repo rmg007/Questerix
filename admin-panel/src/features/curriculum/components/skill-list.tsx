@@ -3,7 +3,7 @@ import { Link } from 'react-router-dom';
 import { usePaginatedSkills, useDeleteSkill, useBulkDeleteSkills, useBulkUpdateSkillsStatus, useDuplicateSkill, useUpdateSkillOrder } from '../hooks/use-skills';
 import { useDomains } from '../hooks/use-domains';
 import { useState, useEffect, useMemo } from 'react';
-import { useToast } from '@/components/ui/toast';
+import { useToast } from '@/hooks/use-toast';
 import { Pagination } from '@/components/ui/pagination';
 import { SortableHeader } from '@/components/ui/sortable-header';
 import { DataToolbar } from '@/components/ui/data-toolbar';
@@ -284,7 +284,14 @@ export function SkillList() {
     const bulkUpdateStatus = useBulkUpdateSkillsStatus();
     const duplicateSkill = useDuplicateSkill();
     const updateSkillOrder = useUpdateSkillOrder();
-    const { showToast } = useToast();
+    const { toast } = useToast();
+    
+    const showToast = (title: string, type: 'success' | 'error' = 'success') => {
+        toast({
+            title,
+            variant: type === 'error' ? 'destructive' : 'default',
+        });
+    };
 
     const sensors = useSensors(
         useSensor(PointerSensor, {

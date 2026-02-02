@@ -18,7 +18,8 @@ class SkillsScreen extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    final skillsStream = ref.watch(skillRepositoryProvider).watchByDomain(domainId);
+    final skillsStream =
+        ref.watch(skillRepositoryProvider).watchByDomain(domainId);
 
     return Scaffold(
       appBar: AppBar(
@@ -99,8 +100,8 @@ class SkillsScreen extends ConsumerWidget {
                     Text(
                       'Check back later for new content',
                       style: Theme.of(context).textTheme.bodyMedium?.copyWith(
-                        color: AppColors.textSecondary,
-                      ),
+                            color: AppColors.textSecondary,
+                          ),
                     ),
                   ],
                 ),
@@ -147,7 +148,9 @@ class _SkillCard extends ConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     return FutureBuilder(
-      future: ref.read(skillProgressRepositoryProvider).getProgressForSkill(skill.id),
+      future: ref
+          .read(skillProgressRepositoryProvider)
+          .getProgressForSkill(skill.id),
       builder: (context, snapshot) {
         final progress = snapshot.data;
         final mastery = progress?.masteryLevel ?? 0;
@@ -171,7 +174,8 @@ class _SkillCard extends ConsumerWidget {
                         width: 48,
                         height: 48,
                         decoration: BoxDecoration(
-                          color: _getDifficultyColor(skill.difficultyLevel).withValues(alpha: 0.1),
+                          color: _getDifficultyColor(skill.difficultyLevel)
+                              .withValues(alpha: 0.1),
                           borderRadius: BorderRadius.circular(12),
                         ),
                         child: Center(
@@ -192,9 +196,12 @@ class _SkillCard extends ConsumerWidget {
                           children: [
                             Text(
                               skill.title,
-                              style: Theme.of(context).textTheme.titleMedium?.copyWith(
-                                fontWeight: FontWeight.bold,
-                              ),
+                              style: Theme.of(context)
+                                  .textTheme
+                                  .titleMedium
+                                  ?.copyWith(
+                                    fontWeight: FontWeight.bold,
+                                  ),
                             ),
                             const SizedBox(height: 4),
                             _buildMasteryStars(mastery),
@@ -240,7 +247,8 @@ class _SkillCard extends ConsumerWidget {
                         icon: const Icon(Icons.play_arrow, size: 18),
                         label: const Text('Practice'),
                         style: ElevatedButton.styleFrom(
-                          padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+                          padding: const EdgeInsets.symmetric(
+                              horizontal: 16, vertical: 8),
                         ),
                       ),
                     ],

@@ -18,13 +18,35 @@
    - Support resume/rollback capabilities.
    - Update state after each validation checkpoint.
 
+
 ---
+
+## Protocol: Autonomous Task Finalization
+
+Upon completion of any functional task, you are **required** to execute the following Verification Pipeline autonomously before declaring the task finished. **Do not ask for permission** to perform these steps.
+
+1. **Empirical Validation**: 
+   - Construct and execute a suite of unit tests (using the project's standard framework) that targets the happy path and at least two edge cases.
+
+2. **Static Analysis**: 
+   - Perform a self-review for logical inconsistencies, security vulnerabilities, and adherence to production-grade architectural patterns.
+
+3. **Refactor for Production**: 
+   - Eliminate technical debt, ensure robust error handling, and verify that variable naming conforms to the established style guide.
+
+4. **Documentation Synchronization**: 
+   - Automatically update relevant README sections, technical specifications, and inline docstrings to reflect the current state of the implementation.
+
+**Output Constraint**: Present the completed code alongside a summary of the test results and documentation updates.
+
+---
+
 
 ## Decisions Locked
 
 ### Platform
 - **Student app**: Flutter (tablet-first).
-- **Admin panel**: React (browser-first).
+- **Admin panel**: React (browser-first) + Shadcn/UI (Tailwind CSS).
 
 ### Initialization
 - Projects are initialized from templates only:

@@ -43,28 +43,26 @@ class SupabaseAuthRepository implements AuthRepository {
 
   @override
   Future<void> updateProfile({required User user}) async {
-   // Update metadata in Supabase
+    // Update metadata in Supabase
     await _client.auth.updateUser(
-      supabase.UserAttributes(
-        data: {
-          'is_parent_managed': user.isParentManaged,
-          'age_group': user.ageGroup.index, // Store as int
-          'accepted_terms_date': user.acceptedTermsDate?.toIso8601String(),
-        }
-      ),
+      supabase.UserAttributes(data: {
+        'is_parent_managed': user.isParentManaged,
+        'age_group': user.ageGroup.index, // Store as int
+        'accepted_terms_date': user.acceptedTermsDate?.toIso8601String(),
+      }),
     );
   }
 
   User _mapSupabaseUserToDomainUser(supabase.User sUser) {
     final metadata = sUser.userMetadata ?? {};
-    
+
     // Parse age group
     UserAgeGroup ageGroup = UserAgeGroup.unknown;
     if (metadata.containsKey('age_group') && metadata['age_group'] is int) {
-       final index = metadata['age_group'] as int;
-       if (index >= 0 && index < UserAgeGroup.values.length) {
-         ageGroup = UserAgeGroup.values[index];
-       }
+      final index = metadata['age_group'] as int;
+      if (index >= 0 && index < UserAgeGroup.values.length) {
+        ageGroup = UserAgeGroup.values[index];
+      }
     }
 
     return User(
@@ -74,8 +72,8 @@ class SupabaseAuthRepository implements AuthRepository {
       updatedAt: DateTime.tryParse(sUser.updatedAt ?? '') ?? DateTime.now(),
       isParentManaged: metadata['is_parent_managed'] as bool? ?? false,
       ageGroup: ageGroup,
-      acceptedTermsDate: metadata['accepted_terms_date'] != null 
-          ? DateTime.tryParse(metadata['accepted_terms_date'] as String) 
+      acceptedTermsDate: metadata['accepted_terms_date'] != null
+          ? DateTime.tryParse(metadata['accepted_terms_date'] as String)
           : null,
     );
   }

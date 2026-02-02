@@ -36,8 +36,7 @@ class ConnectivityService {
 
   void _updateStatus(List<ConnectivityResult> results) {
     // Treat no connectivity as offline
-    if (results.isEmpty || 
-        results.every((r) => r == ConnectivityResult.none)) {
+    if (results.isEmpty || results.every((r) => r == ConnectivityResult.none)) {
       _statusController.add(ConnectivityStatus.offline);
       return;
     }

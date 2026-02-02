@@ -20,6 +20,7 @@ import { AccountSettingsPage } from './features/auth/pages/AccountSettingsPage'
 import { InvitationCodesPage } from './features/auth/pages/InvitationCodesPage'
 import { UserManagementPage } from './features/auth/pages/UserManagementPage'
 import { SuperAdminGuard } from './features/auth/components/super-admin-guard'
+import { AppProvider } from './contexts/AppContext'
 
 const queryClient = new QueryClient()
 
@@ -27,44 +28,46 @@ function App() {
   return (
     <QueryClientProvider client={queryClient}>
       <ToastProvider>
-      <BrowserRouter future={{ v7_startTransition: true, v7_relativeSplatPath: true }}>
-        <Routes>
-          <Route path="/login" element={<LoginPage />} />
-          <Route element={
-            <AuthGuard>
-              <AppLayout />
-            </AuthGuard>
-          }>
-            <Route path="/" element={<DashboardPage />} />
-            <Route path="/domains" element={<DomainsPage />} />
-            <Route path="/domains/new" element={<DomainCreatePage />} />
-            <Route path="/domains/:id/edit" element={<DomainEditPage />} />
-            
-            <Route path="/skills" element={<SkillsPage />} />
-            <Route path="/skills/new" element={<SkillCreatePage />} />
-            <Route path="/skills/:id/edit" element={<SkillEditPage />} />
+        <AppProvider>
+          <BrowserRouter future={{ v7_startTransition: true, v7_relativeSplatPath: true }}>
+            <Routes>
+              <Route path="/login" element={<LoginPage />} />
+              <Route element={
+                <AuthGuard>
+                  <AppLayout />
+                </AuthGuard>
+              }>
+                <Route path="/" element={<DashboardPage />} />
+                <Route path="/domains" element={<DomainsPage />} />
+                <Route path="/domains/new" element={<DomainCreatePage />} />
+                <Route path="/domains/:id/edit" element={<DomainEditPage />} />
+                
+                <Route path="/skills" element={<SkillsPage />} />
+                <Route path="/skills/new" element={<SkillCreatePage />} />
+                <Route path="/skills/:id/edit" element={<SkillEditPage />} />
 
-            <Route path="/questions" element={<QuestionsPage />} />
-            <Route path="/questions/new" element={<QuestionCreatePage />} />
-            <Route path="/questions/:id/edit" element={<QuestionEditPage />} />
-            
-            <Route path="/publish" element={<PublishPage />} />
-            <Route path="/versions" element={<VersionHistoryPage />} />
-            <Route path="/invitation-codes" element={
-              <SuperAdminGuard>
-                <InvitationCodesPage />
-              </SuperAdminGuard>
-            } />
-            <Route path="/users" element={
-              <SuperAdminGuard>
-                <UserManagementPage />
-              </SuperAdminGuard>
-            } />
-            <Route path="/settings" element={<AccountSettingsPage />} />
-          </Route>
-          <Route path="*" element={<Navigate to="/" replace />} />
-        </Routes>
-      </BrowserRouter>
+                <Route path="/questions" element={<QuestionsPage />} />
+                <Route path="/questions/new" element={<QuestionCreatePage />} />
+                <Route path="/questions/:id/edit" element={<QuestionEditPage />} />
+                
+                <Route path="/publish" element={<PublishPage />} />
+                <Route path="/versions" element={<VersionHistoryPage />} />
+                <Route path="/invitation-codes" element={
+                  <SuperAdminGuard>
+                    <InvitationCodesPage />
+                  </SuperAdminGuard>
+                } />
+                <Route path="/users" element={
+                  <SuperAdminGuard>
+                    <UserManagementPage />
+                  </SuperAdminGuard>
+                } />
+                <Route path="/settings" element={<AccountSettingsPage />} />
+              </Route>
+              <Route path="*" element={<Navigate to="/" replace />} />
+            </Routes>
+          </BrowserRouter>
+        </AppProvider>
       </ToastProvider>
     </QueryClientProvider>
   )

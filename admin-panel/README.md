@@ -1,18 +1,38 @@
 # Admin Panel
 
-The Admin Panel for Math7, built with React, Vite, and TypeScript.
+The Admin Panel for Math7, built with React, Vite, TypeScript, and **shadcn/ui**.
 
-## Development
+## 🛠 Tech Stack
+
+- **Framework**: React + Vite
+- **Language**: TypeScript
+- **Styling**: Tailwind CSS + shadcn/ui
+- **State Management**: React Query (server) + Context (local)
+- **Forms**: React Hook Form + Zod
+- **Icons**: Lucide React
+- **Backend Integration**: Supabase Client
+
+## development
 
 ### Prerequisites
 - Node.js (v18+)
-- Supabase project
+- Supabase project credentials (in `.env`)
 
 ### Installation
 
 ```bash
 npm install
 ```
+
+### UI Components (shadcn/ui)
+
+We use `shadcn/ui` for our component library.
+
+- **Guide**: See [`../docs/SHADCN_GUIDE.md`](../docs/SHADCN_GUIDE.md) for detailed instructions.
+- **Add Component**:
+  ```bash
+  npx shadcn@latest add component-name
+  ```
 
 ### Running Locally
 

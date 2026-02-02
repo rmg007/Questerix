@@ -38,7 +38,8 @@ class SyncState {
 }
 
 /// Sync service provider
-final syncServiceProvider = StateNotifierProvider<SyncService, SyncState>((ref) {
+final syncServiceProvider =
+    StateNotifierProvider<SyncService, SyncState>((ref) {
   final database = ref.watch(databaseProvider);
   final supabase = ref.watch(supabaseClientProvider);
   final domainRepo = ref.watch(localDomainRepositoryProvider);
@@ -63,11 +64,10 @@ class SyncService extends StateNotifier<SyncState> {
     this._questionRepo,
   ) : super(SyncState.idle());
 
-
   /// Full sync: push local changes, then pull remote changes
   Future<void> sync() async {
     if (state.isSyncing) return;
-    
+
     try {
       state = SyncState.syncing();
       await push();
@@ -90,7 +90,7 @@ class SyncService extends StateNotifier<SyncState> {
     for (final item in outboxItems) {
       try {
         final payload = jsonDecode(item.payload) as Map<String, dynamic>;
-        
+
         switch (item.action) {
           case 'INSERT':
           case 'UPSERT':
@@ -116,9 +116,12 @@ class SyncService extends StateNotifier<SyncState> {
                     masteryLevel: Value(json['mastery_level'] as int),
                     currentStreak: Value(json['current_streak'] as int),
                     longestStreak: Value(json['longest_streak'] as int),
-                    lastAttemptAt: Value(DateTime.parse(json['last_attempt_at'] as String)),
-                    createdAt: Value(DateTime.parse(json['created_at'] as String)),
-                    updatedAt: Value(DateTime.parse(json['updated_at'] as String)),
+                    lastAttemptAt: Value(
+                        DateTime.parse(json['last_attempt_at'] as String)),
+                    createdAt:
+                        Value(DateTime.parse(json['created_at'] as String)),
+                    updatedAt:
+                        Value(DateTime.parse(json['updated_at'] as String)),
                   );
                 }).toList();
 
@@ -137,10 +140,7 @@ class SyncService extends StateNotifier<SyncState> {
             }
             break;
           case 'DELETE':
-            await _supabase
-                .from(item.table)
-                .delete()
-                .eq('id', item.recordId);
+            await _supabase.from(item.table).delete().eq('id', item.recordId);
             break;
         }
 
@@ -157,14 +157,14 @@ class SyncService extends StateNotifier<SyncState> {
             retryCount: Value(item.retryCount + 1),
           ),
         );
-        
+
         // Skip items with too many retries
         if (item.retryCount > 5) {
           await (_database.delete(_database.outbox)
                 ..where((o) => o.id.equals(item.id)))
               .go();
         }
-        
+
         rethrow;
       }
     }
@@ -179,7 +179,7 @@ class SyncService extends StateNotifier<SyncState> {
 
   Future<void> _pullDomains() async {
     final lastSync = await _getLastSync('domains');
-    
+
     final response = await _supabase
         .from('domains')
         .select()
@@ -188,7 +188,8 @@ class SyncService extends StateNotifier<SyncState> {
         .isFilter('deleted_at', null);
 
     if (response.isNotEmpty) {
-      final domains = response.map((json) => model.Domain.fromJson(json)).toList();
+      final domains =
+          response.map((json) => model.Domain.fromJson(json)).toList();
       await _domainRepo.batchUpsert(domains);
       await _updateLastSync('domains', DateTime.now());
     }
@@ -196,7 +197,7 @@ class SyncService extends StateNotifier<SyncState> {
 
   Future<void> _pullSkills() async {
     final lastSync = await _getLastSync('skills');
-    
+
     final response = await _supabase
         .from('skills')
         .select()
@@ -205,7 +206,8 @@ class SyncService extends StateNotifier<SyncState> {
         .isFilter('deleted_at', null);
 
     if (response.isNotEmpty) {
-      final skills = response.map((json) => model.Skill.fromJson(json)).toList();
+      final skills =
+          response.map((json) => model.Skill.fromJson(json)).toList();
       await _skillRepo.batchUpsert(skills);
       await _updateLastSync('skills', DateTime.now());
     }
@@ -213,7 +215,7 @@ class SyncService extends StateNotifier<SyncState> {
 
   Future<void> _pullQuestions() async {
     final lastSync = await _getLastSync('questions');
-    
+
     final response = await _supabase
         .from('questions')
         .select()
@@ -222,7 +224,8 @@ class SyncService extends StateNotifier<SyncState> {
         .isFilter('deleted_at', null);
 
     if (response.isNotEmpty) {
-      final questions = response.map((json) => model.Question.fromJson(json)).toList();
+      final questions =
+          response.map((json) => model.Question.fromJson(json)).toList();
       await _questionRepo.batchUpsert(questions);
       await _updateLastSync('questions', DateTime.now());
     }
@@ -238,11 +241,11 @@ class SyncService extends StateNotifier<SyncState> {
 
   Future<void> _updateLastSync(String tableName, DateTime time) async {
     await _database.into(_database.syncMeta).insertOnConflictUpdate(
-      SyncMetaCompanion(
-        table: Value(tableName),
-        lastSyncedAt: Value(time),
-        updatedAt: Value(time),
-      ),
-    );
+          SyncMetaCompanion(
+            table: Value(tableName),
+            lastSyncedAt: Value(time),
+            updatedAt: Value(time),
+          ),
+        );
   }
 }

@@ -135,23 +135,62 @@ await _pullQuestions();
 Mirror structure with additional RLS (Row Level Security) policies.
 
 ### 5. Authentication & Onboarding
-The app implements a strict Age-Gated Onboarding flow (`OnboardingScreen`) to comply with COPPA best practices.
 
-**Flow**:
-1.  **Age Gate**: User enters birth date.
-2.  **Under 13**:
-    - App requests **Parent's Email**.
-    - System sends a Magic Link to the parent.
-    - Parent acts as the account owner/approver.
-    - Agreement is implicit in the approval request but explicitly noted.
-3.  **Over 13**:
-    - Student signs up with their own email.
-    - Must explicitly agree to Terms & Privacy Policy via checkbox.
-    - System sends Magic Link for passwordless login.
+The app implements a polished, COPPA-compliant onboarding flow.
 
-**Data Model**:
-- `User` (Domain): Tracks `ageGroup` and `isParentManaged`.
-- **Note**: Currently uses a "One Email = One User" model.
+#### Entry Points
+
+1. **Welcome Screen** (`WelcomeScreen`):
+   - Primary entry point with gradient background
+   - Two clear paths: "Get Started" (new users) and "I already have an account" (returning users)
+   - Clickable Terms of Service and Privacy Policy links
+
+2. **Login Screen** (`LoginScreen`):
+   - For returning users
+   - "Register" link redirects to OnboardingScreen (ensuring age verification)
+
+3. **Onboarding Screen** (`OnboardingScreen`):
+   - Beautiful gradient design matching Welcome Screen
+   - Age verification with birthday cake icon and date picker
+   - Responsive white card UI for date selection
+
+#### Age-Gated Flow
+
+1. **Age Gate**: User selects birth date
+   - Clean UI with icon, gradient background, and card-based interaction
+   
+2. **Under 13**:
+   - App requests **Parent's Email**
+   - System sends a Magic Link to the parent
+   - Parent acts as the account owner/approver
+   - Agreement is implicit in the approval request but explicitly noted
+
+3. **Over 13**:
+   - Student signs up with their own email
+   - Must explicitly agree to Terms & Privacy Policy via checkbox
+   - System sends Magic Link for passwordless login
+
+#### Legal Compliance Screens
+
+- **TermsOfServiceScreen**: Comprehensive terms with sections covering acceptance, license, conduct, IP, etc.
+- **PrivacyPolicyScreen**: Full privacy policy with COPPA compliance details, data collection, user rights
+
+#### Data Model
+
+- `User` (Domain): Tracks `ageGroup` and `isParentManaged`
+- **Note**: Currently uses a "One Email = One User" model
+
+#### Screen Files
+
+```
+lib/src/features/auth/screens/
+├── welcome_screen.dart        # Entry point with dual paths
+├── login_screen.dart          # Returning user login
+├── register_screen.dart       # Legacy (deprecated, use OnboardingScreen)
+├── onboarding_screen.dart     # Age verification + signup
+├── terms_of_service_screen.dart   # Terms of Service
+└── privacy_policy_screen.dart     # Privacy Policy
+```
 
 ## Development Workflow
 
@@ -273,9 +312,10 @@ flutter build ios --release
 - **Business Logic**: Test providers and state notifiers
 
 ### Widget Tests
+- **UI Flows**: `test/ui/app_flow_test.dart` (Onboarding, Authentication, Home).
 - **Screens**: `test/features/curriculum/screens/`
 - **Widgets**: `test/features/curriculum/widgets/`
-- Use `ProviderScope` with overrides for mocking
+- **Strategy**: Use `ProviderScope` overrides to mock repositories, Supabase, and Drift specifically for widget tests to run on any platform (including Windows).
 
 ### Integration Tests
 - Test full user flows

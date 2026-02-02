@@ -3,7 +3,7 @@ import { Link } from 'react-router-dom';
 import { usePaginatedQuestions, useDeleteQuestion, useBulkDeleteQuestions, useBulkUpdateQuestionsStatus, useDuplicateQuestion, useUpdateQuestionOrder } from '../hooks/use-questions';
 import { useSkills } from '../hooks/use-skills';
 import { useState, useEffect, useMemo } from 'react';
-import { useToast } from '@/components/ui/toast';
+import { useToast } from '@/hooks/use-toast';
 import { Pagination } from '@/components/ui/pagination';
 import { SortableHeader } from '@/components/ui/sortable-header';
 import { DataToolbar } from '@/components/ui/data-toolbar';
@@ -285,7 +285,14 @@ export function QuestionList() {
     const bulkUpdateStatus = useBulkUpdateQuestionsStatus();
     const duplicateQuestion = useDuplicateQuestion();
     const updateQuestionOrder = useUpdateQuestionOrder();
-    const { showToast } = useToast();
+    const { toast } = useToast();
+    
+    const showToast = (title: string, type: 'success' | 'error' = 'success') => {
+        toast({
+            title,
+            variant: type === 'error' ? 'destructive' : 'default',
+        });
+    };
 
     const sensors = useSensors(
         useSensor(PointerSensor, {

@@ -42,3 +42,8 @@ The project consists of:
 4.  **Validate** using the provided scripts (e.g., `scripts/validate-phase-0.ps1`).
 
 **Do not deviate from the specifications.**
+
+### 🦾 Agent Commands
+- **`/autopilot`**: Triggers full autonomous build & maintenance capability.
+- **`/test`**: Runs the recommended "Enterprise QA" suite (Offline-Sync integration, E2E, Lint).
+*See `docs/DEVELOPMENT.md` for full command details.*

@@ -22,7 +22,8 @@ final questionRepositoryProvider = Provider<QuestionRepository>((ref) {
 });
 
 /// Provider specifically for Local Question Repository
-final localQuestionRepositoryProvider = Provider<DriftQuestionRepository>((ref) {
+final localQuestionRepositoryProvider =
+    Provider<DriftQuestionRepository>((ref) {
   final database = ref.watch(databaseProvider);
   return DriftQuestionRepository(database);
 });

@@ -11,12 +11,22 @@ on:
       - 'admin-panel/**'
   workflow_dispatch:
 
+env:
+  VITE_SUPABASE_URL: ${{ secrets.VITE_SUPABASE_URL }}
+  VITE_SUPABASE_ANON_KEY: ${{ secrets.VITE_SUPABASE_ANON_KEY }}
+
 jobs:
   test-e2e:
     name: End-to-End Tests
     runs-on: ubuntu-latest
     timeout-minutes: 30
     
+    env:
+      TEST_ADMIN_EMAIL: ${{ secrets.TEST_ADMIN_EMAIL }}
+      TEST_ADMIN_PASSWORD: ${{ secrets.TEST_ADMIN_PASSWORD }}
+      TEST_SUPER_ADMIN_EMAIL: ${{ secrets.TEST_SUPER_ADMIN_EMAIL }}
+      TEST_SUPER_ADMIN_PASSWORD: ${{ secrets.TEST_SUPER_ADMIN_PASSWORD }}
+
     defaults:
       run:
         working-directory: admin-panel
@@ -41,12 +51,12 @@ jobs:
       - name: Create test environment file
         run: |
           cat > .env.test.local << EOF
-          TEST_ADMIN_EMAIL=${{ secrets.TEST_ADMIN_EMAIL }}
-          TEST_ADMIN_PASSWORD=${{ secrets.TEST_ADMIN_PASSWORD }}
-          TEST_SUPER_ADMIN_EMAIL=${{ secrets.TEST_SUPER_ADMIN_EMAIL }}
-          TEST_SUPER_ADMIN_PASSWORD=${{ secrets.TEST_SUPER_ADMIN_PASSWORD }}
-          VITE_SUPABASE_URL=${{ secrets.VITE_SUPABASE_URL }}
-          VITE_SUPABASE_ANON_KEY=${{ secrets.VITE_SUPABASE_ANON_KEY }}
+          TEST_ADMIN_EMAIL=$TEST_ADMIN_EMAIL
+          TEST_ADMIN_PASSWORD=$TEST_ADMIN_PASSWORD
+          TEST_SUPER_ADMIN_EMAIL=$TEST_SUPER_ADMIN_EMAIL
+          TEST_SUPER_ADMIN_PASSWORD=$TEST_SUPER_ADMIN_PASSWORD
+          VITE_SUPABASE_URL=$VITE_SUPABASE_URL
+          VITE_SUPABASE_ANON_KEY=$VITE_SUPABASE_ANON_KEY
           VITE_SENTRY_ENABLED=false
           VITE_ENABLE_ANALYTICS=false
           VITE_ENABLE_DEBUG_LOGGING=false
@@ -152,9 +162,6 @@ jobs:
 
       - name: Build application
         run: npm run build
-        env:
-          VITE_SUPABASE_URL: ${{ secrets.VITE_SUPABASE_URL }}
-          VITE_SUPABASE_ANON_KEY: ${{ secrets.VITE_SUPABASE_ANON_KEY }}
 
       - name: Deploy to preview
         run: echo "Deploy to your preview environment here"

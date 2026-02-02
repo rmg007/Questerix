@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:student_app/src/core/theme/app_theme.dart';
 import '../providers/auth_providers.dart';
 
 class OnboardingScreen extends ConsumerStatefulWidget {
@@ -17,7 +18,8 @@ class _OnboardingScreenState extends ConsumerState<OnboardingScreen> {
     // Calculate age
     final now = DateTime.now();
     int age = now.year - birthDate.year;
-    if (now.month < birthDate.month || (now.month == birthDate.month && now.day < birthDate.day)) {
+    if (now.month < birthDate.month ||
+        (now.month == birthDate.month && now.day < birthDate.day)) {
       age--;
     }
 
@@ -30,14 +32,60 @@ class _OnboardingScreenState extends ConsumerState<OnboardingScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(title: const Text('Welcome to Math7')),
-      body: Padding(
-        padding: const EdgeInsets.all(16.0),
-        child: _step == 0
-            ? _AgeGateStep(onContinue: _onAgeSelected)
-            : _isUnder13
-                ? _ParentApprovalStep(onBack: () => setState(() => _step = 0))
-                : _StudentSignupStep(onBack: () => setState(() => _step = 0)),
+      body: Container(
+        decoration: const BoxDecoration(
+          gradient: LinearGradient(
+            begin: Alignment.topLeft,
+            end: Alignment.bottomRight,
+            colors: [
+              AppColors.primaryDark,
+              AppColors.primary,
+              AppColors.primaryLight,
+            ],
+          ),
+        ),
+        child: SafeArea(
+          child: Column(
+            children: [
+              // Custom header with back button
+              Padding(
+                padding: const EdgeInsets.all(16.0),
+                child: Row(
+                  children: [
+                    IconButton(
+                      icon: const Icon(Icons.arrow_back, color: Colors.white),
+                      onPressed: () => Navigator.pop(context),
+                    ),
+                    const SizedBox(width: 8),
+                    const Text(
+                      'Welcome to Math7',
+                      style: TextStyle(
+                        color: Colors.white,
+                        fontSize: 20,
+                        fontWeight: FontWeight.w600,
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+              // Main content
+              Expanded(
+                child: Center(
+                  child: SingleChildScrollView(
+                    padding: const EdgeInsets.all(24),
+                    child: _step == 0
+                        ? _AgeGateStep(onContinue: _onAgeSelected)
+                        : _isUnder13
+                            ? _ParentApprovalStep(
+                                onBack: () => setState(() => _step = 0))
+                            : _StudentSignupStep(
+                                onBack: () => setState(() => _step = 0)),
+                  ),
+                ),
+              ),
+            ],
+          ),
+        ),
       ),
     );
   }
@@ -58,7 +106,8 @@ class _AgeGateStepState extends State<_AgeGateStep> {
   Future<void> _selectDate(BuildContext context) async {
     final DateTime? picked = await showDatePicker(
       context: context,
-      initialDate: DateTime.now().subtract(const Duration(days: 365 * 10)), // Default 10 years old
+      initialDate: DateTime.now()
+          .subtract(const Duration(days: 365 * 10)), // Default 10 years old
       firstDate: DateTime(1900),
       lastDate: DateTime.now(),
     );
@@ -71,27 +120,156 @@ class _AgeGateStepState extends State<_AgeGateStep> {
 
   @override
   Widget build(BuildContext context) {
-    return Column(
-      mainAxisAlignment: MainAxisAlignment.center,
-      children: [
-        const Text(
-          'When is your birthday?',
-          style: TextStyle(fontSize: 24, fontWeight: FontWeight.bold),
-        ),
-        const SizedBox(height: 20),
-        ElevatedButton(
-          onPressed: () => _selectDate(context),
-          child: Text(_selectedDate == null
-              ? 'Select Date'
-              : '${_selectedDate!.month}/${_selectedDate!.day}/${_selectedDate!.year}'),
-        ),
-        const SizedBox(height: 20),
-        if (_selectedDate != null)
-          ElevatedButton(
-            onPressed: () => widget.onContinue(_selectedDate!),
-            child: const Text('Continue'),
+    return ConstrainedBox(
+      constraints: const BoxConstraints(maxWidth: 500),
+      child: Column(
+        mainAxisAlignment: MainAxisAlignment.center,
+        children: [
+          // Birthday icon
+          Container(
+            width: 100,
+            height: 100,
+            decoration: BoxDecoration(
+              color: Colors.white,
+              shape: BoxShape.circle,
+              boxShadow: [
+                BoxShadow(
+                  color: Colors.black.withValues(alpha: 0.1),
+                  blurRadius: 20,
+                  offset: const Offset(0, 10),
+                ),
+              ],
+            ),
+            child: const Icon(
+              Icons.cake,
+              size: 50,
+              color: AppColors.primary,
+            ),
           ),
-      ],
+          const SizedBox(height: 32),
+
+          // Title
+          const Text(
+            'When is your birthday?',
+            style: TextStyle(
+              fontSize: 28,
+              fontWeight: FontWeight.bold,
+              color: Colors.white,
+            ),
+            textAlign: TextAlign.center,
+          ),
+          const SizedBox(height: 12),
+
+          // Subtitle
+          Text(
+            'We need to verify your age to comply with privacy laws',
+            style: TextStyle(
+              fontSize: 16,
+              color: Colors.white.withValues(alpha: 0.9),
+            ),
+            textAlign: TextAlign.center,
+          ),
+          const SizedBox(height: 48),
+
+          // Date selection card
+          Container(
+            padding: const EdgeInsets.all(24),
+            decoration: BoxDecoration(
+              color: Colors.white,
+              borderRadius: BorderRadius.circular(20),
+              boxShadow: [
+                BoxShadow(
+                  color: Colors.black.withValues(alpha: 0.1),
+                  blurRadius: 20,
+                  offset: const Offset(0, 10),
+                ),
+              ],
+            ),
+            child: Column(
+              children: [
+                if (_selectedDate != null) ...[
+                  const Text(
+                    'Selected Date',
+                    style: TextStyle(
+                      fontSize: 14,
+                      color: AppColors.textSecondary,
+                      fontWeight: FontWeight.w500,
+                    ),
+                  ),
+                  const SizedBox(height: 8),
+                  Text(
+                    '${_selectedDate!.month}/${_selectedDate!.day}/${_selectedDate!.year}',
+                    style: const TextStyle(
+                      fontSize: 32,
+                      fontWeight: FontWeight.bold,
+                      color: AppColors.primary,
+                    ),
+                  ),
+                  const SizedBox(height: 24),
+                ],
+
+                // Select Date Button
+                SizedBox(
+                  width: double.infinity,
+                  height: 56,
+                  child: ElevatedButton.icon(
+                    onPressed: () => _selectDate(context),
+                    icon: const Icon(Icons.calendar_today),
+                    label: Text(
+                      _selectedDate == null ? 'Select Date' : 'Change Date',
+                      style: const TextStyle(
+                        fontSize: 16,
+                        fontWeight: FontWeight.w600,
+                      ),
+                    ),
+                    style: ElevatedButton.styleFrom(
+                      backgroundColor: AppColors.primary,
+                      foregroundColor: Colors.white,
+                      shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(12),
+                      ),
+                      elevation: 0,
+                    ),
+                  ),
+                ),
+
+                if (_selectedDate != null) ...[
+                  const SizedBox(height: 16),
+                  SizedBox(
+                    width: double.infinity,
+                    height: 56,
+                    child: ElevatedButton(
+                      onPressed: () => widget.onContinue(_selectedDate!),
+                      style: ElevatedButton.styleFrom(
+                        backgroundColor: AppColors.success,
+                        foregroundColor: Colors.white,
+                        shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(12),
+                        ),
+                        elevation: 0,
+                      ),
+                      child: const Row(
+                        mainAxisAlignment: MainAxisAlignment.center,
+                        children: [
+                          Text(
+                            'Continue',
+                            style: TextStyle(
+                              fontSize: 16,
+                              fontWeight: FontWeight.w600,
+                            ),
+                          ),
+                          SizedBox(width: 8),
+                          Icon(Icons.arrow_forward),
+                        ],
+                      ),
+                    ),
+                  ),
+                ],
+              ],
+            ),
+          ),
+        ],
+      ),
     );
   }
 }
@@ -102,7 +280,8 @@ class _ParentApprovalStep extends ConsumerStatefulWidget {
   const _ParentApprovalStep({required this.onBack});
 
   @override
-  ConsumerState<_ParentApprovalStep> createState() => _ParentApprovalStepState();
+  ConsumerState<_ParentApprovalStep> createState() =>
+      _ParentApprovalStepState();
 }
 
 class _ParentApprovalStepState extends ConsumerState<_ParentApprovalStep> {
@@ -114,22 +293,25 @@ class _ParentApprovalStepState extends ConsumerState<_ParentApprovalStep> {
     try {
       final email = _emailController.text;
       if (email.isEmpty || !email.contains('@')) {
-         ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('Invalid Email')));
-         return;
+        ScaffoldMessenger.of(context)
+            .showSnackBar(const SnackBar(content: Text('Invalid Email')));
+        return;
       }
-      
+
       // Send magic link to parent.
       // NOTE: This actually creates a user with this email for now.
-      // In a real parent flow, we might want to flag this user as "parent pending" in metadata 
+      // In a real parent flow, we might want to flag this user as "parent pending" in metadata
       // or simply treat this as the parent creating an account for clarity.
       await ref.read(authRepositoryProvider).signInWithEmail(email: email);
 
       if (mounted) {
-         ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('Email sent to parent! Check inbox.')));
+        ScaffoldMessenger.of(context).showSnackBar(const SnackBar(
+            content: Text('Email sent to parent! Check inbox.')));
       }
     } catch (e) {
       if (mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text('Error: $e')));
+        ScaffoldMessenger.of(context)
+            .showSnackBar(SnackBar(content: Text('Error: $e')));
       }
     } finally {
       if (mounted) setState(() => _isLoading = false);
@@ -163,7 +345,8 @@ class _ParentApprovalStepState extends ConsumerState<_ParentApprovalStep> {
             mainAxisAlignment: MainAxisAlignment.spaceEvenly,
             children: [
               TextButton(onPressed: widget.onBack, child: const Text('Back')),
-              ElevatedButton(onPressed: _submit, child: const Text('Send Request')),
+              ElevatedButton(
+                  onPressed: _submit, child: const Text('Send Request')),
             ],
           ),
         const SizedBox(height: 20),
@@ -192,21 +375,24 @@ class _StudentSignupStepState extends ConsumerState<_StudentSignupStep> {
   bool _agreedToTerms = false;
 
   Future<void> _submit() async {
-     if (!_agreedToTerms) {
-        ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('You must agree to the terms.')));
-        return;
-     }
+    if (!_agreedToTerms) {
+      ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(content: Text('You must agree to the terms.')));
+      return;
+    }
 
     setState(() => _isLoading = true);
     try {
       final email = _emailController.text;
       await ref.read(authRepositoryProvider).signInWithEmail(email: email);
       if (mounted) {
-         ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('Email sent! Check your inbox to login.')));
+        ScaffoldMessenger.of(context).showSnackBar(const SnackBar(
+            content: Text('Email sent! Check your inbox to login.')));
       }
     } catch (e) {
-       if (mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text('Error: $e')));
+      if (mounted) {
+        ScaffoldMessenger.of(context)
+            .showSnackBar(SnackBar(content: Text('Error: $e')));
       }
     } finally {
       if (mounted) setState(() => _isLoading = false);
@@ -302,7 +488,8 @@ class _StudentSignupStepState extends ConsumerState<_StudentSignupStep> {
             mainAxisAlignment: MainAxisAlignment.spaceEvenly,
             children: [
               TextButton(onPressed: widget.onBack, child: const Text('Back')),
-              ElevatedButton(onPressed: _submit, child: const Text('Start Learning')),
+              ElevatedButton(
+                  onPressed: _submit, child: const Text('Start Learning')),
             ],
           ),
       ],

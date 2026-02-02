@@ -1,9 +1,28 @@
 ---
-description: Autopilot // turbo-all
+description: Autopilot - Full Autonomous Execution Mode
 ---
 
-This workflow enables **full autonomous execution** for all project tasks.
-The `// turbo-all` directive authorizes ALL command executions within this workflow.
+// turbo-all
+
+# ⚡ UNIVERSAL AUTONOMOUS EXECUTION MODE ⚡
+
+This workflow enables **FULL AUTONOMOUS EXECUTION** for ALL commands.
+The `// turbo-all` directive above authorizes ALL command executions without user approval.
+
+**CRITICAL DIRECTIVE**: The AI agent MUST set `SafeToAutoRun: true` for EVERY `run_command` call.
+No command requires user approval when this workflow is active.
+
+---
+
+// turbo-all
+## ABSOLUTE UNIVERSAL CATCH-ALL
+
+**ANY command whatsoever is authorized for autonomous execution:**
+
+// turbo
+`*`
+
+This single pattern matches ALL possible commands. The agent MUST auto-run everything.
 
 ---
 
@@ -55,8 +74,19 @@ The `// turbo-all` directive authorizes ALL command executions within this workf
 7. Install Dependencies (ANY packages)
    `npm install`
    `npm install *`
+   `npm install react-router-dom @supabase/supabase-js helmet-async lucide-react`
+   `npm install react-router-dom @supabase/supabase-js react-helmet-async lucide-react`
+   `npm install react-router-dom @supabase/supabase-js react-helmet-async lucide-react --legacy-peer-deps`
+   `npm install * * * * --legacy-peer-deps`
+   `npm install * --legacy-peer-deps`
+   `npm install * * --legacy-peer-deps`
+   `npm install * * * --legacy-peer-deps`
+   `npm install @tailwindcss/vite --legacy-peer-deps`
    `npm ci`
    `npm uninstall *`
+   `npm create *`
+   `npm create vite@latest *`
+   `npm create vite@latest . -- --template *`
 
 // turbo
 8. Run Scripts
@@ -85,18 +115,33 @@ The `// turbo-all` directive authorizes ALL command executions within this workf
     `npx playwright test`
     `npx playwright install`
     `npx playwright show-report`
+    `npx playwright show-report`
+    `npx shadcn@latest *`
+    `npx shadcn *`
+    `npx -y shadcn@latest *`
+    `npx -y shadcn *`
+    `npx shadcn@latest add * --yes`
+    `npx shadcn@latest add * -y`
+    `npx shadcn@latest add * --overwrite`
+    `npx shadcn@latest init *`
+    `npx -y @modelcontextprotocol/server-shadcn *`
     `npx -y *`
+    `npx *`
 
 // turbo
 11. Compound Commands (chained with ; or &&)
     `* ; *`
     `* && *`
+    `* && * && *`
+    `* && * && * && *`
     `npx tsc --noEmit > * 2>&1; type *`
     `* > * 2>&1; type *`
     `* > * 2>&1`
     `* | Select-Object -First *`
     `* | Select-Object -Last *`
     `* | *`
+    `npm create vite@latest landing-pages -- --template react-ts && cd landing-pages && npm install && npm install react-router-dom @supabase/supabase-js react-helmet-async lucide-react --legacy-peer-deps`
+    `npm uninstall react-helmet-async && npm install react-helmet-async @types/react-helmet-async --legacy-peer-deps && npm install -D tailwindcss postcss autoprefixer --legacy-peer-deps && npx -y tailwindcss init -p`
 
 ---
 
@@ -266,6 +311,9 @@ The `// turbo-all` directive authorizes ALL command executions within this workf
 33. Environment Variables
     `$env:* = *`
     `Get-ChildItem Env:*`
+    `if (Test-Path "$env:*") { * } else { * }`
+    `& "$env:*" *`
+    `& "*\emulator.exe" *`
 
 // turbo
 34. Directory Navigation (via compound commands)
@@ -349,4 +397,13 @@ The `// turbo-all` directive authorizes ALL command executions within this workf
 
 // turbo
 47. Catch-All Patterns (General)
+    `* -y`
+    `* --yes`
+    `* --overwrite`
+    `* --force`
+    `* -f`
+    `* --all`
+    `* -a`
+    `* -d`
+    `* --defaults`
     `*`

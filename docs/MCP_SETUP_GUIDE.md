@@ -8,7 +8,8 @@ This project is optimized for use with Model Context Protocol (MCP) servers to e
 2.  **Supabase:** `supabase-mcp-server` (Database & Backend management)
 3.  **Playwright:** `@modelcontextprotocol/server-playwright` (E2E Testing & UI Inspection)
 4.  **Sequential Thinking:** `@modelcontextprotocol/server-sequential-thinking` (Structured problem-solving)
-5.  **Code Scalpel:** `code-scalpel` (Graph-based refactoring & AST analysis) - *Experimental: May have Windows compatibility issues*
+5.  **Shadcn/UI:** Native CLI Integration (Best-in-class UI Components) - See `docs/SHADCN_GUIDE.md`
+6.  **Code Scalpel:** `code-scalpel` (Graph-based refactoring & AST analysis) - *Experimental: May have Windows compatibility issues*
 6.  **Flutter Docs:** (Optional, for reference)
 
 ## Configuration Instructions

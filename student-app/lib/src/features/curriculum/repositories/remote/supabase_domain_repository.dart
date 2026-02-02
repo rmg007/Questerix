@@ -8,7 +8,6 @@ class SupabaseDomainRepository implements DomainRepository {
 
   SupabaseDomainRepository(this._supabase);
 
-
   @override
   Stream<List<model.Domain>> watchAllPublished() {
     return _supabase
@@ -17,7 +16,8 @@ class SupabaseDomainRepository implements DomainRepository {
         .eq('is_published', true)
         .order('sort_order', ascending: true)
         .asStream()
-        .map((data) => data.map((json) => model.Domain.fromJson(json)).toList());
+        .map(
+            (data) => data.map((json) => model.Domain.fromJson(json)).toList());
   }
 
   @override

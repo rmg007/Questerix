@@ -75,9 +75,9 @@ class DriftMappers {
     // Drift's 'json_annotation' might handle it? No, Drift tables usually store as String.
     // Let's assume we need to decode. But wait, does Drift automatically convert if we use a ValueConverter?
     // In tables.dart, it's just `text()`. So it's a String.
-    
+
     // We need to import dart:convert.
-    
+
     return model.Question(
       id: row.id,
       skillId: row.skillId,

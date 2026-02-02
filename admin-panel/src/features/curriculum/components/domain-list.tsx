@@ -3,7 +3,7 @@ import { Link } from 'react-router-dom'
 import { Plus, CheckSquare, Square, Search, X, Trash, Book, GripVertical } from 'lucide-react'
 import { usePaginatedDomains, useDeleteDomain, useBulkDeleteDomains, useBulkUpdateDomainsStatus, useUpdateDomainOrder } from '../hooks/use-domains'
 import { useState, useEffect, useMemo } from 'react'
-import { useToast } from '@/components/ui/toast'
+import { useToast } from '@/hooks/use-toast';
 import { Pagination } from '@/components/ui/pagination'
 import { SortableHeader } from '@/components/ui/sortable-header'
 import { DataToolbar } from '@/components/ui/data-toolbar'
@@ -230,7 +230,14 @@ export function DomainList() {
   const bulkDelete = useBulkDeleteDomains()
   const bulkUpdateStatus = useBulkUpdateDomainsStatus()
   const updateDomainOrder = useUpdateDomainOrder()
-  const { showToast } = useToast()
+  const { toast } = useToast()
+  
+  const showToast = (title: string, type: 'success' | 'error' = 'success') => {
+    toast({
+      title,
+      variant: type === 'error' ? 'destructive' : 'default',
+    })
+  }
 
   const sensors = useSensors(
     useSensor(PointerSensor, {

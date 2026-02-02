@@ -5,8 +5,10 @@ import 'package:supabase_flutter/supabase_flutter.dart';
 
 import 'src/app.dart';
 
-const String _sentryDsn = String.fromEnvironment('SENTRY_DSN', defaultValue: '');
-const bool _sentryEnabled = bool.fromEnvironment('SENTRY_ENABLED', defaultValue: false);
+const String _sentryDsn =
+    String.fromEnvironment('SENTRY_DSN', defaultValue: '');
+const bool _sentryEnabled =
+    bool.fromEnvironment('SENTRY_ENABLED', defaultValue: false);
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
@@ -50,7 +52,8 @@ Future<void> _initializeDependencies() async {
     ),
     anonKey: const String.fromEnvironment(
       'SUPABASE_ANON_KEY',
-      defaultValue: '[YOUR-ANON-KEY]',
+      defaultValue:
+          '[YOUR-ANON-KEY]',
     ),
   );
 }

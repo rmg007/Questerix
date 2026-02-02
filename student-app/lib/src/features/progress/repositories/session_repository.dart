@@ -5,7 +5,8 @@ import 'package:student_app/src/core/database/database.dart';
 import 'package:student_app/src/core/database/providers.dart';
 import 'package:student_app/src/core/supabase/providers.dart';
 
-final practiceSessionRepositoryProvider = Provider<PracticeSessionRepository>((ref) {
+final practiceSessionRepositoryProvider =
+    Provider<PracticeSessionRepository>((ref) {
   final database = ref.watch(databaseProvider);
   final userId = ref.watch(currentUserIdProvider);
   return PracticeSessionRepository(database, userId);
@@ -27,18 +28,18 @@ class PracticeSessionRepository {
     final now = DateTime.now();
 
     await _database.into(_database.sessions).insert(
-      SessionsCompanion(
-        id: Value(sessionId),
-        userId: Value(_userId),
-        skillId: Value(skillId),
-        startedAt: Value(now),
-        questionsAttempted: const Value(0),
-        questionsCorrect: const Value(0),
-        totalTimeMs: const Value(0),
-        createdAt: Value(now),
-        updatedAt: Value(now),
-      ),
-    );
+          SessionsCompanion(
+            id: Value(sessionId),
+            userId: Value(_userId),
+            skillId: Value(skillId),
+            startedAt: Value(now),
+            questionsAttempted: const Value(0),
+            questionsCorrect: const Value(0),
+            totalTimeMs: const Value(0),
+            createdAt: Value(now),
+            updatedAt: Value(now),
+          ),
+        );
 
     return sessionId;
   }

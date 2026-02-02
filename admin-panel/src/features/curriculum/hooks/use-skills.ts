@@ -2,10 +2,9 @@
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { supabase } from '@/lib/supabase';
 import { Database } from '@/lib/database.types';
+import { useApp } from '@/contexts/AppContext';
 
 type Skill = Database['public']['Tables']['skills']['Row'];
-type SkillInsert = Database['public']['Tables']['skills']['Insert'];
-type SkillUpdate = Database['public']['Tables']['skills']['Update'];
 
 // Form input type - excludes auto-generated fields
 export type SkillFormInput = {
@@ -39,9 +38,13 @@ export interface PaginatedResponse<T> {
 }
 
 export function useSkills(domainId?: string) {
+  const { currentApp } = useApp();
+
   return useQuery({
-    queryKey: ['skills', domainId],
+    queryKey: ['skills', domainId, currentApp?.app_id],
     queryFn: async () => {
+      if (!currentApp?.app_id) throw new Error('No app selected');
+
       let query = supabase
         .from('skills')
         .select(`
@@ -50,6 +53,7 @@ export function useSkills(domainId?: string) {
             title
           )
         `)
+        .eq('app_id', currentApp.app_id)
         .is('deleted_at', null)
         .order('sort_order', { ascending: true });
 
@@ -62,13 +66,18 @@ export function useSkills(domainId?: string) {
       if (error) throw error;
       return data as unknown as (Skill & { domains: { title: string } | null })[];
     },
+    enabled: !!currentApp?.app_id,
   });
 }
 
 export function usePaginatedSkills(params: PaginationParams) {
+  const { currentApp } = useApp();
+
   return useQuery({
-    queryKey: ['skills-paginated', params],
+    queryKey: ['skills-paginated', params, currentApp?.app_id],
     queryFn: async (): Promise<PaginatedResponse<Skill & { domains: { title: string } | null }>> => {
+      if (!currentApp?.app_id) throw new Error('No app selected');
+
       const { page, pageSize, search, status, domainId, sortBy = 'sort_order', sortOrder = 'asc' } = params;
       const from = (page - 1) * pageSize;
       const to = from + pageSize - 1;
@@ -81,6 +90,7 @@ export function usePaginatedSkills(params: PaginationParams) {
             title
           )
         `, { count: 'exact' })
+        .eq('app_id', currentApp.app_id)
         .is('deleted_at', null);
 
       if (search) {
@@ -88,7 +98,7 @@ export function usePaginatedSkills(params: PaginationParams) {
       }
 
       if (status && status !== 'all') {
-        query = query.eq('status', status);
+        query = query.eq('status', status as any); // Type cast status
       }
 
       if (domainId && domainId !== 'all') {
@@ -102,23 +112,22 @@ export function usePaginatedSkills(params: PaginationParams) {
 
       if (error) throw error;
 
-      const totalCount = count ?? 0;
-      const totalPages = Math.ceil(totalCount / pageSize);
-
       return {
         data: data as unknown as (Skill & { domains: { title: string } | null })[],
-        totalCount,
+        totalCount: count ?? 0,
         page,
         pageSize,
-        totalPages,
+        totalPages: Math.ceil((count ?? 0) / pageSize),
       };
     },
+    enabled: !!currentApp?.app_id,
   });
 }
 
 export function useSkill(id: string) {
+    const { currentApp } = useApp();
     return useQuery({
-        queryKey: ['skill', id],
+        queryKey: ['skill', id, currentApp?.app_id],
         queryFn: async () => {
             const { data, error } = await supabase
                 .from('skills')
@@ -129,18 +138,26 @@ export function useSkill(id: string) {
             if (error) throw error;
             return data as Skill;
         },
-        enabled: !!id,
+        enabled: !!id && !!currentApp?.app_id,
     });
 }
 
 export function useCreateSkill() {
   const queryClient = useQueryClient();
+  const { currentApp } = useApp();
   
   return useMutation({
     mutationFn: async (skill: SkillFormInput) => {
+      if (!currentApp?.app_id) throw new Error('No app selected');
+
+      const payload = {
+          ...skill,
+          app_id: currentApp.app_id
+      };
+
       const { data, error } = await (supabase
         .from('skills') as any)
-        .insert(skill)
+        .insert(payload)
         .select()
         .single();
       
@@ -158,7 +175,7 @@ export function useUpdateSkill() {
     const queryClient = useQueryClient();
 
     return useMutation({
-        mutationFn: async ({ id, ...updates }: { id: string } & SkillUpdate) => {
+        mutationFn: async ({ id, ...updates }: { id: string } & Partial<Skill>) => {
             const { data, error } = await (supabase
                 .from('skills') as any)
                 .update(updates)
@@ -239,9 +256,12 @@ export function useBulkUpdateSkillsStatus() {
 
 export function useDuplicateSkill() {
     const queryClient = useQueryClient();
+    const { currentApp } = useApp();
 
     return useMutation({
         mutationFn: async (id: string) => {
+            if (!currentApp?.app_id) throw new Error('No app selected');
+
             const { data: original, error: fetchError } = await supabase
                 .from('skills')
                 .select('*')
@@ -251,9 +271,11 @@ export function useDuplicateSkill() {
             if (fetchError) throw fetchError;
             if (!original) throw new Error('Skill not found');
 
-            const { id: _, created_at, updated_at, ...rest } = original as any;
+            // eslint-disable-next-line @typescript-eslint/no-unused-vars
+            const { id: _, created_at, updated_at, app_id, ...rest } = original as any;
             const duplicate = {
                 ...rest,
+                app_id: currentApp.app_id, // Ensure we use current app ID
                 title: `${rest.title} (Copy)`,
                 slug: `${rest.slug}_copy_${Date.now()}`,
                 status: 'draft',

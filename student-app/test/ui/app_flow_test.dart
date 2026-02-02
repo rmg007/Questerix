@@ -11,25 +11,31 @@ import 'package:student_app/src/app.dart';
 import 'package:student_app/src/core/database/database.dart';
 import 'package:student_app/src/core/database/providers.dart';
 import 'package:student_app/src/core/supabase/providers.dart';
-import 'package:student_app/src/features/auth/providers/auth_providers.dart' as domain_auth;
-import 'package:student_app/src/features/auth/providers/auth_provider.dart' as infra_auth;
+import 'package:student_app/src/features/auth/providers/auth_providers.dart'
+    as domain_auth;
+import 'package:student_app/src/features/auth/providers/auth_provider.dart'
+    as infra_auth;
 import 'package:student_app/src/core/connectivity/connectivity_service.dart';
 import 'package:student_app/src/features/home/screens/main_shell.dart';
-import 'package:student_app/src/core/sync/sync_service.dart'; 
+import 'package:student_app/src/core/sync/sync_service.dart';
 
 // Mock Auth Repo (Domain)
 class MockAuthRepository extends Mock implements AuthRepository {}
+
 // Mock Session
 class MockSession extends Mock implements supabase.Session {}
+
 class MockSupabaseUser extends Mock implements supabase.User {}
+
 class MockSupabaseClient extends Mock implements supabase.SupabaseClient {}
+
 class MockGoTrueClient extends Mock implements supabase.GoTrueClient {}
 
 // Mock SyncService
 class MockSyncService extends StateNotifier<SyncState> implements SyncService {
   MockSyncService() : super(SyncState.idle());
   @override
-  Future<void> sync() async {} 
+  Future<void> sync() async {}
   @override
   Future<void> push() async {}
   @override
@@ -46,28 +52,30 @@ void main() {
     late MockGoTrueClient mockGoTrue;
 
     setUp(() async {
-      SharedPreferences.setMockInitialValues({}); 
+      SharedPreferences.setMockInitialValues({});
       mockAuthRepo = MockAuthRepository();
       db = AppDatabase(NativeDatabase.memory());
       mockSupabaseClient = MockSupabaseClient();
       mockGoTrue = MockGoTrueClient();
-      
+
       when(() => mockSupabaseClient.auth).thenReturn(mockGoTrue);
 
-      when(() => mockAuthRepo.signInWithEmail(email: any(named: 'email'))).thenAnswer((_) async {});
+      when(() => mockAuthRepo.signInWithEmail(email: any(named: 'email')))
+          .thenAnswer((_) async {});
       when(() => mockAuthRepo.signInAnonymously()).thenAnswer((_) async {});
       when(() => mockAuthRepo.signOut()).thenAnswer((_) async {});
     });
 
     tearDown(() {
-       // db.close(); 
+      // db.close();
     });
 
     testWidgets('Onboarding Flow (Under 13)', (tester) async {
-       tester.view.physicalSize = const Size(1024, 768);
-       tester.view.devicePixelRatio = 1.0;
+      tester.view.physicalSize = const Size(1024, 768);
+      tester.view.devicePixelRatio = 1.0;
 
-      when(() => mockAuthRepo.authStateChanges).thenAnswer((_) => Stream.value(null));
+      when(() => mockAuthRepo.authStateChanges)
+          .thenAnswer((_) => Stream.value(null));
       when(() => mockAuthRepo.currentUser).thenReturn(null);
       when(() => mockGoTrue.currentUser).thenReturn(null);
 
@@ -79,21 +87,28 @@ void main() {
             supabaseClientProvider.overrideWithValue(mockSupabaseClient),
             infra_auth.currentSessionProvider.overrideWithValue(null),
             infra_auth.authStateProvider.overrideWith((ref) => Stream.value(
-              const supabase.AuthState(supabase.AuthChangeEvent.signedOut, null)
-            )),
-            connectivityServiceProvider.overrideWith((ref) => Stream.value(ConnectivityStatus.online)),
+                const supabase.AuthState(
+                    supabase.AuthChangeEvent.signedOut, null))),
+            connectivityServiceProvider
+                .overrideWith((ref) => Stream.value(ConnectivityStatus.online)),
             syncServiceProvider.overrideWith((ref) => MockSyncService()),
           ],
           child: const Math7App(),
         ),
       );
+      // Welcome Screen should show first
+      expect(find.text('Welcome to Math7'), findsOneWidget);
+      expect(find.text('Get Started'), findsOneWidget);
+
+      // Tap Get Started to navigate to age verification
+      await tester.tap(find.text('Get Started'));
       await tester.pumpAndSettle();
 
-      expect(find.text('Welcome to Math7'), findsOneWidget);
+      // Now we should be on the Age Gate screen
       expect(find.text('When is your birthday?'), findsOneWidget);
 
       await tester.tap(find.text('Select Date'));
-      await tester.pumpAndSettle(); 
+      await tester.pumpAndSettle();
       await tester.tap(find.text('OK'));
       await tester.pumpAndSettle();
       await tester.tap(find.text('Continue'));
@@ -106,15 +121,16 @@ void main() {
       await tester.tap(find.text('Send Request'));
       await tester.pumpAndSettle();
 
-      verify(() => mockAuthRepo.signInWithEmail(email: 'parent@example.com')).called(1);
+      verify(() => mockAuthRepo.signInWithEmail(email: 'parent@example.com'))
+          .called(1);
       expect(find.text('Email sent to parent! Check inbox.'), findsOneWidget);
-      
+
       addTearDown(tester.view.resetPhysicalSize);
     });
 
     testWidgets('Authenticated Home Screen Flow', (tester) async {
-       tester.view.physicalSize = const Size(1024, 768);
-       tester.view.devicePixelRatio = 1.0;
+      tester.view.physicalSize = const Size(1024, 768);
+      tester.view.devicePixelRatio = 1.0;
 
       final user = User(
         id: 'test-user-id',
@@ -122,12 +138,13 @@ void main() {
         createdAt: DateTime.now(),
         updatedAt: DateTime.now(),
       );
-      when(() => mockAuthRepo.authStateChanges).thenAnswer((_) => Stream.value(user));
+      when(() => mockAuthRepo.authStateChanges)
+          .thenAnswer((_) => Stream.value(user));
       when(() => mockAuthRepo.currentUser).thenReturn(user);
 
       final mockSession = MockSession();
       final mockSupabaseUser = MockSupabaseUser();
-      
+
       when(() => mockSession.user).thenReturn(mockSupabaseUser);
       when(() => mockSupabaseUser.id).thenReturn('test-user-id');
       when(() => mockSupabaseUser.email).thenReturn('student@example.com');
@@ -137,14 +154,15 @@ void main() {
       await tester.pumpWidget(
         ProviderScope(
           overrides: [
-             domain_auth.authRepositoryProvider.overrideWithValue(mockAuthRepo),
+            domain_auth.authRepositoryProvider.overrideWithValue(mockAuthRepo),
             databaseProvider.overrideWithValue(db),
             supabaseClientProvider.overrideWithValue(mockSupabaseClient),
             infra_auth.currentSessionProvider.overrideWithValue(mockSession),
             infra_auth.authStateProvider.overrideWith((ref) => Stream.value(
-              supabase.AuthState(supabase.AuthChangeEvent.signedIn, mockSession)
-            )),
-            connectivityServiceProvider.overrideWith((ref) => Stream.value(ConnectivityStatus.online)),
+                supabase.AuthState(
+                    supabase.AuthChangeEvent.signedIn, mockSession))),
+            connectivityServiceProvider
+                .overrideWith((ref) => Stream.value(ConnectivityStatus.online)),
             syncServiceProvider.overrideWith((ref) => MockSyncService()),
           ],
           // Use MaterialApp directly.
@@ -157,8 +175,10 @@ void main() {
 
       expect(find.byType(MainShell), findsOneWidget);
       expect(find.text('Home'), findsOneWidget);
-      
+
       addTearDown(tester.view.resetPhysicalSize);
-    }, skip: true); // Skipping due to Stack Overflow in Unmount (Environment Issue)
+    },
+        skip:
+            true); // Skipping due to Stack Overflow in Unmount (Environment Issue)
   });
 }

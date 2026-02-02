@@ -1,14 +1,31 @@
-/* eslint-disable @typescript-eslint/no-explicit-any */
 import { Link } from 'react-router-dom';
-import { usePaginatedQuestions, useDeleteQuestion, useBulkDeleteQuestions, useBulkUpdateQuestionsStatus, useDuplicateQuestion, useUpdateQuestionOrder } from '../hooks/use-questions';
+import { 
+    usePaginatedQuestions, 
+    useDeleteQuestion, 
+    useBulkDeleteQuestions, 
+    useBulkUpdateQuestionsStatus, 
+    useDuplicateQuestion, 
+    useUpdateQuestionOrder 
+} from '../hooks/use-questions';
 import { useSkills } from '../hooks/use-skills';
 import { useState, useEffect, useMemo } from 'react';
 import { useToast } from '@/hooks/use-toast';
 import { Pagination } from '@/components/ui/pagination';
 import { SortableHeader } from '@/components/ui/sortable-header';
 import { DataToolbar } from '@/components/ui/data-toolbar';
+import { Button } from '@/components/ui/button';
 import type { DataColumn } from '@/lib/data-utils';
-import { Plus, CheckSquare, Square, Search, X, Trash, FileText, GripVertical } from 'lucide-react';
+import {
+  Plus,
+  Search,
+  X,
+  GripVertical,
+  Sparkles,
+  CheckSquare,
+  Square,
+  Trash,
+  FileText
+} from 'lucide-react';
 
 const QUESTION_COLUMNS: DataColumn[] = [
     { key: 'content', header: 'content' },
@@ -508,28 +525,34 @@ export function QuestionList() {
 
     return (
         <div className="space-y-4 md:space-y-6">
-            <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
+            <div className="flex flex-col sm:flex-row gap-4 mb-6 justify-between items-start sm:items-center">
                 <div>
-                    <h2 className="text-2xl md:text-3xl font-bold text-gray-900">Questions</h2>
-                    <p className="mt-1 text-sm md:text-base text-gray-500">Manage curriculum questions</p>
+                    <h1 className="text-2xl font-bold tracking-tight">Questions</h1>
+                    <p className="text-muted-foreground">Manage curriculum questions and assessments</p>
                 </div>
-                <div className="flex flex-col gap-2 sm:flex-row sm:items-center">
-                    <DataToolbar
-                        data={questions as any[]}
-                        columns={QUESTION_COLUMNS}
-                        entityName="Questions"
-                        importDisabled={true}
-                        importDisabledMessage="Question import is not available. Please create questions manually."
-                    />
-                    <Link
-                        to="/questions/new"
-                        className="inline-flex items-center justify-center gap-2 px-5 py-3 min-h-[48px] bg-gradient-to-r from-purple-600 to-blue-600 hover:from-purple-700 hover:to-blue-700 text-white font-medium rounded-xl transition-all duration-200 shadow-lg hover:shadow-xl w-full sm:w-auto"
-                    >
-                        <Plus className="h-5 w-5" />
-                        <span>New Question</span>
+                <div className="flex gap-2">
+                    <Link to="/questions/ai-generator">
+                        <Button variant="outline" className="gap-2 bg-gradient-to-r from-purple-50 to-blue-50 border-purple-200 text-purple-700 hover:bg-purple-100">
+                            <Sparkles className="h-4 w-4" />
+                            AI Generator
+                        </Button>
+                    </Link>
+                    <Link to="/questions/new">
+                        <Button>
+                            <Plus className="h-4 w-4 mr-2" />
+                            Add Question
+                        </Button>
                     </Link>
                 </div>
             </div>
+
+            <DataToolbar
+                data={questions as any[]}
+                columns={QUESTION_COLUMNS}
+                entityName="Questions"
+                importDisabled={false}
+                importDisabledMessage="Question import is not available. Please create questions manually."
+            />
 
             <div className="bg-white rounded-2xl shadow-sm border border-gray-100 p-3 md:p-4">
                 <div className="space-y-3 md:space-y-4 mb-4">

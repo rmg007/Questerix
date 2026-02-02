@@ -5,7 +5,7 @@ import { Header } from '../components/Header';
 type SubjectData = Database['public']['Tables']['subjects']['Row'];
 
 export const SubjectHubPage = ({ subject }: { subject: SubjectData | null }) => {
-  const color = subject?.color_hex || '#3B82F6';
+  // Color available for future theming: subject?.color_hex || '#3B82F6'
   
   return (
     <div className="min-h-screen bg-white font-sans text-gray-900 selection:bg-blue-100 selection:text-blue-900">
@@ -89,9 +89,3 @@ export const SubjectHubPage = ({ subject }: { subject: SubjectData | null }) => 
     </div>
   );
 };
-
-function getOrdinal(n: number) {
-  const s = ["th", "st", "nd", "rd"];
-  const v = n % 100;
-  return s[(v - 20) % 10] || s[v] || s[0];
-}

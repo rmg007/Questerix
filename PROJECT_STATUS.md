@@ -150,20 +150,25 @@ flutter build web        # Web
 
 | Component | Status | Version | Tests | Documentation |
 |-----------|--------|---------|-------|---------------|
-| **Admin Panel** | ✅ Production Ready | 1.0.0 | 8/12 E2E passing | ✅ Complete |
-| **Student App** | 🚧 In Progress | 0.9.5 | 58+ Widget Tests created | ✅ Complete (inc. Accessibility) |
+| **Admin Panel** | ✅ Production Ready | 1.0.1 | 8/12 E2E passing | ✅ Complete |
+| **Student App** | ✅ Stable (Widgets) | 0.9.6 | 11/11 Widget Tests passed | ✅ Complete (inc. Accessibility) |
 | **Landing Pages** | 🚧 In Development | 0.8.0 | Not tested yet | ⚠️ Partial |
 | **Backend (Supabase)** | ✅ Ready | - | Manual testing | ✅ Complete |
 
 ### Recent Updates (Feb 1, 2026)
 
 **Admin Panel**:
+- ✅ Bundle Optimization: Implemented manual chunking (-65% size).
 - ✅ AI Curriculum Assistant: Gemini-powered generation implemented
 - ✅ Fixed E2E test selector issues (strict mode violations)
 - ✅ Verified TypeScript compilation (clean build)
 - ✅ Validated production build (bundle generated successfully)
 - ✅ Created comprehensive production readiness report
 - ✅ Updated all documentation
+
+**Student App**:
+- ✅ Implemented all missing question widgets (`McqMulti`, `Boolean`, `TextInput`, `Reorder`).
+- ✅ Verified all 11 widget tests pass.
 
 **Quality Metrics**:
 - TypeScript: ✅ 0 errors

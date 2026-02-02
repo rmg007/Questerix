@@ -35,6 +35,8 @@ void main() {
     when(() => mockSkillProgressRepository.getPointsForDomain(any()))
         .thenAnswer((_) async => 100);
         
+    when(() => mockSyncService.sync()).thenAnswer((_) async {});
+    
     // Default stub for SkillsScreen loading
     when(() => mockSkillRepository.watchByDomain(any()))
           .thenAnswer((_) => const Stream.empty());

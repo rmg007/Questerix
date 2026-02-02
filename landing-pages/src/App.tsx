@@ -1,7 +1,15 @@
+import { BrowserRouter, Routes, Route } from 'react-router-dom';
 import { useState, useEffect, useCallback } from 'react';
 import { RootPage } from './pages/RootPage';
 import { SubjectHubPage } from './pages/SubjectHubPage';
 import { GradeLandingPage } from './pages/GradeLandingPage';
+import { AboutPage } from './pages/AboutPage';
+import { HowItWorksPage } from './pages/HowItWorksPage';
+import { DownloadIOSPage } from './pages/DownloadIOSPage';
+import { DownloadAndroidPage } from './pages/DownloadAndroidPage';
+import { PrivacyPage } from './pages/PrivacyPage';
+import { TermsPage } from './pages/TermsPage';
+import { CookiesPage } from './pages/CookiesPage';
 import { supabase } from './lib/supabase';
 import type { Database } from './lib/database.types';
 
@@ -27,11 +35,9 @@ const getInitialSubdomain = () => {
   return null;
 };
 
-function App() {
+function HomePage() {
   const [view, setView] = useState<'root' | 'subject' | 'grade'>('root');
   const [data, setData] = useState<AppData | SubjectData | null>(null);
-  
-  // Initialize loading based on whether we have a subdomain to check
   const [loading, setLoading] = useState(() => !!getInitialSubdomain());
 
   const handleSubdomain = useCallback(async (subdomain: string) => {
@@ -72,14 +78,12 @@ function App() {
       }
 
       console.log('No match found for subdomain. Defaulting to root.');
-      // If nothing found, maybe show 404 or redirect to root
       setLoading(false);
   }, []);
 
   useEffect(() => {
     const subdomain = getInitialSubdomain();
     if (subdomain) {
-      // eslint-disable-next-line
       handleSubdomain(subdomain);
     }
   }, [handleSubdomain]);
@@ -93,6 +97,23 @@ function App() {
   if (view === 'grade') return <GradeLandingPage app={data as AppData} />;
   if (view === 'subject') return <SubjectHubPage subject={data as SubjectData} />;
   return <RootPage />;
+}
+
+function App() {
+  return (
+    <BrowserRouter>
+      <Routes>
+        <Route path="/" element={<HomePage />} />
+        <Route path="/about" element={<AboutPage />} />
+        <Route path="/how-it-works" element={<HowItWorksPage />} />
+        <Route path="/download/ios" element={<DownloadIOSPage />} />
+        <Route path="/download/android" element={<DownloadAndroidPage />} />
+        <Route path="/privacy" element={<PrivacyPage />} />
+        <Route path="/terms" element={<TermsPage />} />
+        <Route path="/cookies" element={<CookiesPage />} />
+      </Routes>
+    </BrowserRouter>
+  );
 }
 
 export default App;

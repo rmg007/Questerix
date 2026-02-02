@@ -16,7 +16,7 @@ export const Header = () => {
         
         {/* Desktop Navigation */}
         <nav className="hidden md:flex items-center gap-8">
-          <a href="#" className="text-sm font-medium text-gray-600 hover:text-blue-600 transition-colors">Methodology</a>
+          <a href="/how-it-works" className="text-sm font-medium text-gray-600 hover:text-blue-600 transition-colors">How It Works</a>
           <a href="/#subjects" className="text-sm font-medium text-gray-600 hover:text-blue-600 transition-colors">Subjects</a>
           <div className="h-6 w-px bg-gray-200 mx-2"></div>
           <a href="http://localhost:3000" className="text-sm font-medium text-gray-900 hover:text-blue-600 transition-colors">Log in</a>
@@ -44,7 +44,7 @@ export const Header = () => {
           <div className="md:hidden absolute top-20 left-0 w-full bg-white border-b border-gray-100 shadow-xl animate-fade-in-down h-[calc(100vh-80px)] overflow-y-auto">
             <div className="p-6 flex flex-col gap-6">
               <div className="flex flex-col gap-4">
-                <a href="#" onClick={() => setIsMenuOpen(false)} className="text-lg font-medium text-gray-900 hover:text-blue-600 transition-colors">Methodology</a>
+                <a href="/how-it-works" onClick={() => setIsMenuOpen(false)} className="text-lg font-medium text-gray-900 hover:text-blue-600 transition-colors">How It Works</a>
                 <a 
                   href="/#subjects" 
                   onClick={() => setIsMenuOpen(false)}
@@ -58,10 +58,10 @@ export const Header = () => {
               
               <div className="flex flex-col gap-3">
                  <span className="text-xs font-semibold text-gray-400 uppercase tracking-wider">Get the App</span>
-                 <a href="#" className="flex items-center gap-2 text-gray-600 hover:text-blue-600 font-medium">
+                 <a href="/download/ios" onClick={() => setIsMenuOpen(false)} className="flex items-center gap-2 text-gray-600 hover:text-blue-600 font-medium">
                    Download for iOS
                  </a>
-                 <a href="#" className="flex items-center gap-2 text-gray-600 hover:text-blue-600 font-medium">
+                 <a href="/download/android" onClick={() => setIsMenuOpen(false)} className="flex items-center gap-2 text-gray-600 hover:text-blue-600 font-medium">
                    Download for Android
                  </a>
               </div>

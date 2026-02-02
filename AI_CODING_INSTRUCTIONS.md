@@ -19,6 +19,7 @@ If two sources conflict, follow the highest-ranked source.
 - Command whitelists are defined in `.cursorrules`.
 - You are authorized to use any command pattern defined in these files.
 - If a command fails due to permission, check if it matches a `// turbo` pattern in `autopilot.md` and adjust the syntax to match the whitelist exactly.
+- **IDE Requirement**: Antigravity IDE must have "Terminal execution policy" set to "Turbo" for autonomous execution to work. See `.agent/workflows/autopilot.md` for setup instructions.
 
 ### Autonomous Task Finalization
 - You must follow the **Autonomous Task Finalization** protocol defined in `AGENTS.md` before marking any task as complete.

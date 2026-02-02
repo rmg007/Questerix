@@ -14,6 +14,32 @@ No command requires user approval when this workflow is active.
 
 ---
 
+## ⚠️ REQUIRED IDE SETUP (One-Time Configuration)
+
+**IMPORTANT**: For autonomous execution to work, you MUST configure Antigravity IDE:
+
+### Step 1: Enable Turbo Mode in Antigravity IDE
+
+1. Open **Settings** (`Ctrl + ,` or `Cmd + ,`)
+2. Navigate to the **Agent** tab/section
+3. Find **"Terminal execution policy"** or **"Terminal Command Auto Execution"**
+4. Set it to **"Turbo"**
+
+### Step 2: Verify Configuration
+
+After enabling Turbo mode:
+- The agent will execute commands with `SafeToAutoRun: true` without prompting
+- No confirmation dialogs should appear for terminal commands
+- Commands execute immediately upon agent request
+
+### Technical Notes
+
+- The `// turbo-all` directive in workflow files tells the agent to use `SafeToAutoRun: true`
+- The IDE's Terminal Execution Policy controls whether the IDE honors this flag
+- Both layers must be configured for full autonomous execution
+
+---
+
 // turbo-all
 ## ABSOLUTE UNIVERSAL CATCH-ALL
 

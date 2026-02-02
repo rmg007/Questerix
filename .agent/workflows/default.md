@@ -18,6 +18,9 @@ The `// turbo-all` directive above means:
 - User approval is NEVER required
 - The agent has complete operational autonomy
 
+> **Note**: Requires Antigravity IDE Terminal Execution Policy set to "Turbo".
+> See `/autopilot` workflow for detailed setup instructions.
+
 ---
 
 // turbo-all

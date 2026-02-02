@@ -422,17 +422,115 @@ student-app/
 8. **Follow Drift best practices** for database queries (use indexes, batch operations)
 9. **Handle offline scenarios** gracefully in mobile app
 10. **Use semantic versioning** for releases
+11. **Use semantic widgets** for accessibility - wrap UI elements with `SemanticButton`, `SemanticCard`, etc.
+12. **Test with screen readers** when adding new UI features
+
+## Accessibility Features
+
+The student app implements comprehensive accessibility features to ensure inclusive learning for all students. The implementation targets WCAG 2.1 AA compliance.
+
+### Features Implemented
+
+#### 1. **High Contrast Mode**
+- Automatic detection of system high contrast setting
+- WCAG AAA compliant color palettes (7:1 contrast ratio)
+- Pure black/white themes with highly saturated accent colors
+- Separate themes for light and dark modes
+- Implementation: `lib/src/core/theme/app_theme.dart`
+
+#### 2. **Screen Reader Support**
+- Comprehensive semantic labels throughout the UI
+- Proper ARIA-like annotations using Flutter's `Semantics` widget
+- Custom semantic widgets for common patterns:
+  - `SemanticButton` - Interactive buttons with labels and hints
+  - `SemanticIcon` - Icons with descriptions (decorative icons excluded)
+  - `SemanticImage` - Images with alt text
+  - `SemanticCard` - Cards with header/button announcements
+  - `SemanticTextField` - Form fields with labels and hints
+  - `SemanticProgressIndicator` - Progress with percentage announcements
+- Implementation: `lib/src/core/accessibility/semantic_widgets.dart`
+
+#### 3. **Reduced Motion Support**
+- Detects system reduce motion preference
+- Automatically disables or shortens animations
+- Respects user's motion sensitivity
+- Implementation: `AccessibilityService.getAnimationDuration()`
+
+#### 4. **Text Scaling**
+- Full support for user-configured text scale
+- Uses Flutter's `TextScaler` API (not deprecated `textScaleFactor`)
+- Layouts adapt to large text sizes
+- Minimum touch targets of 48x48dp maintained
+
+#### 5. **Keyboard Navigation**
+- Focus management for all interactive elements
+- Logical tab order throughout the app
+- Visual focus indicators
+- Implementation: Built into Flutter's Material Design widgets
+
+### Accessibility Service
+
+The `AccessibilityService` provides a centralized way to detect and respond to system accessibility settings:
+
+```dart
+// Detect high contrast mode
+bool isHighContrast = AccessibilityService.isHighContrastEnabled(context);
+
+// Detect screen reader
+bool hasScreenReader = AccessibilityService.isScreenReaderEnabled(context);
+
+// Get appropriate animation duration
+Duration duration = AccessibilityService.getAnimationDuration(
+  context,
+  normal: Duration(milliseconds: 300),
+);
+
+// Quick semantic wrapper
+Widget semantic = AccessibilityService.withSemantics(
+  child: myWidget,
+  label: 'Descriptive label',
+  hint: 'What happens when activated',
+);
+```
+
+### Testing Accessibility
+
+**Automated Tests:**
+- Run `flutter test test/core/accessibility/accessibility_test.dart`
+- Tests cover semantic widgets, settings detection, and animation behavior
+
+**Manual Testing:**
+- **iOS**: Enable VoiceOver in Settings → Accessibility
+- **Android**: Enable TalkBack in Settings → Accessibility  
+- **High Contrast**: Enable in system display settings
+- **Text Scaling**: Adjust in system display/accessibility settings
+
+###  Compliance
+
+- **WCAG 2.1 Level AA**: Target compliance level
+- **Color Contrast**: AAA for high-contrast themes (7:1), AA for standard themes (4.5:1)
+- **Touch Targets**: Minimum 48x48dp for all interactive elements
+- **Focus Indicators**: Visible focus states on all focusable elements
+- **Screen Reader**: Full semantic tree for navigation
+
+### Resources
+
+- [WCAG 2.1 Guidelines](https://www.w3.org/WAI/WCAG21/quickref/)
+- [Flutter Accessibility](https://docs.flutter.dev/development/accessibility-and-localization/accessibility)
+- [Material Design Accessibility](https://m3.material.io/foundations/accessible-design/overview)
+
 
 ## Next Steps
 
 - [x] Implement user authentication (Age-Gated, Email-only)
+- [x] Add accessibility features (screen reader support, high contrast mode, keyboard navigation)
 - [ ] Add progress analytics dashboard
 - [ ] Implement adaptive learning algorithm
 - [ ] Add more question types (graphing, word problems)
 - [ ] Implement social features (leaderboards, challenges)
 - [ ] Add parent/teacher portal
 - [ ] Implement push notifications for practice reminders
-- [ ] Add accessibility features (screen reader support, high contrast mode)
+
 
 ## Resources
 

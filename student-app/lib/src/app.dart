@@ -40,8 +40,12 @@ class _Math7AppState extends ConsumerState<Math7App> {
     return MaterialApp(
       title: 'Math7',
       debugShowCheckedModeBanner: false,
-      theme: AppTheme.light(textScale: settings.textScale),
-      darkTheme: AppTheme.dark(textScale: settings.textScale),
+      theme: _getTheme(context, settings, false),
+      darkTheme: _getTheme(context, settings, true),
+      highContrastTheme:
+          _getTheme(context, settings, false, highContrast: true),
+      highContrastDarkTheme:
+          _getTheme(context, settings, true, highContrast: true),
       themeMode: settings.darkMode ? ThemeMode.dark : ThemeMode.light,
       home: session != null
           ? _AuthenticatedHome(
@@ -54,6 +58,25 @@ class _Math7AppState extends ConsumerState<Math7App> {
             )
           : const WelcomeScreen(),
     );
+  }
+
+  ThemeData _getTheme(
+    BuildContext context,
+    dynamic settings,
+    bool isDark, {
+    bool highContrast = false,
+  }) {
+    final textScale = settings.textScale ?? 1.0;
+
+    if (highContrast) {
+      return isDark
+          ? AppTheme.highContrastDark(textScale: textScale)
+          : AppTheme.highContrastLight(textScale: textScale);
+    }
+
+    return isDark
+        ? AppTheme.dark(textScale: textScale)
+        : AppTheme.light(textScale: textScale);
   }
 
   void _showConnectivitySnackbar(

@@ -42,15 +42,20 @@ This workflow governs the entire development cycle from idea to deployment. It e
 
 ---
 
-## 🧪 Phase 3: Verification & QA Loop (Testing)
-**Goal**: Zero-bug status through rigorous automation.
+## 🧪 Phase 3: Verification & Quality Audit
+**Goal**: Zero-bug status and premium visual fidelity.
 
 1.  **Test Creation**: Write unit/integration/E2E tests as specified in the plan.
 2.  **QA Loop**: Run tests. If any fail, fix the code and re-run.
-3.  **Repeat**: Loop until **100% of tests pass**.
-4.  **Evidence**: Provide a summary of passed tests (pass/fail counts).
+3.  **Visual Design Audit (If UI changed)**:
+    *   **Visual Inspection**: Use `browser_subagent` to capture screenshots of all modified screens.
+    *   **Premium Critique**: Review for "Wow" factor: check gradients, glassmorphism, spacing consistency, and modern typography.
+    *   **UX Fidelity**: Verify smooth transitions, responsive layouts, and intuitive button placement.
+    *   **Accessibility Check**: Ensure contrast ratios and screen reader labels meet standards.
+4.  **Repeat**: Loop until **100% of tests pass** and **Visuals are Premium**.
+5.  **Evidence**: Provide a summary of passed tests (pass/fail counts) and **attach visual proof** (screenshots).
 
-**EXIT GATE**: 100% Test Success.
+**EXIT GATE**: 100% Test Success and Visual Design Approved.
 
 ---
 

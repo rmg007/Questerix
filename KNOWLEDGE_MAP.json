@@ -1,0 +1,19 @@
+{
+  "version": "1.0.0",
+  "description": "Bootstrap configuration for AI agent knowledge access",
+  "documentation_repo": "C:\\Users\\mhali\\OneDrive\\Desktop\\Important Projects\\Questerix-Docs-Backup",
+  "documentation_repo_url": "https://github.com/rmg007/Questerix-Docs-Backup.git",
+  "index_file": "llms.txt",
+  "schema_file": "SCHEMA.yml",
+  "usage": {
+    "first_read": "llms.txt",
+    "validate_frontmatter": "scripts/validate-frontmatter.ps1",
+    "regenerate_index": "scripts/generate-llms-txt.ps1"
+  },
+  "priority_docs": [
+    "prompts/antigravity-rules.md",
+    "infrastructure/deployment-pipeline.md",
+    "security/rls-policies.md"
+  ],
+  "last_updated": "2026-02-03T05:54:00Z"
+}

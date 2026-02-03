@@ -26,7 +26,27 @@ This workflow governs the entire development cycle from idea to deployment. It e
 
 ---
 
-## 🛠️ Phase 2: Implementation & Quality Loop (Recursive)
+## 🏗️ Phase 2: Database & Schema Evolution
+**Goal**: Secure, typed, and verified data foundation.
+
+1.  **Migration Execution**: 
+    *   Write and apply SQL migrations (`supabase db push` or equivalent).
+    *   Ensure all constraints (Unique, Foreign Key, Check) match the plan.
+2.  **RLS & Multi-Tenant Audit**:
+    *   Implement/Update Row Level Security policies.
+    *   **Verification**: Run SQL checks to ensure `app_id` isolation is enforced.
+3.  **Type Synchronization**:
+    *   **TypeScript**: Run `supabase gen types typescript` to update frontend interfaces.
+    *   **Dart**: Update models/mappers in `questerix_domain` or `student-app` to match schema.
+4.  **Seed Data Integrity**:
+    *   Apply/Update `seed.sql` with realistic data.
+    *   Verify that no constraint violations occur during ingestion.
+
+**EXIT GATE**: Schema applied, RLS verified, and Types synchronized.
+
+---
+
+## 🛠️ Phase 3: Implementation & Quality Loop (Recursive)
 **Goal**: Deliver clean, functional code that matches the plan.
 
 1.  **Execute**: Implement the approved plan in small, logical chunks.
@@ -49,7 +69,7 @@ This workflow governs the entire development cycle from idea to deployment. It e
 
 ---
 
-## 🧪 Phase 3: Verification & Quality Audit
+## 🧪 Phase 4: Verification & Quality Audit
 **Goal**: Zero-bug status, premium visual fidelity, and enterprise-grade safety.
 
 1.  **Test Creation**: Write unit/integration/E2E tests as specified in the plan.
@@ -73,7 +93,7 @@ This workflow governs the entire development cycle from idea to deployment. It e
 
 ---
 
-## 📝 Phase 4: Finalization (Learning & Docs)
+## 📝 Phase 5: Finalization (Learning & Docs)
 **Goal**: Capture knowledge and update the Single Source of Truth.
 
 1.  **Postmortem**: Complete the Bug Learning Loop for any issues caught during development.
@@ -87,7 +107,7 @@ This workflow governs the entire development cycle from idea to deployment. It e
 
 ---
 
-## 🚀 Phase 5: Release (Deployment)
+## 🚀 Phase 6: Release (Deployment)
 **Goal**: Secure and verified deployment.
 
 1.  **Prompt**: Ask the USER: *"Would you like to deploy? If so, which application (Admin Panel / Student App / Landing Pages)?"*

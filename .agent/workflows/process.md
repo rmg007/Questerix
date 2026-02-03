@@ -23,6 +23,7 @@ This workflow governs the entire development cycle from idea to deployment. It e
 7.  **Final Blueprint**: Produce a detailed Implementation Plan once consensus is reached.
 
 **EXIT GATE**: USER gives explicit approval to proceed.
+> **IMPORTANT**: Once approved, **PROCEED AUTONOMOUSLY** through Phases 2, 3, 4, and 5. Do not stop to ask for permission again until the final "Task Finished" announcement.
 
 ---
 
@@ -115,3 +116,11 @@ This workflow governs the entire development cycle from idea to deployment. It e
 3.  **Verify**: Perform a post-deployment smoke test.
 
 **EXIT GATE**: Deployment successful or USER declined.
+
+---
+
+## ✅ Task Completion
+**Goal**: Announce success.
+
+1.  **Announcement**: State clearly: **"We have finished this task."**
+2.  **Summary**: Provide a brief recap of what was achieved (Features, Tests Passed, Docs Updated).

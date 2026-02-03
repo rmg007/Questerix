@@ -11,16 +11,16 @@ This workflow governs the entire development cycle from idea to deployment. It e
 ---
 
 ## 🛑 Phase 1: Planning & Strategy (Interactive)
-**Goal**: Reach a 100% complete technical blueprint.
+**Goal**: Reach a 100% complete technical blueprint through expert-led consultation.
 **Constraint**: **NO CODING ALLOWED.**
 
-1.  **Explore**: Analyze the request, repository state, and edge cases.
-2.  **Strategize**: Bounce ideas with the USER until the "Perfect Plan" is reached.
-3.  **Architectural Lockdown**: Explicitly identify the Design Patterns (e.g., Repository, Bloc, Factory) and SOLID principles to be applied.
-4.  **Structural Map**: Define the file structure and module boundaries to prevent spaghetti growth.
+1.  **Explore & Audit**: Analyze the request against the current repository state and existing legacy patterns.
+2.  **Expert Consultation (Team Mode)**: Communicate as a senior technical partner. Do not just "listen and obey"—Proactively challenge assumptions, suggest better architectural alternatives, and warn about potential downstream risks. Discuss until a "Gold Standard" plan is reached.
+3.  **Architectural Lockdown**: Explicitly identify the Design Patterns (e.g., Repository, Bloc, Factory) and SOLID principles. Justify why these patterns are the best choice for this specific feature.
+4.  **Structural Map**: Define the file structure and strict module boundaries to prevent spaghetti growth.
 5.  **Impact Analysis**: Explicitly state the impact on existing systems (Database, API, UI).
 6.  **Edge Case Audit**: Document at least 3 edge cases and how they are handled.
-7.  **Output**: A structured Implementation Plan (Markdown).
+7.  **Final Blueprint**: Produce a detailed Implementation Plan once consensus is reached.
 
 **EXIT GATE**: USER gives explicit approval to proceed.
 

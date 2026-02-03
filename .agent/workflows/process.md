@@ -16,23 +16,29 @@ This workflow governs the entire development cycle from idea to deployment. It e
 
 1.  **Explore**: Analyze the request, repository state, and edge cases.
 2.  **Strategize**: Bounce ideas with the USER until the "Perfect Plan" is reached.
-3.  **Impact Analysis**: Explicitly state the impact on existing systems (Database, API, UI).
-4.  **Edge Case Audit**: Document at least 3 edge cases and how they are handled.
-5.  **Output**: A structured Implementation Plan (Markdown).
+3.  **Architectural Lockdown**: Explicitly identify the Design Patterns (e.g., Repository, Bloc, Factory) and SOLID principles to be applied.
+4.  **Structural Map**: Define the file structure and module boundaries to prevent spaghetti growth.
+5.  **Impact Analysis**: Explicitly state the impact on existing systems (Database, API, UI).
+6.  **Edge Case Audit**: Document at least 3 edge cases and how they are handled.
+7.  **Output**: A structured Implementation Plan (Markdown).
 
 **EXIT GATE**: USER gives explicit approval to proceed.
 
 ---
 
-## 🛠️ Phase 2: Implementation & Fix Loop (Recursive)
+## 🛠️ Phase 2: Implementation & Quality Loop (Recursive)
 **Goal**: Deliver clean, functional code that matches the plan.
 
 1.  **Execute**: Implement the approved plan in small, logical chunks.
-2.  **Self-Review**: After each chunk, run static analysis and "hallucination check."
-3.  **Fix Loop**: If errors or inconsistencies are found, fix them immediately.
-4.  **Repeat**: Loop until all planned features are implemented and the Agent is 100% confident.
+2.  **Quality Enforcement**:
+    *   **Separation of Concerns**: Keep business logic out of UI files.
+    *   **DRY & SOLID**: Refactor redundant logic into shared utilities or base classes.
+    *   **Readability**: Use descriptive naming and avoid deep nesting (>3 levels).
+3.  **Self-Review**: After each chunk, run static analysis and "hallucination check."
+4.  **Fix Loop**: If errors, inconsistencies, or "spaghetti smells" are found, fix them immediately.
+5.  **Repeat**: Loop until all planned features are implemented and the Agent is 100% confident.
 
-**EXIT GATE**: All code implemented and self-reviewed.
+**EXIT GATE**: All code implemented, refactored for quality, and self-reviewed.
 
 ---
 

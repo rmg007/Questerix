@@ -113,25 +113,50 @@ Validation runs write logs to:
 - **Supabase start failures**: ensure Docker is running and has enough free disk.
 - **Ports/hosts**: dev servers are expected to bind to `0.0.0.0` (not `localhost`) per the repo contract.
 
-## 🤖 Agent Workflows (Autonomous Development)
+## 🤖 Agent Workflows (Trust & Verify System)
 
-This project is configured with **Agentic Workflows** that allow AI assistants to perform complex tasks autonomously.
+This project uses an **evidence-based workflow system** that forces the AI to prove its work at specific checkpoints.
 
-### `/autopilot`
-**Purpose:** Full autonomy for build, fix, and maintenance tasks.
-**Capabilities:**
-- Auto-runs commands for Flutter, npm, git, and Supabase.
-- Self-healing process management (kills stuck ports/processes).
-- Code formatting and auto-fixing.
+### Quick Reference
 
-### `/test`
-**Purpose:** Enterprise-Grade Quality Assurance (QA).
-**Strategy:**
-1.  **Fast Gates:** Static Analysis (Lint/Format).
-2.  **Logic Verification:** Unit tests for Business Logic.
-3.  **Integration (Mobile):** Verifies "Offline-First" Sync (Drift <-> Supabase).
-4.  **E2E (Admin):** Playwright tests for the Web Dashboard.
-5.  **Visual Check:** Manual/Agentic verification of UI/UX.
+| Command | Purpose | When to Use |
+|---------|---------|-------------|
+| `/help` | Show all workflows | When you forget commands |
+| `/intake` | Define problem + criteria | Start of any task |
+| `/plan` | Create implementation plan | Before complex work |
+| `/implement` | Execute code changes | The work phase |
+| `/verify` | Run tests + lint + analyze | **Required before commit** |
+| `/docs` | Update documentation | Only if needed |
+| `/pr` | Generate PR description | Before creating PR |
+| `/postmortem` | Learn from bugs | After any bug fix |
+| `/blocked` | Report blockers | When stuck |
+| `/resume` | Continue previous work | New session |
+
+### Typical Workflow Patterns
+
+**Simple Bug Fix:**
+```
+/implement → /verify → /pr
+```
+
+**Standard Feature:**
+```
+/intake → /plan → /implement → /verify → /docs → /pr
+```
+
+**After Production Bug:**
+```
+/postmortem (add regression test + lesson learned)
+```
+
+### Legacy Workflows (Still Available)
+
+| Command | Purpose |
+|---------|---------|
+| `/autopilot` | Full autonomous execution mode |
+| `/test` | Enterprise QA suite (7 phases) |
+
+See `.agent/workflows/*.md` for detailed workflow instructions.
 
 ## 🧪 Testing Strategy
 

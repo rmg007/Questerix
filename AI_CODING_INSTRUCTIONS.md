@@ -25,6 +25,24 @@ If two sources conflict, follow the highest-ranked source.
 - You must follow the **Autonomous Task Finalization** protocol defined in `AGENTS.md` before marking any task as complete.
 - This includes mandatory testing, refactoring, and documentation updates without asking for permission.
 
+### Workflow Slash Commands (Trust & Verify System)
+Use these commands for structured task execution:
+
+| Command | Purpose |
+|---------|---------|
+| `/help` | Show all available workflows |
+| `/intake` | Define problem + acceptance criteria |
+| `/plan` | Create implementation plan |
+| `/implement` | Execute code changes with evidence |
+| `/verify` | Run tests + lint + analyze (REQUIRED) |
+| `/docs` | Update documentation minimally |
+| `/pr` | Generate PR description |
+| `/postmortem` | Learn from bugs |
+| `/blocked` | Report blockers |
+| `/resume` | Continue previous work |
+
+**Evidence Requirement**: Every workflow completion MUST include file paths, commands executed, and test results. See `.agent/workflows/*.md` for details.
+
 ### Run/test contract
 
 - Use the `Makefile` targets whenever possible.

@@ -18,6 +18,9 @@ The Questerix project uses a consolidated **Unified Lifecycle** to ensure high-v
 
 ## 🛠️ Utility Workflows
 
+### `/certify` - Independent Quality Audit
+Run this AFTER `/process` completes to verify everything with fresh eyes. Acts as an independent inspector that re-checks database, code quality, security, tests, performance, and UX. Produces a certification report.
+
 ### `/autopilot` - Full Autonomous Execution
 Enables the AI to run commands and solve complex multi-step problems without constant prompting.
 

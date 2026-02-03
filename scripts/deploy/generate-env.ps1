@@ -57,6 +57,10 @@ VITE_APP_VERSION=$(Resolve-Template $config.admin.VITE_APP_VERSION $config)
 VITE_APP_NAME=$(Resolve-Template $config.admin.VITE_APP_NAME $config)
 VITE_SUPABASE_URL=$(Resolve-Template $config.admin.VITE_SUPABASE_URL $config)
 VITE_SUPABASE_ANON_KEY=$(Resolve-Template $config.admin.VITE_SUPABASE_ANON_KEY $config)
+
+if ([string]::IsNullOrWhiteSpace($config.admin.VITE_SUPABASE_URL) -or $config.admin.VITE_SUPABASE_URL -eq '""') { Write-Error "CRITICAL: VITE_SUPABASE_URL is empty in master-config.json"; exit 1 }
+if ([string]::IsNullOrWhiteSpace($config.admin.VITE_SUPABASE_ANON_KEY) -or $config.admin.VITE_SUPABASE_ANON_KEY -eq '""') { Write-Error "CRITICAL: VITE_SUPABASE_ANON_KEY is empty in master-config.json"; exit 1 }
+
 VITE_ENABLE_OFFLINE_MODE=$(Resolve-Template $config.admin.VITE_ENABLE_OFFLINE_MODE $config)
 VITE_ANALYTICS_ID=$(Resolve-Template $config.admin.VITE_ANALYTICS_ID $config)
 VITE_GEMINI_API_KEY=$(Resolve-Template $config.admin.VITE_GEMINI_API_KEY $config)

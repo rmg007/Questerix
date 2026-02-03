@@ -9,6 +9,7 @@ import { Input } from "@/components/ui/input"
 import { Card, CardHeader, CardTitle, CardDescription, CardContent, CardFooter } from "@/components/ui/card"
 import { Label } from "@/components/ui/label"
 import { Rocket, Loader2, AlertCircle } from "lucide-react"
+import { SecurityLogger } from "@/services/SecurityLogger"
 
 const loginSchema = z.object({
   email: z.string().email("Please enter a valid email"),
@@ -40,14 +41,20 @@ export function LoginPage() {
 
   const onLogin = async (data: LoginFormValues) => {
     setError(null)
-    const { error } = await supabase.auth.signInWithPassword({
+    const { data: authData, error } = await supabase.auth.signInWithPassword({
       email: data.email,
       password: data.password,
     })
 
     if (error) {
       setError(error.message)
+      SecurityLogger.log({
+        eventType: 'failed_login',
+        severity: 'low',
+        metadata: { email: data.email, reason: error.message }
+      });
     } else {
+      await SecurityLogger.logLogin(authData.user.id);
       navigate("/")
     }
   }
@@ -63,10 +70,15 @@ export function LoginPage() {
     
     if (validateError || !isValid) {
       setError("Invalid or expired invitation code")
+      SecurityLogger.log({
+          eventType: 'failed_register_invite',
+          severity: 'medium',
+          metadata: { email: data.email, inviteCode: data.inviteCode }
+      });
       return
     }
     
-    const { error: signUpError } = await supabase.auth.signUp({
+    const { data: signUpData, error: signUpError } = await supabase.auth.signUp({
       email: data.email,
       password: data.password,
       options: {
@@ -80,7 +92,20 @@ export function LoginPage() {
 
     if (signUpError) {
       setError(signUpError.message)
+      SecurityLogger.log({
+          eventType: 'failed_register',
+          severity: 'low',
+          metadata: { email: data.email, reason: signUpError.message }
+      });
       return
+    }
+
+    if (signUpData.user) {
+         await SecurityLogger.log({
+            eventType: 'register',
+            severity: 'info',
+            metadata: { email: data.email, inviteCode: data.inviteCode, userId: signUpData.user.id }
+         });
     }
 
     // Mark invitation code as used

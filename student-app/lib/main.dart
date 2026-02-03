@@ -11,17 +11,9 @@ void main() async {
 
   // Validate environment configuration early (fail-fast)
   // In debug mode, this will throw if SUPABASE_URL or SUPABASE_ANON_KEY are missing
-  try {
-    Env.validate();
-  } catch (e) {
-    // In debug builds, show a helpful error
-    debugPrint('⚠️ Environment validation failed: $e');
-    debugPrint('📋 Current configuration: ${Env.summary}');
-    // Continue anyway in debug mode for local development
-    if (Env.isProduction) {
-      rethrow;
-    }
-  }
+  // Validate environment configuration immediately.
+  // Fail-fast if configuration is missing to prevent "silent" failures.
+  Env.validate();
 
   // If Sentry is not enabled (or no DSN), run normally.
   if (!Env.sentryEnabled || Env.sentryDsn.isEmpty) {
@@ -53,14 +45,10 @@ void main() async {
 
 Future<void> _initializeDependencies() async {
   // Use centralized Env configuration
-  // Falls back to placeholder values for local development without .env
+  // Strict mode: Throws if URL/Key are empty (Already validated by Env.validate)
   await Supabase.initialize(
-    url: Env.supabaseUrl.isNotEmpty 
-        ? Env.supabaseUrl 
-        : 'https://placeholder.supabase.co',
-    anonKey: Env.supabaseAnonKey.isNotEmpty 
-        ? Env.supabaseAnonKey 
-        : 'placeholder-anon-key',
+    url: Env.supabaseUrl,
+    anonKey: Env.supabaseAnonKey,
   );
 }
 

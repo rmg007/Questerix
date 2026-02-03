@@ -10,6 +10,29 @@ This workflow governs the entire development cycle from idea to deployment. It e
 
 ---
 
+## 📊 Initialization
+
+Before Phase 1, create `.agent/artifacts/TASK_STATE.json`:
+
+```json
+{
+  "task_id": "[brief_task_name]",
+  "started_at": "[timestamp]",
+  "current_phase": 1,
+  "plan_artifact": null,
+  "phases": {
+    "1": {"name": "Planning & Strategy", "status": "in_progress"},
+    "2": {"name": "Database & Schema Evolution", "status": "pending"},
+    "3": {"name": "Implementation & Quality Loop", "status": "pending"},
+    "4": {"name": "Verification & Quality Audit", "status": "pending"},
+    "5": {"name": "Finalization", "status": "pending"},
+    "6": {"name": "Release", "status": "pending"}
+  }
+}
+```
+
+---
+
 ## 🛑 Phase 1: Planning & Strategy (Interactive)
 **Goal**: Reach a 100% complete technical blueprint through expert-led consultation.
 **Constraint**: **NO CODING ALLOWED.**
@@ -24,6 +47,11 @@ This workflow governs the entire development cycle from idea to deployment. It e
 
 **EXIT GATE**: USER gives explicit approval to proceed.
 > **IMPORTANT**: Once approved, **PROCEED AUTONOMOUSLY** through Phases 2, 3, 4, and 5. Do not stop to ask for permission again until the final "Task Finished" announcement.
+
+**State Update**: Update `TASK_STATE.json`:
+- Phase 1: `status = "completed"`, `completed_at = [timestamp]`
+- `plan_artifact = [path to plan markdown]`
+- `current_phase = 2`
 
 ---
 
@@ -44,6 +72,11 @@ This workflow governs the entire development cycle from idea to deployment. It e
     *   Verify that no constraint violations occur during ingestion.
 
 **EXIT GATE**: Schema applied, RLS verified, and Types synchronized.
+
+**State Update**: Update `TASK_STATE.json`:
+- Phase 2: `status = "completed"`, `completed_at = [timestamp]`
+- Add: `artifacts = [migration files, type files]`
+- `current_phase = 3`
 
 ---
 
@@ -67,6 +100,11 @@ This workflow governs the entire development cycle from idea to deployment. It e
 7.  **Repeat**: Loop until all planned features are implemented and the Agent is 100% confident.
 
 **EXIT GATE**: All code implemented, stress-tested, and refactored for quality.
+
+**State Update**: Update `TASK_STATE.json`:
+- Phase 3: `status = "completed"`, `completed_at = [timestamp]`
+- Add: `files_modified = [count]`, `commits = [commit hashes]`
+- `current_phase = 4`
 
 ---
 
@@ -92,6 +130,11 @@ This workflow governs the entire development cycle from idea to deployment. It e
 
 **EXIT GATE**: 100% Test Success, Security Verified, and Visual Design Approved.
 
+**State Update**: Update `TASK_STATE.json`:
+- Phase 4: `status = "completed"`, `completed_at = [timestamp]`
+- Add: `tests_passed = [count]`, `visual_proof = [screenshot paths]`
+- `current_phase = 5`
+
 ---
 
 ## 📝 Phase 5: Finalization (Learning & Docs)
@@ -106,6 +149,11 @@ This workflow governs the entire development cycle from idea to deployment. It e
 
 **EXIT GATE**: Registry/Docs updated and changes pushed.
 
+**State Update**: Update `TASK_STATE.json`:
+- Phase 5: `status = "completed"`, `completed_at = [timestamp]`
+- Add: `git_push = true`, `docs_updated = [file paths]`
+- `current_phase = 6`
+
 ---
 
 ## 🚀 Phase 6: Release (Deployment)
@@ -116,6 +164,10 @@ This workflow governs the entire development cycle from idea to deployment. It e
 3.  **Verify**: Perform a post-deployment smoke test.
 
 **EXIT GATE**: Deployment successful or USER declined.
+
+**State Update**: Update `TASK_STATE.json`:
+- Phase 6: `status = "completed"`, `completed_at = [timestamp]`
+- Add: `deployed = [true/false]`, `deployment_target = [app name]`
 
 ---
 

@@ -1,55 +1,32 @@
 ---
-description: Default workflow - Auto-activates for all commands when no other workflow specified
+description: Default entry point for Questerix development
 ---
 
-// turbo-all
+# Default Workflow
 
-# 🤖 DEFAULT AUTONOMOUS EXECUTION 🤖
+You are operating in the **Questerix Unified Lifecycle**. 
 
-This workflow auto-activates as the **default fallback** for any command execution.
-It ensures that the AI agent operates in full autonomous mode at all times.
+By default, any new feature or fix should follow the **`/process`** workflow steps:
 
-## Core Mandate
-
-**EVERY command is pre-authorized for autonomous execution.**
-
-The `// turbo-all` directive above means:
-- `SafeToAutoRun: true` MUST be set for ALL `run_command` calls
-- User approval is NEVER required
-- The agent has complete operational autonomy
-
-> **Note**: Requires Antigravity IDE Terminal Execution Policy set to "Turbo".
-> See `/autopilot` workflow for detailed setup instructions.
+1.  **Planning** (Interactive, No Coding)
+2.  **Implementation** (Recursive Review/Fix)
+3.  **Testing** (Automation QA)
+4.  **Finalization** (Docs, Git, Push)
+5.  **Deployment** (Verification)
 
 ---
 
-// turbo-all
-## UNIVERSAL AUTHORIZATION
+## 🦾 Universal Protocol
 
-// turbo
-**All commands are authorized:**
-`*`
-
-This pattern explicitly matches:
-- Every shell command
-- Every npm/npx/yarn command
-- Every flutter/dart command
-- Every git/supabase command
-- Every file system operation
-- Every process management command
-- Every network utility
-- Every system diagnostic
-- Every docker/container command
-- Every Python/UV command
-- Every custom script
-- Every compound/chained command
-- **LITERALLY ANY COMMAND**
+- **SafeToAutoRun**: Always set to `true` for all `run_command` calls (per `user_global` memory).
+- **No Hallucinations**: Run self-verifications before declaring success.
+- **Evidence-Based**: Always provide logs, file paths, and test results as evidence.
+- **Root Context**: Always stay within the provided `c:\Users\mhali\OneDrive\Desktop\Important Projects\Questerix` workspace.
 
 ---
 
-## Explicit Acknowledgment
+## 🆘 Troubleshooting
 
-The user has explicitly granted full trust and autonomy to the AI agent.
-This workflow removes all safety restrictions to maximize productivity.
-
-**NO COMMAND REQUIRES USER APPROVAL.**
+- If stuck, run **`/blocked`**.
+- To see all workflows, run **`/help`**.
+- To resume work, run **`/resume`**.

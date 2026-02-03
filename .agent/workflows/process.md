@@ -30,32 +30,46 @@ This workflow governs the entire development cycle from idea to deployment. It e
 **Goal**: Deliver clean, functional code that matches the plan.
 
 1.  **Execute**: Implement the approved plan in small, logical chunks.
-2.  **Quality Enforcement**:
+2.  **Dependency & Bundle Hygiene**:
+    *   Evaluate if the logic can be written in vanilla code before adding a new package.
+    *   If a new dependency is added, verify its size and impact on build time/bundle size.
+3.  **Quality Enforcement**:
     *   **Separation of Concerns**: Keep business logic out of UI files.
     *   **DRY & SOLID**: Refactor redundant logic into shared utilities or base classes.
     *   **Readability**: Use descriptive naming and avoid deep nesting (>3 levels).
-3.  **Self-Review**: After each chunk, run static analysis and "hallucination check."
-4.  **Fix Loop**: If errors, inconsistencies, or "spaghetti smells" are found, fix them immediately.
-5.  **Repeat**: Loop until all planned features are implemented and the Agent is 100% confident.
+4.  **Devil's Advocate Stress Test**:
+    *   Simulate low-connectivity/offline states.
+    *   Test "Rapid-Fire" scenarios (hitting buttons multiple times quickly).
+    *   Verify handling of "Unexpected Nulls" or "Empty Data States".
+5.  **Self-Review**: After each chunk, run static analysis and "hallucination check."
+6.  **Fix Loop**: If errors, inconsistencies, or "spaghetti smells" are found, fix them immediately.
+7.  **Repeat**: Loop until all planned features are implemented and the Agent is 100% confident.
 
-**EXIT GATE**: All code implemented, refactored for quality, and self-reviewed.
+**EXIT GATE**: All code implemented, stress-tested, and refactored for quality.
 
 ---
 
 ## 🧪 Phase 3: Verification & Quality Audit
-**Goal**: Zero-bug status and premium visual fidelity.
+**Goal**: Zero-bug status, premium visual fidelity, and enterprise-grade safety.
 
 1.  **Test Creation**: Write unit/integration/E2E tests as specified in the plan.
-2.  **QA Loop**: Run tests. If any fail, fix the code and re-run.
-3.  **Visual Design Audit (If UI changed)**:
+2.  **Multi-Tenant & Security Isolation**:
+    *   **Data Leakage Check**: Verify that RLS policies explicitly filter data by `app_id` or `tenant_id`.
+    *   **Session Isolation**: Test with different user sessions to ensure one tenant cannot see another's data.
+3.  **Performance & Jank Audit**:
+    *   Check for unnecessary re-renders (React) or frame drops (Flutter).
+    *   Ensure expensive operations are run in background threads (Isolates/Workers).
+    *   Verify virtualization/pagination for large lists.
+4.  **QA Loop**: Run tests. If any fail, fix the code and re-run.
+5.  **Visual Design Audit (If UI changed)**:
     *   **Visual Inspection**: Use `browser_subagent` to capture screenshots of all modified screens.
     *   **Premium Critique**: Review for "Wow" factor: check gradients, glassmorphism, spacing consistency, and modern typography.
     *   **UX Fidelity**: Verify smooth transitions, responsive layouts, and intuitive button placement.
     *   **Accessibility Check**: Ensure contrast ratios and screen reader labels meet standards.
-4.  **Repeat**: Loop until **100% of tests pass** and **Visuals are Premium**.
-5.  **Evidence**: Provide a summary of passed tests (pass/fail counts) and **attach visual proof** (screenshots).
+6.  **Repeat**: Loop until **100% of tests pass**, **Visuals are Premium**, and **Performance is Smooth**.
+7.  **Evidence**: Provide a summary of passed tests (pass/fail counts) and **attach visual proof** (screenshots).
 
-**EXIT GATE**: 100% Test Success and Visual Design Approved.
+**EXIT GATE**: 100% Test Success, Security Verified, and Visual Design Approved.
 
 ---
 

@@ -11,3 +11,4 @@
 [2m2:15:54 PM[22m [36m[1m[vite][22m[39m [32mpage reload [39m[2mplaywright-report/index.html[22m
 [2m2:18:57 PM[22m [36m[1m[vite][22m[39m [32mvite.config.ts changed, restarting server...[39m
 [2m2:18:57 PM[22m [36m[1m[vite][22m[39m server restarted.
+[2m2:24:03 PM[22m [36m[1m[vite][22m[39m [32mpage reload [39m[2mplaywright-report/index.html[22m

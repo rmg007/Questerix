@@ -153,8 +153,6 @@ body {
   animation: slide-up 0.3s ease-out;
 }
 
-
-
 @layer base {
   * {
     @apply border-border;
@@ -162,4 +160,30 @@ body {
   body {
     @apply bg-background text-foreground;
   }
+}
+
+/* Premium Scrollbars */
+::-webkit-scrollbar {
+  width: 8px;
+  height: 8px;
+}
+
+::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+::-webkit-scrollbar-thumb {
+  background: #cbd5e1;
+  border-radius: 4px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: #94a3b8;
+}
+
+/* Glassmorphism Utilities */
+.glass-effect {
+  background: rgba(255, 255, 255, 0.7);
+  backdrop-filter: blur(10px);
+  border: 1px solid rgba(255, 255, 255, 0.2);
 }

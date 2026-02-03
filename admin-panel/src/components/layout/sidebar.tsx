@@ -92,22 +92,24 @@ export function Sidebar({ isOpen = true, onClose, isMobile = false }: SidebarPro
   return (
     <div 
       className={cn(
-        "flex w-72 flex-col bg-gradient-to-b from-slate-900 via-purple-900 to-slate-900 h-screen",
-        isMobile && "fixed inset-y-0 left-0 z-50 transform transition-transform duration-300 ease-in-out",
+        "flex w-72 flex-col h-screen border-r border-white/5",
+        "bg-gradient-to-b from-[#1a1b4b] via-[#2e1065] to-[#1a1b4b]",
+        isMobile && "fixed inset-y-0 left-0 z-50 transform transition-transform duration-300 ease-in-out shadow-2xl",
         isMobile && !isOpen && "-translate-x-full",
         isMobile && isOpen && "translate-x-0"
       )}
     >
-      <div className="flex h-20 items-center px-6 border-b border-white/10">
+      {/* Header */}
+      <div className="flex h-20 items-center px-6 border-b border-white/10 bg-white/5 backdrop-blur-sm">
         <div className="flex items-center gap-3 flex-1">
-          <div className="flex items-center justify-center w-10 h-10 rounded-xl bg-gradient-to-r from-purple-500 to-blue-500">
+          <div className="flex items-center justify-center w-10 h-10 rounded-xl bg-gradient-to-br from-purple-500 to-blue-600 shadow-lg shadow-purple-500/20">
             <svg className="w-5 h-5 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 7h6m0 10v-3m-3 3h.01M9 17h.01M9 14h.01M12 14h.01M15 11h.01M12 11h.01M9 11h.01M7 21h10a2 2 0 002-2V5a2 2 0 00-2-2H7a2 2 0 00-2 2v14a2 2 0 002 2z" />
             </svg>
           </div>
           <div>
-            <h1 className="text-lg font-bold text-white">Math7</h1>
-            <p className="text-xs text-purple-300">Admin Panel</p>
+            <h1 className="text-lg font-bold text-white tracking-tight">Questerix</h1>
+            <p className="text-xs text-purple-300 font-medium">Admin Panel</p>
           </div>
         </div>
         {isMobile && onClose && (
@@ -121,7 +123,8 @@ export function Sidebar({ isOpen = true, onClose, isMobile = false }: SidebarPro
         )}
       </div>
       
-      <nav className="flex-1 px-4 py-6 space-y-2">
+      {/* Navigation - Scrollable Area */}
+      <nav className="flex-1 px-4 py-6 space-y-2 overflow-y-auto custom-scrollbar">
         {navigation.map((item) => {
           const isActive = location.pathname === item.href || 
             (item.href !== '/' && location.pathname.startsWith(item.href))
@@ -131,43 +134,61 @@ export function Sidebar({ isOpen = true, onClose, isMobile = false }: SidebarPro
               to={item.href}
               onClick={handleNavClick}
               className={cn(
-                "flex items-center gap-3 rounded-xl px-4 py-3 text-sm font-medium transition-all duration-200",
+                "flex items-center gap-3 rounded-xl px-4 py-3 text-sm font-medium transition-all duration-200 group relative",
                 isActive 
-                  ? "bg-white/15 text-white shadow-lg" 
-                  : "text-purple-200 hover:bg-white/10 hover:text-white"
+                  ? "bg-white/10 text-white shadow-inner border border-white/5" 
+                  : "text-purple-200 hover:bg-white/5 hover:text-white"
               )}
             >
-              <item.icon className={cn("h-5 w-5", isActive ? "text-purple-300" : "")} />
+              <item.icon className={cn("h-5 w-5 transition-colors", isActive ? "text-purple-300" : "text-purple-400 group-hover:text-purple-200")} />
               {item.name}
+              {isActive && (
+                <div className="absolute left-0 top-1/2 -translate-y-1/2 w-1 h-8 bg-purple-400 rounded-r-full shadow-[0_0_8px_rgba(192,132,252,0.5)]" />
+              )}
             </Link>
           )
         })}
       </nav>
 
-      <div className="px-4 py-4 border-t border-white/10">
+      {/* User Footer - Pinned to Bottom */}
+      <div className="px-4 py-4 border-t border-white/10 bg-black/20 backdrop-blur-md">
         {userInfo && (
-          <div className="mb-4 px-4 py-3 bg-white/5 rounded-xl">
-            <p className="text-sm font-medium text-white truncate">
-              {userInfo.fullName || userInfo.email.split('@')[0]}
-            </p>
-            <span className={cn(
-              "inline-block mt-1 px-2 py-0.5 text-xs font-medium rounded-full",
-              userInfo.role === 'super_admin' 
-                ? "bg-purple-500/30 text-purple-200" 
-                : "bg-blue-500/30 text-blue-200"
-            )}>
-              {userInfo.role === 'super_admin' ? 'Super Admin' : 'Admin'}
-            </span>
-            <p className="text-xs text-purple-300 truncate mt-1">{userInfo.email}</p>
+          <div className="mb-3 px-4 py-3 bg-white/5 rounded-xl border border-white/5">
+            <div className="flex items-center justify-between mb-2">
+                 <p className="text-sm font-semibold text-white truncate">
+                  {userInfo.fullName || userInfo.email.split('@')[0]}
+                </p>
+                <button
+                    onClick={handleLogout}
+                     className="text-purple-300 hover:text-white transition-colors p-1 hover:bg-white/10 rounded"
+                     title="Sign Out"
+                >
+                    <LogOut className="h-4 w-4" />
+                </button>
+            </div>
+            
+            <div className="flex items-center justify-between">
+                <span className={cn(
+                  "inline-flex px-2 py-0.5 text-[10px] font-medium rounded-full uppercase tracking-wider",
+                  userInfo.role === 'super_admin' 
+                    ? "bg-purple-500/20 text-purple-200 border border-purple-500/30" 
+                    : "bg-blue-500/20 text-blue-200 border border-blue-500/30"
+                )}>
+                  {userInfo.role === 'super_admin' ? 'Super Admin' : 'Admin'}
+                </span>
+                <p className="text-[10px] text-purple-300/60 truncate max-w-[100px]">{userInfo.email}</p>
+            </div>
           </div>
         )}
-        <button
-          onClick={handleLogout}
-          className="flex items-center gap-3 w-full rounded-xl px-4 py-3 text-sm font-medium text-purple-200 hover:bg-white/10 hover:text-white transition-all duration-200"
-        >
-          <LogOut className="h-5 w-5" />
-          Sign Out
-        </button>
+        {!userInfo && (
+            <button
+            onClick={handleLogout}
+            className="flex items-center justify-center gap-2 w-full rounded-xl px-4 py-3 text-sm font-medium text-white bg-white/5 hover:bg-white/10 border border-white/5 transition-all duration-200"
+            >
+            <LogOut className="h-4 w-4" />
+            Sign Out
+            </button>
+        )}
       </div>
     </div>
   )

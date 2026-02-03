@@ -1,3 +1,4 @@
+import { useApp } from '@/contexts/AppContext';
 import { Link } from 'react-router-dom';
 import { 
     usePaginatedQuestions, 
@@ -277,6 +278,7 @@ function SortableCard({ question, isSelected, onSelect, onDelete, onDuplicate, r
 }
 
 export function QuestionList() {
+    const { currentApp } = useApp();
     const [selectedSkillId, setSelectedSkillId] = useState<string>('all');
     const [statusFilter, setStatusFilter] = useState<'all' | 'draft' | 'published' | 'live'>('all');
     const [searchQuery, setSearchQuery] = useState<string>('');
@@ -287,7 +289,7 @@ export function QuestionList() {
     const [sortBy, setSortBy] = useState<string>('sort_order');
     const [sortOrder, setSortOrder] = useState<'asc' | 'desc'>('asc');
 
-    const { data: paginatedData, isLoading } = usePaginatedQuestions({
+    const { data: paginatedData, isLoading, isError, error } = usePaginatedQuestions({
         page,
         pageSize,
         search: debouncedSearch,
@@ -512,12 +514,34 @@ export function QuestionList() {
         }
     };
 
+    if (!currentApp) {
+        return (
+             <div className="flex items-center justify-center h-64">
+                <div className="text-center">
+                    <p className="text-gray-500">Please select an app to view questions.</p>
+                </div>
+            </div>
+        );
+    }
+
     if (isLoading) {
         return (
             <div className="flex items-center justify-center h-64">
                 <div className="text-center">
                     <div className="inline-block h-8 w-8 animate-spin rounded-full border-4 border-purple-600 border-r-transparent"></div>
                     <p className="mt-4 text-gray-500">Loading questions...</p>
+                </div>
+            </div>
+        );
+    }
+
+    if (isError) {
+        console.error("Error loading questions:", error);
+         return (
+            <div className="flex items-center justify-center h-64">
+                <div className="text-center text-red-500">
+                    <p>Error loading questions.</p>
+                    <p className="text-sm text-gray-400 mt-2">{(error as any)?.message || 'Unknown error'}</p>
                 </div>
             </div>
         );

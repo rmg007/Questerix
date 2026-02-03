@@ -1,183 +1,245 @@
 ---
-description: Continue work from previous session
+description: Continue work from previous session (same agent)
 ---
 
 // turbo-all
 
-# /resume - Continue Previous Work
+# /resume - Session Resumption
 
-**Purpose**: Pick up where the last session left off.
+**Purpose**: Pick up where the last session left off (same agent, new session).
+
+**When to Use**: After sleep, restart, or disconnection. Use `/continue` instead if switching to a different AI agent.
 
 ---
 
-## Instructions
+## 📊 Phase 1: Session Detection
 
+### Priority Detection Strategy
+
+1. **TASK_STATE.json** (Primary Source)
+   - Location: `.agent/artifacts/TASK_STATE.json`
+   - Contains: Current phase, progress, plan artifact
+
+2. **Git Status** (Secondary Source)
+   - Uncommitted changes indicate WIP
+   - Recent commits show recent work
+
+3. **Session Files** (Legacy Support)
+   - Location: `.session/*.md`
+   - Older format, still supported
+
+4. **User Input** (Fallback)
+   - If no context found, ask user
+
+### Commands
+
+```powershell
 // turbo
-1. **Check for session state files**: `.session/*.md`
-2. **Check git status**: Any uncommitted changes?
-3. **Check PHASE_STATE.json**: Current phase?
-4. **Summarize what was done** and what remains
-5. **Continue execution**
+# Check for active task state
+Get-Content .agent/artifacts/TASK_STATE.json -ErrorAction SilentlyContinue
 
----
-
-## Auto-Detection Strategy
-
-### Priority 1: Session State Files
-```powershell
-Get-ChildItem -Path ".session/*.md" | Sort-Object LastWriteTime -Descending | Select-Object -First 1
-```
-
-### Priority 2: Git Status
-```powershell
+# Check git status
 git status --porcelain
-git diff --stat
-```
+git log --oneline -5
 
-### Priority 3: PHASE_STATE.json
-```powershell
-Get-Content PHASE_STATE.json | ConvertFrom-Json
+# Check for session files (legacy)
+Get-ChildItem -Path ".session/*.md" -ErrorAction SilentlyContinue | Sort-Object LastWriteTime -Descending | Select-Object -First 1
 ```
-
-### Priority 4: Ask User
-If no context found, ask:
-> "What were we working on? Provide task description or issue number."
 
 ---
 
-## Output Format
+## 🔍 Phase 2: State Analysis
+
+### If TASK_STATE.json Found
+
+Extract:
+- `task_id`: What task is active
+- `current_phase`: Which phase we're in (1-6)
+- `plan_artifact`: Path to implementation plan
+- `phases[X].status`: What's completed vs pending
+- `phases[X].notes`: Any important context
+
+### If Git Status Shows Changes
+
+Analyze:
+- Modified files suggest what was being worked on
+- Recent commits indicate task context
+- Uncommitted changes need to be handled
+
+### If Session Files Found (Legacy)
+
+Parse:
+- YAML frontmatter: status, phase, task
+- Completed criteria
+- Next steps
+
+---
+
+## 📋 Phase 3: Progress Summary
+
+Display to user:
 
 ```markdown
-## Resuming Work
+## 🔄 Resuming Session
 
-### Session Detection
-- **Source**: [.session file / git status / PHASE_STATE.json / user input]
-- **Last Activity**: [timestamp if available]
+**Task**: [task_id from TASK_STATE.json]
+**Started**: [started_at]
+**Last Updated**: [last_updated or last git commit time]
 
----
+### Progress Summary
+| Phase | Status | Completed |
+|-------|--------|-----------|
+| 1. Planning & Strategy | ✅ | [timestamp] |
+| 2. Database & Schema | ✅ | [timestamp] |
+| 3. Implementation | 🔄 In Progress | - |
+| 4. Verification | ⏸️ Pending | - |
+| 5. Finalization | ⏸️ Pending | - |
+| 6. Release | ⏸️ Pending | - |
 
-### Last Session State
-| Field | Value |
-|-------|-------|
-| Phase | [intake/plan/implement/verify/blocked] |
-| Task | [Description] |
-| Status | [in_progress/blocked/ready_for_verify] |
+### Current Phase Details
+**Phase**: [current_phase name]
+**Last Note**: [phases[current_phase].notes if any]
 
----
+### Recent Activity
+- [Last 3-5 git commits]
+- [Uncommitted changes summary]
 
-### Completed
-- [x] [Completed item 1]
-- [x] [Completed item 2]
-
-### Remaining
-- [ ] [Remaining item 1]
-- [ ] [Remaining item 2]
-
----
-
-### Continuing With
-[What will be done next]
-
-### Next Command
-[The specific action being taken now]
+### Next Steps
+[Based on current_phase, what should happen next]
 ```
 
 ---
 
-## Session State File Format
+## 🚀 Phase 4: Autonomous Resume
 
-If creating a session file for later resume:
+**No user prompt required** - automatically continue from current phase.
 
-**Location**: `.session/[YYYY-MM-DD]-[task-slug].md`
+### Resume Logic
+
+```javascript
+if (current_phase === 1) {
+  // Phase 1: Planning not finished
+  "Resuming planning discussion..."
+  // Continue expert consultation
+}
+
+if (current_phase === 2) {
+  // Phase 2: Database work in progress
+  "Resuming database schema work..."
+  // Complete migrations, RLS, types
+}
+
+if (current_phase === 3) {
+  // Phase 3: Implementation in progress
+  "Resuming implementation..."
+  // Continue coding from last checkpoint
+}
+
+if (current_phase === 4) {
+  // Phase 4: Verification in progress
+  "Resuming testing and verification..."
+  // Run remaining tests
+}
+
+if (current_phase === 5) {
+  // Phase 5: Finalization in progress
+  "Resuming documentation updates..."
+  // Complete docs and git push
+}
+
+if (current_phase === 6) {
+  // Phase 6: Release pending
+  "Ready for deployment..."
+  // Prompt for deployment decision
+}
+```
+
+### State Update
+
+Update `TASK_STATE.json`:
+```json
+{
+  "last_updated": "[new timestamp]",
+  "resumed_at": "[timestamp]"
+}
+```
+
+---
+
+## 🛡️ Edge Cases
+
+### No TASK_STATE.json Found
 
 ```markdown
----
-status: in_progress  # in_progress | blocked | completed
-phase: implement     # intake | plan | implement | verify | docs | pr
-task: Add skill selection widget
-started_at: 2026-02-03T07:30:00
-updated_at: 2026-02-03T08:45:00
-blocker: null        # or description of blocker
----
+⚠️ No active task found.
 
-## Task Summary
-[1-2 sentence description]
+Checking alternative sources:
+- Git status: [uncommitted changes found / clean]
+- Session files: [legacy .session/*.md found / none]
 
-## Acceptance Criteria
-- [x] Criterion 1
-- [ ] Criterion 2
-- [ ] Criterion 3
+Options:
+1. Start new task with `/process`
+2. Manually reconstruct from git history
+3. Provide task description to resume
 
-## Files Changed
-- `lib/widgets/skill_widget.dart` — Created
-- `lib/routes.dart` — Modified
-
-## Next Steps
-1. Write unit tests
-2. Run /verify
-3. Update docs if needed
-
-## Context Notes
-[Any important context for resuming]
+What would you like to do?
 ```
 
----
+### Git Conflicts
 
-## Cleanup
-
-After task completion:
-```powershell
-# Archive completed session files
-Move-Item ".session/2026-02-03-*.md" ".session/archive/" -Force
-```
-
----
-
-## Resume Examples
-
-### Example 1: From Session File
 ```markdown
-## Resuming Work
+⚠️ Git conflicts detected.
 
-### Session Detection
-- Source: `.session/2026-02-03-skill-widget.md`
-- Last Activity: 2026-02-03T08:45:00
+Files in conflict:
+- [file1]
+- [file2]
 
-### Last Session State
-| Field | Value |
-|-------|-------|
-| Phase | implement |
-| Task | Add skill selection widget |
-| Status | in_progress |
+Recommendation:
+1. Resolve conflicts manually
+2. Run `/resume` again after resolution
 
-### Completed
-- [x] Created widget skeleton
-- [x] Added routing
-
-### Remaining
-- [ ] Write unit tests
-- [ ] Run verification
-
-### Continuing With
-Writing unit tests for SkillWidget...
+Would you like me to show the conflict details?
 ```
 
-### Example 2: From Git Status
+### Uncommitted Changes + No TASK_STATE.json
+
 ```markdown
-## Resuming Work
+⚠️ Uncommitted changes found but no active task state.
 
-### Session Detection
-- Source: git status (uncommitted changes detected)
-- Files modified: 3
+Modified files:
+- [file1]
+- [file2]
 
-### Uncommitted Changes
-- `lib/widgets/skill_widget.dart` (modified)
-- `lib/routes.dart` (modified)
-- `test/skill_widget_test.dart` (new)
+Recommendation:
+1. Create TASK_STATE.json from git analysis
+2. Or start fresh with `/process`
 
-### Likely Task
-Based on changes: "Adding skill selection widget"
-
-### Continuing With
-Running /verify to check current state...
+Should I reconstruct state from git history?
 ```
+
+---
+
+## 🔄 Migration from Legacy Session Files
+
+If `.session/*.md` found but no `TASK_STATE.json`:
+
+```markdown
+📦 Legacy session file detected: `.session/[file].md`
+
+Converting to new state format...
+
+Created: `TASK_STATE.json`
+Archived: `.session/[file].md` → `.session/archive/`
+
+Resuming with new state tracking system.
+```
+
+---
+
+## ✅ Success Criteria
+
+- [ ] Session state successfully loaded (TASK_STATE.json or reconstructed)
+- [ ] Progress summary displayed
+- [ ] Current phase identified
+- [ ] Work resumed autonomously from correct checkpoint
+- [ ] State file updated with resume timestamp

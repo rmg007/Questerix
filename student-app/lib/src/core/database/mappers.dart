@@ -2,7 +2,7 @@
 
 import 'dart:convert';
 
-import 'package:math7_domain/math7_domain.dart' as model;
+import 'package:questerix_domain/questerix_domain.dart' as model;
 import 'package:student_app/src/core/database/database.dart' as db;
 
 /// Maps Drift database rows to Shared Domain entities

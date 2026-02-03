@@ -1,8 +1,8 @@
-# Math7 - Offline-First Educational Platform
+# Questerix - Offline-First Educational Platform
 
 ## Overview
 
-Math7 is an offline-first educational platform consisting of two applications:
+Questerix is an offline-first educational platform consisting of two applications:
 
 1. **Student App** - A Flutter tablet application for K-12 students to practice curriculum content offline
 2. **Admin Panel** - A React web dashboard for educators to manage curriculum and content

@@ -25,8 +25,8 @@ dependencies:
   path_provider: ^2.1.0
   path: ^1.8.0
   shared_preferences: ^2.2.0
-  math7_domain:
-    path: ../math7_domain
+  questerix_domain:
+    path: ../questerix_domain
 
 dev_dependencies:
   flutter_test:

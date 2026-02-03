@@ -73,7 +73,7 @@ export function DashboardPage() {
     <div className="space-y-8">
       <div>
         <h2 className="text-3xl font-bold tracking-tight">Dashboard</h2>
-        <p className="text-muted-foreground">Welcome to Math7 Curriculum Management System</p>
+        <p className="text-muted-foreground">Welcome to Questerix Curriculum Management System</p>
       </div>
 
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">

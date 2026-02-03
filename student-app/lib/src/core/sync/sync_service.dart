@@ -9,7 +9,7 @@ import 'package:student_app/src/features/curriculum/repositories/domain_reposito
 import 'package:student_app/src/features/curriculum/repositories/skill_repository.dart';
 import 'package:student_app/src/features/curriculum/repositories/question_repository.dart';
 
-import 'package:math7_domain/math7_domain.dart' as model;
+import 'package:questerix_domain/questerix_domain.dart' as model;
 
 /// Sync state
 class SyncState {

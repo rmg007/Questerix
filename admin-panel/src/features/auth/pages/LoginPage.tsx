@@ -96,7 +96,7 @@ export function LoginPage() {
           <div className="inline-flex items-center justify-center w-12 h-12 rounded-full bg-primary/10 mb-4">
             <Rocket className="w-6 h-6 text-primary" />
           </div>
-          <h1 className="text-2xl font-bold tracking-tight">Math7 Admin</h1>
+          <h1 className="text-2xl font-bold tracking-tight">Questerix Admin</h1>
           <p className="text-muted-foreground mt-2">
             Curriculum Management System
           </p>

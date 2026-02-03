@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:drift/native.dart';
-import 'package:math7_domain/math7_domain.dart';
+import 'package:questerix_domain/questerix_domain.dart';
 import 'package:mocktail/mocktail.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:supabase_flutter/supabase_flutter.dart' as supabase;
@@ -93,11 +93,11 @@ void main() {
                 .overrideWith((ref) => Stream.value(ConnectivityStatus.online)),
             syncServiceProvider.overrideWith((ref) => MockSyncService()),
           ],
-          child: const Math7App(),
+          child: const QuesterixApp(),
         ),
       );
       // Welcome Screen should show first
-      expect(find.text('Welcome to Math7'), findsOneWidget);
+      expect(find.text('Welcome to Questerix'), findsOneWidget);
       expect(find.text('Get Started'), findsOneWidget);
 
       // Tap Get Started to navigate to age verification

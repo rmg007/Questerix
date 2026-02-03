@@ -1,4 +1,4 @@
-class Math7Validators {
+class QuesterixValidators {
   static final RegExp _slugRegex = RegExp(r'^[a-z0-9_]+$');
 
   /// Validates a slug string.

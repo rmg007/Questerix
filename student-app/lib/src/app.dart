@@ -9,14 +9,14 @@ import 'package:student_app/src/features/home/screens/main_shell.dart';
 import 'package:student_app/src/features/progress/repositories/session_repository.dart';
 import 'package:student_app/src/features/curriculum/screens/practice_screen.dart';
 
-class Math7App extends ConsumerStatefulWidget {
-  const Math7App({super.key});
+class QuesterixApp extends ConsumerStatefulWidget {
+  const QuesterixApp({super.key});
 
   @override
-  ConsumerState<Math7App> createState() => _Math7AppState();
+  ConsumerState<QuesterixApp> createState() => _QuesterixAppState();
 }
 
-class _Math7AppState extends ConsumerState<Math7App> {
+class _QuesterixAppState extends ConsumerState<QuesterixApp> {
   bool _hasCheckedResume = false;
 
   @override
@@ -38,7 +38,7 @@ class _Math7AppState extends ConsumerState<Math7App> {
     });
 
     return MaterialApp(
-      title: 'Math7',
+      title: 'Questerix',
       debugShowCheckedModeBanner: false,
       theme: _getTheme(context, settings, false),
       darkTheme: _getTheme(context, settings, true),

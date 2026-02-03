@@ -1,4 +1,4 @@
-import 'package:math7_domain/math7_domain.dart' as model;
+import 'package:questerix_domain/questerix_domain.dart' as model;
 
 /// Abstract repository for questions
 abstract class QuestionRepository {

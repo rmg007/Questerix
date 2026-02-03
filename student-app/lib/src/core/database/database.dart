@@ -38,7 +38,7 @@ class AppDatabase extends _$AppDatabase {
 
 QueryExecutor _openConnection() {
   return driftDatabase(
-    name: 'math7',
+    name: 'questerix',
     native: const DriftNativeOptions(
       databaseDirectory: getApplicationDocumentsDirectory,
     ),

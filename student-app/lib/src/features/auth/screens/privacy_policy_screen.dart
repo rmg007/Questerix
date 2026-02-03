@@ -35,7 +35,7 @@ class PrivacyPolicyScreen extends StatelessWidget {
             _buildSection(
               context,
               '1. Introduction',
-              'Math7 ("we", "our", or "us") is committed to protecting your privacy. This Privacy Policy explains how we collect, use, disclose, and safeguard your information when you use our mobile application.',
+              'Questerix ("we", "our", or "us") is committed to protecting your privacy. This Privacy Policy explains how we collect, use, disclose, and safeguard your information when you use our mobile application.',
             ),
             _buildSection(
               context,
@@ -50,7 +50,7 @@ class PrivacyPolicyScreen extends StatelessWidget {
             _buildSection(
               context,
               '4. COPPA Compliance',
-              'Math7 complies with the Children\'s Online Privacy Protection Act (COPPA). For users under 13:\n\n• We require verifiable parental consent before collecting personal information\n• We only collect information necessary for the app\'s functionality\n• Parents can review, delete, or refuse further collection of their child\'s information',
+              'Questerix complies with the Children\'s Online Privacy Protection Act (COPPA). For users under 13:\n\n• We require verifiable parental consent before collecting personal information\n• We only collect information necessary for the app\'s functionality\n• Parents can review, delete, or refuse further collection of their child\'s information',
             ),
             _buildSection(
               context,

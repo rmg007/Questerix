@@ -34,7 +34,7 @@ class WelcomeScreen extends StatelessWidget {
                 children: [
                   // App Logo/Icon
                   Semantics(
-                    label: 'Math7 app logo',
+                    label: 'Questerix app logo',
                     image: true,
                     child: Container(
                       width: 120,
@@ -62,9 +62,9 @@ class WelcomeScreen extends StatelessWidget {
                   // Welcome Title
                   Semantics(
                     header: true,
-                    label: 'Welcome to Math7',
+                    label: 'Welcome to Questerix',
                     child: Text(
-                      'Welcome to Math7',
+                      'Welcome to Questerix',
                       style:
                           Theme.of(context).textTheme.headlineMedium?.copyWith(
                                 fontWeight: FontWeight.bold,
@@ -94,7 +94,7 @@ class WelcomeScreen extends StatelessWidget {
                       child: Semantics(
                         button: true,
                         label: 'Get Started button',
-                        hint: 'Sign up for a new Math7 account',
+                        hint: 'Sign up for a new Questerix account',
                         child: ElevatedButton(
                           onPressed: () {
                             Navigator.push(
@@ -134,7 +134,7 @@ class WelcomeScreen extends StatelessWidget {
                       child: Semantics(
                         button: true,
                         label: 'I already have an account button',
-                        hint: 'Log in to your existing Math7 account',
+                        hint: 'Log in to your existing Questerix account',
                         child: OutlinedButton(
                           onPressed: () {
                             Navigator.push(

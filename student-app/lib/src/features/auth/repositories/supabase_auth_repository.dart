@@ -1,4 +1,4 @@
-import 'package:math7_domain/math7_domain.dart';
+import 'package:questerix_domain/questerix_domain.dart';
 import 'package:supabase_flutter/supabase_flutter.dart' as supabase;
 
 class SupabaseAuthRepository implements AuthRepository {

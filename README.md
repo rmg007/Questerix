@@ -1,4 +1,4 @@
-# AppShell: Autonomous Agent Instruction Set
+# Questerix: Autonomous Agent Instruction Set
 
 > **The "Golden Command" to start development:**
 > 
@@ -10,12 +10,14 @@
 
 ## 🚀 Overview
 
-This repository contains the complete **Executive Specification** for an offline-first educational platform. It is designed to be consumed by AI Coding Agents (Cursor, Antigravity, etc.) to autonomously build the application.
+This repository contains the complete **Executive Specification** for **Questerix** - an offline-first educational platform. It is designed to be consumed by AI Coding Agents (Cursor, Antigravity, etc.) to autonomously build the application.
 
 The project consists of:
-1.  **Student App**: A Flutter tablet app (offline-first, Drift DB).
-2.  **Admin Panel**: A React dashboard (shadcn/ui, Supabase Auth).
-3.  **Backend**: Supabase (PostgreSQL, Edge Functions, Realtime).
+1.  **Student App** (`student-app/`): A Flutter tablet app (offline-first, Drift DB).
+2.  **Admin Panel** (`admin-panel/`): A React dashboard (shadcn/ui, Supabase Auth).
+3.  **Landing Pages** (`landing-pages/`): Marketing site (React/Vite, Tailwind CSS).
+4.  **Domain Models** (`questerix_domain/`): Shared Dart models and validators.
+5.  **Backend**: Supabase (PostgreSQL, Edge Functions, Realtime).
 
 ## 📂 Key Files
 

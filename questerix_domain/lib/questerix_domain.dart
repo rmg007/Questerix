@@ -1,7 +1,8 @@
-/// Support for doing something awesome.
+/// Shared domain models and validation for the Questerix platform.
 ///
-/// More dartdocs go here.
-library math7_domain;
+/// This package provides core data models, repositories interfaces,
+/// and validation logic used across the Questerix ecosystem.
+library questerix_domain;
 
 // Export models
 export 'src/models/domain.dart';

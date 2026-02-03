@@ -28,7 +28,7 @@ void main() async {
     await _initializeDependencies();
     runApp(
       const ProviderScope(
-        child: Math7App(),
+        child: QuesterixApp(),
       ),
     );
     return;
@@ -44,7 +44,7 @@ void main() async {
       await _initializeDependencies();
       runApp(
         const ProviderScope(
-          child: Math7App(),
+          child: QuesterixApp(),
         ),
       );
     },

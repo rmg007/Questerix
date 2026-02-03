@@ -35,7 +35,7 @@ export const Footer = () => {
               </li>
               <li>
                 <a 
-                  href={typeof window !== 'undefined' && window.location.hostname.includes('localhost') ? '/?subdomain=math' : 'https://math.questerix.com'}
+                  href={typeof window !== 'undefined' && window.location.hostname.includes('localhost') ? '/?subdomain=math' : 'https://Farida.Questerix.com'}
                   className="hover:text-white transition-colors"
                 >
                   Mathematics

@@ -58,7 +58,7 @@ class _OnboardingScreenState extends ConsumerState<OnboardingScreen> {
                     ),
                     const SizedBox(width: 8),
                     const Text(
-                      'Welcome to Math7',
+                      'Welcome to Questerix',
                       style: TextStyle(
                         color: Colors.white,
                         fontSize: 20,
@@ -407,7 +407,7 @@ class _StudentSignupStepState extends ConsumerState<_StudentSignupStep> {
         content: const SingleChildScrollView(
           child: Text(
             '1. Acceptance of Terms\n'
-            'By accessing and using Math7, you agree to these terms.\n\n'
+            'By accessing and using Questerix, you agree to these terms.\n\n'
             '2. Privacy & Data Collection\n'
             'We value your privacy. We only collect your email address for account authentication and progress tracking. We do not share your data with third parties.\n\n'
             '3. User Conduct\n'

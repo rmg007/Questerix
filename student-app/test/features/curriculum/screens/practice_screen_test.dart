@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
-import 'package:math7_domain/math7_domain.dart' as model;
+import 'package:questerix_domain/questerix_domain.dart' as model;
 import 'package:mocktail/mocktail.dart';
 import 'package:student_app/src/features/curriculum/repositories/question_repository.dart';
 import 'package:student_app/src/features/curriculum/screens/practice_screen.dart';

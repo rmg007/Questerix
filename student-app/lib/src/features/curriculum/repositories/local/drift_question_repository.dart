@@ -1,5 +1,5 @@
 import 'package:drift/drift.dart';
-import 'package:math7_domain/math7_domain.dart' as model;
+import 'package:questerix_domain/questerix_domain.dart' as model;
 import 'package:student_app/src/core/database/database.dart';
 import 'package:student_app/src/core/database/mappers.dart';
 import '../interfaces/question_repository.dart';

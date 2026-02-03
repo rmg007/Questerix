@@ -35,12 +35,12 @@ class TermsOfServiceScreen extends StatelessWidget {
             _buildSection(
               context,
               '1. Acceptance of Terms',
-              'By accessing and using Math7, you agree to be bound by these Terms of Service and all applicable laws and regulations. If you do not agree with any of these terms, you are prohibited from using or accessing this application.',
+              'By accessing and using Questerix, you agree to be bound by these Terms of Service and all applicable laws and regulations. If you do not agree with any of these terms, you are prohibited from using or accessing this application.',
             ),
             _buildSection(
               context,
               '2. Use License',
-              'Permission is granted to temporarily use Math7 for personal, non-commercial educational purposes only. This license shall automatically terminate if you violate any of these restrictions.',
+              'Permission is granted to temporarily use Questerix for personal, non-commercial educational purposes only. This license shall automatically terminate if you violate any of these restrictions.',
             ),
             _buildSection(
               context,
@@ -55,17 +55,17 @@ class TermsOfServiceScreen extends StatelessWidget {
             _buildSection(
               context,
               '5. Intellectual Property',
-              'All content, features, and functionality of Math7 are owned by Math7 and are protected by international copyright, trademark, and other intellectual property laws.',
+              'All content, features, and functionality of Questerix are owned by Questerix and are protected by international copyright, trademark, and other intellectual property laws.',
             ),
             _buildSection(
               context,
               '6. Disclaimer',
-              'Math7 is provided "as is" without any warranties, expressed or implied. We do not guarantee that the app will be error-free or uninterrupted.',
+              'Questerix is provided "as is" without any warranties, expressed or implied. We do not guarantee that the app will be error-free or uninterrupted.',
             ),
             _buildSection(
               context,
               '7. Limitation of Liability',
-              'In no event shall Math7 be liable for any indirect, incidental, special, consequential, or punitive damages arising out of your use of the application.',
+              'In no event shall Questerix be liable for any indirect, incidental, special, consequential, or punitive damages arising out of your use of the application.',
             ),
             _buildSection(
               context,

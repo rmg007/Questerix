@@ -1,5 +1,5 @@
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:math7_domain/math7_domain.dart';
+import 'package:questerix_domain/questerix_domain.dart';
 import 'package:student_app/src/core/supabase/providers.dart';
 import '../repositories/supabase_auth_repository.dart';
 

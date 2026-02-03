@@ -23,7 +23,7 @@ const subjects: SubjectData[] = [
     icon: Sigma,
     colorClass: 'text-blue-600',
     bgClass: 'bg-blue-50',
-    link: typeof window !== 'undefined' && window.location.hostname.includes('localhost') ? '/?subdomain=math' : 'https://math.questerix.com',
+    link: typeof window !== 'undefined' && window.location.hostname.includes('localhost') ? '/?subdomain=math' : 'https://Farida.Questerix.com',
     standards: ['Common Core', 'IB', 'State Standards'],
     outcomes: ['Problem-solving mastery', 'Critical thinking', 'Mathematical reasoning']
   },

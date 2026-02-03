@@ -359,7 +359,7 @@ class SettingsScreen extends ConsumerWidget {
             ),
             const SizedBox(height: 16),
             ListTile(
-              title: const Text('Math7 Student'),
+              title: const Text('Questerix Student'),
               subtitle: const Text('Version 1.0.0'),
               leading: Container(
                 padding: const EdgeInsets.all(8),

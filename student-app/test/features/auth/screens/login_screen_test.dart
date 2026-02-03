@@ -71,13 +71,12 @@ void main() {
         ),
       );
 
-      // Find password field
-      final passwordField = tester.widget<TextFormField>(
-        find.byType(TextFormField).last,
-      );
+      // Find password TextField (the inner widget of TextFormField)
+      final textFieldFinder = find.byType(TextField).last;
+      final textField = tester.widget<TextField>(textFieldFinder);
 
       // Verify password is obscured
-      expect(passwordField.obscureText, isTrue);
+      expect(textField.obscureText, isTrue);
     });
 
     testWidgets('password visibility toggle works', (WidgetTester tester) async {
@@ -95,11 +94,10 @@ void main() {
         await tester.tap(toggleButton.first);
         await tester.pumpAndSettle();
 
-        // Password should now be visible
-        final passwordField = tester.widget<TextFormField>(
-          find.byType(TextFormField).last,
-        );
-        expect(passwordField.obscureText, isFalse);
+        // Password should now be visible - check TextField
+        final textFieldFinder = find.byType(TextField).last;
+        final textField = tester.widget<TextField>(textFieldFinder);
+        expect(textField.obscureText, isFalse);
       }
     });
 

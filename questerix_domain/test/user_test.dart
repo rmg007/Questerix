@@ -1,5 +1,5 @@
 import 'package:test/test.dart';
-import 'package:math7_domain/math7_domain.dart';
+import 'package:questerix_domain/questerix_domain.dart';
 
 void main() {
   group('User', () {
@@ -7,14 +7,14 @@ void main() {
       final date = DateTime.now();
       final user1 = User(
         id: '1', 
-        email: 'test@math7.com', 
+        email: 'test@questerix.com', 
         createdAt: date, 
         updatedAt: date,
         ageGroup: UserAgeGroup.under13,
       );
       final user2 = User(
         id: '1', 
-        email: 'test@math7.com', 
+        email: 'test@questerix.com', 
         createdAt: date, 
         updatedAt: date,
         ageGroup: UserAgeGroup.under13,

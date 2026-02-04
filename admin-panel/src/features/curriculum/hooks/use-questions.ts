@@ -159,6 +159,36 @@ export function useCreateQuestion() {
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['questions'] });
       queryClient.invalidateQueries({ queryKey: ['questions-paginated'] });
+      queryClient.invalidateQueries({ queryKey: ['dashboard-stats'] });
+    },
+  });
+}
+
+export function useBulkCreateQuestions() {
+  const queryClient = useQueryClient();
+  const { currentApp } = useApp();
+
+  return useMutation({
+    mutationFn: async (questions: QuestionInsert[]) => {
+      if (!currentApp?.app_id) throw new Error('No app selected');
+
+      const payload = questions.map(q => ({
+        ...q,
+        app_id: currentApp.app_id
+      }));
+
+      const { data, error } = await (supabase
+        .from('questions') as any)
+        .insert(payload)
+        .select();
+
+      if (error) throw error;
+      return data as Question[];
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['questions'] });
+      queryClient.invalidateQueries({ queryKey: ['questions-paginated'] });
+      queryClient.invalidateQueries({ queryKey: ['dashboard-stats'] });
     },
   });
 }

@@ -9,6 +9,94 @@ export type Json =
 export type Database = {
   public: {
     Tables: {
+      ai_generation_sessions: {
+        Row: {
+          app_id: string | null
+          created_at: string
+          created_by: string
+          deleted_at: string | null
+          difficulty_distribution: Json | null
+          generation_time_ms: number | null
+          id: string
+          model_used: string
+          prompt_text: string
+          questions_generated: number
+          questions_imported: number
+          raw_response: Json | null
+          reviewed_at: string | null
+          reviewed_by: string | null
+          skill_id: string | null
+          source_document_id: string | null
+          status: string | null
+          token_count: number | null
+          updated_at: string
+        }
+        Insert: {
+          app_id?: string | null
+          created_at?: string
+          created_by: string
+          deleted_at?: string | null
+          difficulty_distribution?: Json | null
+          generation_time_ms?: number | null
+          id?: string
+          model_used: string
+          prompt_text: string
+          questions_generated?: number
+          questions_imported?: number
+          raw_response?: Json | null
+          reviewed_at?: string | null
+          reviewed_by?: string | null
+          skill_id?: string | null
+          source_document_id?: string | null
+          status?: string | null
+          token_count?: number | null
+          updated_at?: string
+        }
+        Update: {
+          app_id?: string | null
+          created_at?: string
+          created_by?: string
+          deleted_at?: string | null
+          difficulty_distribution?: Json | null
+          generation_time_ms?: number | null
+          id?: string
+          model_used?: string
+          prompt_text?: string
+          questions_generated?: number
+          questions_imported?: number
+          raw_response?: Json | null
+          reviewed_at?: string | null
+          reviewed_by?: string | null
+          skill_id?: string | null
+          source_document_id?: string | null
+          status?: string | null
+          token_count?: number | null
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "ai_generation_sessions_created_by_fkey"
+            columns: ["created_by"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "ai_generation_sessions_reviewed_by_fkey"
+            columns: ["reviewed_by"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "ai_generation_sessions_skill_id_fkey"
+            columns: ["skill_id"]
+            isOneToOne: false
+            referencedRelation: "skills"
+            referencedColumns: ["id"]
+          }
+        ]
+      }
       app_landing_pages: {
         Row: {
           app_id: string | null

@@ -93,21 +93,27 @@ graph TD
 - [x] **Client**: HMAC Data Integrity (`AppSignatureService`)
 - [x] **Client**: Context Injection (`AppConfigService`)
 
-### 🤖 Phase 11: AI-Assisted Content Generation (ACTIVE)
+### ✅ Phase 11: Project Oracle (Completed)
+- [x] Vector store implemented with pgvector
+- [x] Documentation-aware semantic search (Oracle Docs RAG)
+- [x] CI/CD auto-indexing pipeline
+
+### 🤖 Phase 12: AI Content Generation (ACTIVE)
 **Goal**: Leverage AI (Gemini Flash / OpenAI) to scale curriculum generation while maintaining human content sovereignty.
 
-#### Step 1: Document Parsing & Ingestion
-- [ ] **Infrastructure**: Python-based PDF/Docx parser (using `langchain` or native libs)
-- [ ] **Schema**: `source_documents` storage tables
+#### Step 1: Infrastructure & Parsing
+- [x] Python-based document processing (`content-engine`)
+- [x] Browser-side text extraction (`pdf.js` integration)
+- [x] Supabase Edge Function (`generate-questions`)
 
-#### Step 2: Generation Pipeline
-- [ ] **Module**: `QuestionGenerator` (Prompt Engineering)
-- [ ] **Module**: `SkillExtractor` (Curriculum Mapping)
-- [ ] **Output**: Structured JSON for `Question` and `Skill` models
+#### Step 2: Generation & Review Pipeline
+- [x] Admin Panel: AI Question Generation Dashboard
+- [x] Admin Panel: Human-in-the-Loop Review Grid
+- [x] Export to CSV functionality
 
-#### Step 3: Human-in-the-Loop Review
-- [ ] **Admin Panel**: "Candidate Queue" UI
-- [ ] **Workflow**: Review -> Edit -> Approve -> Publish
+#### Step 3: Integration & Bulk Import
+- [ ] **Implementation**: Connect CSV export to Questions Bulk Import
+- [ ] **Workflow**: Review -> Edit -> Approve -> Bulk Import
 
 
 ---

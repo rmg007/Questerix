@@ -1,8 +1,12 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 import React, { useState } from 'react';
-import { Wand2, Download, AlertCircle } from 'lucide-react';
+import { Wand2, Download, AlertCircle, Save } from 'lucide-react';
 import { DocumentUploader } from '../components/DocumentUploader';
 import { QuestionReviewGrid, GeneratedQuestion } from '../components/QuestionReviewGrid';
 import { generateQuestions } from '../api/generateQuestions';
+import { useSkills } from '@/features/curriculum/hooks/use-skills';
+import { useBulkCreateQuestions } from '@/features/curriculum/hooks/use-questions';
+import { useToast } from '@/hooks/use-toast';
 import Papa from 'papaparse';
 
 interface DifficultyConfig {
@@ -13,7 +17,7 @@ interface DifficultyConfig {
 
 export const GenerationPage: React.FC = () => {
   const [extractedText, setExtractedText] = useState<string>('');
-  const [_sourceFilename, setSourceFilename] = useState<string>(''); // Kept for future features
+  const [, setSourceFilename] = useState<string>(''); // Kept for future features
   const [difficultyConfig, setDifficultyConfig] = useState<DifficultyConfig>({
     easy: 10,
     medium: 20,
@@ -22,7 +26,13 @@ export const GenerationPage: React.FC = () => {
   const [customInstructions, setCustomInstructions] = useState<string>('');
   const [generatedQuestions, setGeneratedQuestions] = useState<GeneratedQuestion[]>([]);
   const [isGenerating, setIsGenerating] = useState(false);
+  const [isSaving, setIsSaving] = useState(false);
+  const [selectedSkillId, setSelectedSkillId] = useState<string>('');
   const [error, setError] = useState<string | null>(null);
+
+  const { data: skills } = useSkills();
+  const bulkCreate = useBulkCreateQuestions();
+  const { toast } = useToast();
 
   const handleTextExtracted = (text: string, filename: string) => {
     setExtractedText(text);
@@ -71,16 +81,23 @@ export const GenerationPage: React.FC = () => {
   const handleExportCSV = () => {
     if (generatedQuestions.length === 0) return;
 
-    const csvData = generatedQuestions.map((q) => ({
-      text: q.text,
-      question_type: q.question_type,
-      difficulty: q.difficulty,
-      options: q.metadata.options?.join(' | ') || '',
-      correct_answer: Array.isArray(q.metadata.correct_answer)
-        ? q.metadata.correct_answer.join(' | ')
-        : q.metadata.correct_answer || '',
-      explanation: q.metadata.explanation || '',
-    }));
+    const csvData = generatedQuestions.map((q) => {
+      const options = q.metadata.options ? { options: q.metadata.options.map((text, i) => ({ id: String.fromCharCode(97 + i), text })) } : {};
+      const solution = {
+        correct_answer: q.metadata.correct_answer,
+        explanation: q.metadata.explanation
+      };
+
+      return {
+        content: q.text,
+        type: q.question_type === 'mcq' ? 'multiple_choice' : q.question_type,
+        points: q.difficulty === 'hard' ? 20 : q.difficulty === 'medium' ? 10 : 5,
+        status: 'draft',
+        options: JSON.stringify(options),
+        solution: JSON.stringify(solution),
+        explanation: q.metadata.explanation || '',
+      };
+    });
 
     const csv = Papa.unparse(csvData);
     const blob = new Blob([csv], { type: 'text/csv;charset=utf-8;' });
@@ -94,6 +111,57 @@ export const GenerationPage: React.FC = () => {
     document.body.appendChild(link);
     link.click();
     document.body.removeChild(link);
+  };
+
+  const handleImportDirectly = async () => {
+    if (generatedQuestions.length === 0) return;
+    if (!selectedSkillId) {
+      setError('Please select a skill to import to');
+      return;
+    }
+
+    setIsSaving(true);
+    setError(null);
+
+    try {
+      const questionsToImport = generatedQuestions.map((q, index) => {
+        // Transform the AI metadata to the DB options/solution schema
+        const options = q.metadata.options ? { 
+          options: q.metadata.options.map((text, i) => ({ id: String.fromCharCode(97 + i), text })) 
+        } : {};
+        
+        const solution = {
+          correct_answer: q.metadata.correct_answer,
+          explanation: q.metadata.explanation
+        };
+
+        return {
+          content: q.text,
+          type: q.question_type === 'mcq' ? 'multiple_choice' : q.question_type,
+          points: q.difficulty === 'hard' ? 20 : q.difficulty === 'medium' ? 10 : 5,
+          status: 'draft' as const,
+          options,
+          solution,
+          explanation: q.metadata.explanation || '',
+          skill_id: selectedSkillId,
+          sort_order: (generatedQuestions.length * 100) + index // Temporary sort order strategy
+        };
+      });
+
+      await bulkCreate.mutateAsync(questionsToImport as any);
+      
+      toast({
+        title: 'Success!',
+        description: `Successfully imported ${questionsToImport.length} questions to the selected skill.`,
+      });
+      
+      setGeneratedQuestions([]); // Clear after successful import
+    } catch (err) {
+      console.error('Import error:', err);
+      setError(err instanceof Error ? err.message : 'Failed to save questions to library');
+    } finally {
+      setIsSaving(false);
+    }
   };
 
   const totalQuestions = difficultyConfig.easy + difficultyConfig.medium + difficultyConfig.hard;
@@ -236,17 +304,45 @@ export const GenerationPage: React.FC = () => {
       {/* Step 3: Review & Export */}
       {generatedQuestions.length > 0 && (
         <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-6">
-          <div className="flex items-center justify-between mb-4">
+          <div className="flex flex-col md:flex-row items-start md:items-center justify-between gap-4 mb-6">
             <h2 className="text-xl font-semibold text-gray-800">
-              Step 3: Review & Export
+              Step 3: Review & Save
             </h2>
-            <button
-              onClick={handleExportCSV}
-              className="bg-green-600 text-white font-semibold py-2 px-4 rounded-md hover:bg-green-700 transition-all flex items-center gap-2"
-            >
-              <Download className="w-4 h-4" />
-              Export to CSV
-            </button>
+            <div className="flex flex-wrap items-center gap-2">
+              <select
+                value={selectedSkillId}
+                onChange={(e) => setSelectedSkillId(e.target.value)}
+                className="px-3 py-2 border border-gray-300 rounded-md text-sm min-w-[200px]"
+              >
+                <option value="">Select Target Skill...</option>
+                {skills?.map((skill: any) => (
+                  <option key={skill.id} value={skill.id}>
+                    {skill.title}
+                  </option>
+                ))}
+              </select>
+              
+              <button
+                onClick={handleImportDirectly}
+                disabled={isSaving || !selectedSkillId}
+                className="bg-purple-600 text-white font-semibold py-2 px-4 rounded-md hover:bg-purple-700 transition-all flex items-center gap-2 disabled:opacity-50"
+              >
+                {isSaving ? (
+                  <div className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin" />
+                ) : (
+                  <Save className="w-4 h-4" />
+                )}
+                Save to Library
+              </button>
+
+              <button
+                onClick={handleExportCSV}
+                className="bg-green-600 text-white font-semibold py-2 px-4 rounded-md hover:bg-green-700 transition-all flex items-center gap-2"
+              >
+                <Download className="w-4 h-4" />
+                Export CSV
+              </button>
+            </div>
           </div>
 
           <QuestionReviewGrid
@@ -260,9 +356,9 @@ export const GenerationPage: React.FC = () => {
             </h4>
             <ol className="text-sm text-blue-800 space-y-1 list-decimal list-inside">
               <li>Review and edit the generated questions above</li>
-              <li>Click "Export to CSV" to download the questions</li>
-              <li>Navigate to Questions page and use "Bulk Import" feature</li>
-              <li>Upload the CSV file to add questions to your curriculum</li>
+              <li>Choose a target skill from the dropdown</li>
+              <li>Click "Save to Library" to import directly OR "Export CSV" for manual bulk import</li>
+              <li>Verify the questions in the curriculum management page</li>
             </ol>
           </div>
         </div>

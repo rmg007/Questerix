@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 import { useApp } from '@/contexts/AppContext';
 import { Link } from 'react-router-dom';
 import { 
@@ -6,7 +7,8 @@ import {
     useBulkDeleteQuestions, 
     useBulkUpdateQuestionsStatus, 
     useDuplicateQuestion, 
-    useUpdateQuestionOrder 
+    useUpdateQuestionOrder,
+    useBulkCreateQuestions
 } from '../hooks/use-questions';
 import { useSkills } from '../hooks/use-skills';
 import { useState, useEffect, useMemo } from 'react';
@@ -31,10 +33,11 @@ import {
 const QUESTION_COLUMNS: DataColumn[] = [
     { key: 'content', header: 'content' },
     { key: 'type', header: 'type' },
-    { key: 'skills', header: 'skill_title', transform: (v: unknown) => (v as { title?: string } | null)?.title ?? '' },
     { key: 'points', header: 'points' },
-    { key: 'sort_order', header: 'sort_order' },
     { key: 'status', header: 'status' },
+    { key: 'options', header: 'options' },
+    { key: 'solution', header: 'solution' },
+    { key: 'explanation', header: 'explanation' },
 ];
 import {
     DndContext,
@@ -299,11 +302,13 @@ export function QuestionList() {
         sortOrder,
     });
     const { data: skills } = useSkills();
+
     const deleteQuestion = useDeleteQuestion();
     const bulkDelete = useBulkDeleteQuestions();
     const bulkUpdateStatus = useBulkUpdateQuestionsStatus();
     const duplicateQuestion = useDuplicateQuestion();
     const updateQuestionOrder = useUpdateQuestionOrder();
+    const bulkCreate = useBulkCreateQuestions();
     const { toast } = useToast();
     
     const showToast = (title: string, type: 'success' | 'error' = 'success') => {
@@ -343,7 +348,7 @@ export function QuestionList() {
         setPage(1);
     }, [selectedSkillId, statusFilter]);
 
-    const questions = paginatedData?.data ?? [];
+    const questions = useMemo(() => paginatedData?.data ?? [], [paginatedData?.data]);
     const totalCount = paginatedData?.totalCount ?? 0;
     const totalPages = paginatedData?.totalPages ?? 1;
 
@@ -470,6 +475,47 @@ export function QuestionList() {
         }
     };
 
+    const handleImport = async (data: Record<string, any>[]) => {
+        if (!currentApp) return;
+        if (selectedSkillId === 'all') {
+            alert('Please select a specific skill filter before importing to assign questions to that skill.');
+            return;
+        }
+
+        try {
+            const questionsToImport = data.map((item, index) => {
+                const parseField = (field: any) => {
+                    if (typeof field === 'string') {
+                        try {
+                            return JSON.parse(field);
+                        } catch {
+                            return {};
+                        }
+                    }
+                    return field || {};
+                };
+
+                return {
+                    content: item.content || '',
+                    type: (item.type || 'multiple_choice') as any,
+                    points: parseInt(item.points) || 1,
+                    status: (item.status || 'draft') as any,
+                    options: parseField(item.options),
+                    solution: parseField(item.solution),
+                    explanation: item.explanation || '',
+                    skill_id: selectedSkillId,
+                    sort_order: (paginatedData?.totalCount ?? 0) + index + 1
+                };
+            });
+
+            await bulkCreate.mutateAsync(questionsToImport as any);
+            showToast(`Successfully imported ${questionsToImport.length} questions`, 'success');
+        } catch (error) {
+            console.error('Import error:', error);
+            showToast('Failed to import questions. Check console for details.', 'error');
+        }
+    };
+
     const handlePageChange = (newPage: number) => {
         setPage(newPage);
         setSelectedIds(new Set());
@@ -555,7 +601,7 @@ export function QuestionList() {
                     <p className="text-muted-foreground">Manage curriculum questions and assessments</p>
                 </div>
                 <div className="flex gap-2">
-                    <Link to="/questions/ai-generator">
+                    <Link to="/ai-questions">
                         <Button variant="outline" className="gap-2 bg-gradient-to-r from-purple-50 to-blue-50 border-purple-200 text-purple-700 hover:bg-purple-100">
                             <Sparkles className="h-4 w-4" />
                             AI Generator
@@ -574,6 +620,7 @@ export function QuestionList() {
                 data={questions as any[]}
                 columns={QUESTION_COLUMNS}
                 entityName="Questions"
+                onImport={handleImport}
                 importDisabled={false}
                 importDisabledMessage="Question import is not available. Please create questions manually."
             />

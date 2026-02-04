@@ -2,17 +2,9 @@ import React, { useEffect, useState } from 'react';
 import { supabase } from '@/lib/supabase';
 import { Clock, DollarSign, FileText, AlertCircle } from 'lucide-react';
 
-interface GenerationSession {
-  id: string;
-  created_at: string;
-  created_by: string;
-  model_used: string;
-  questions_generated: number;
-  questions_imported: number;
-  token_count: number;
-  generation_time_ms: number;
-  status: 'reviewing' | 'approved' | 'rejected' | 'imported';
-}
+import { Database } from '@/lib/database.types';
+
+type GenerationSession = Database['public']['Tables']['ai_generation_sessions']['Row'];
 
 const MODEL_PRICING: Record<string, { input: number; output: number }> = {
   'gemini-1.5-flash': { input: 0.000075, output: 0.0003 }, // per 1k tokens
@@ -48,7 +40,7 @@ export const SessionsPage: React.FC = () => {
 
   const calculateCost = (session: GenerationSession): number => {
     const pricing = MODEL_PRICING[session.model_used] || MODEL_PRICING['gemini-1.5-flash'];
-    const tokensInThousands = session.token_count / 1000;
+    const tokensInThousands = (session.token_count || 0) / 1000;
     // Assume 50/50 split input/output for simplicity
     const estimatedCost =
       (tokensInThousands * 0.5 * pricing.input) + (tokensInThousands * 0.5 * pricing.output);
@@ -56,11 +48,12 @@ export const SessionsPage: React.FC = () => {
   };
 
   const totalCost = sessions.reduce((sum, session) => sum + calculateCost(session), 0);
-  const totalQuestionsGenerated = sessions.reduce((sum, s) => sum + s.questions_generated, 0);
-  const totalQuestionsImported = sessions.reduce((sum, s) => sum + s.questions_imported, 0);
+  const totalQuestionsGenerated = sessions.reduce((sum, s) => sum + (s.questions_generated || 0), 0);
+  const totalQuestionsImported = sessions.reduce((sum, s) => sum + (s.questions_imported || 0), 0);
 
-  const getStatusBadgeColor = (status: string) => {
-    switch (status) {
+  const getStatusBadgeColor = (status: string | null) => {
+    if (!status) return 'bg-gray-100 text-gray-800';
+    switch (status.toLowerCase()) {
       case 'reviewing':
         return 'bg-yellow-100 text-yellow-800';
       case 'approved':
@@ -150,7 +143,7 @@ export const SessionsPage: React.FC = () => {
           </div>
           <p className="text-2xl font-bold text-gray-900">
             {sessions.length > 0
-              ? (sessions.reduce((sum, s) => sum + s.generation_time_ms, 0) / sessions.length / 1000).toFixed(1)
+              ? (sessions.reduce((sum, s) => sum + (s.generation_time_ms || 0), 0) / sessions.length / 1000).toFixed(1)
               : 0}s
           </p>
           <p className="text-xs text-gray-500 mt-1">per session</p>
@@ -205,7 +198,7 @@ export const SessionsPage: React.FC = () => {
                     {session.questions_imported}
                   </td>
                   <td className="px-4 py-3 text-sm text-right text-gray-700">
-                    {(session.generation_time_ms / 1000).toFixed(2)}s
+                    {((session.generation_time_ms || 0) / 1000).toFixed(2)}s
                   </td>
                   <td className="px-4 py-3 text-sm text-right text-gray-700 font-medium">
                     ${calculateCost(session).toFixed(4)}
@@ -216,7 +209,7 @@ export const SessionsPage: React.FC = () => {
                         session.status
                       )}`}
                     >
-                      {session.status.toUpperCase()}
+                      {(session.status || 'reviewing').toUpperCase()}
                     </span>
                   </td>
                 </tr>

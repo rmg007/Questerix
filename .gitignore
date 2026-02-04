@@ -49,6 +49,9 @@ pubspec.lock
 *.env
 *.env.*
 
+# Local secret documentation (never commit)
+*.local.md
+
 # Temporary Scrub Scripts (Local only)
 scrub.ps1
 scrub.js

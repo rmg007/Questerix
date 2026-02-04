@@ -15,6 +15,8 @@
 | **Set up locally** | [Setup Guide](scripts/knowledge-base/README.md) |
 | **See what was built** | [Implementation Summary](.agent/artifacts/PHASE_11_SUMMARY.md) |
 | **Use the /reindex_docs workflow** | [Reindex Workflow](.agent/workflows/reindex_docs.md) |
+| **Control Antigravity via Slack** | [Slack Integration](docs/operational/SLACK_INTEGRATION.md) |
+| **Quick Slack commands** | [Slack Quick Reference](docs/operational/SLACK_QUICK_REF.md) |
 
 ---
 
@@ -28,8 +30,13 @@ Questerix/
 │   │   ├── ARCHITECTURE.md              # Complete system design (9,000+ words)
 │   │   ├── USER_GUIDE.md                # How to search docs
 │   │   └── ADMIN_GUIDE.md               # How to manage and maintain
+│   ├── operational/                     # 🆕 Operational Procedures
+│   │   ├── SLACK_INTEGRATION.md         # Slack Mobile Command Bridge setup
+│   │   └── SLACK_QUICK_REF.md           # Quick command reference
 │   └── technical/
 │       └── KNOWLEDGE_INDEX.md           # Technical overview
+│   └── strategy/
+│       └── AGENTS.md                    # Agent execution contract (includes Slack protocol)
 │
 ├── scripts/
 │   └── knowledge-base/                  # 🆕 Oracle Implementation

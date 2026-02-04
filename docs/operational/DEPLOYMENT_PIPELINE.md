@@ -193,6 +193,7 @@ The orchestrator executes 5 phases in sequence:
 
 ### Phase 5: Cleanup & Report
 - Removes generated environment files
+- **Syncs AI Performance Registry**: Updates `kb_registry` and `kb_metrics` in Supabase (deterministic agent performance)
 - Displays deployment summary with live URLs
 - Logs all output to `deploy-{timestamp}.log`
 

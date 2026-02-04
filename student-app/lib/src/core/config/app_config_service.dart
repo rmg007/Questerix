@@ -7,7 +7,7 @@ import 'env.dart';
 class AppContext {
   final String appId;
   final String appName;
-  final String primaryColor;
+  final int primaryColor;
 
   const AppContext({
     required this.appId,
@@ -15,6 +15,7 @@ class AppContext {
     required this.primaryColor,
   });
 }
+
 
 /// Provides access to the current [AppContext] and manages its loading.
 final appConfigProvider = StateNotifierProvider<AppConfigService, AppContext?>((ref) {
@@ -33,7 +34,7 @@ class AppConfigService extends StateNotifier<AppContext?> {
 
   Future<AppContext> load() async {
     // 1. Detect Subdomain (Web) or Flavor (Mobile)
-    String subdomain = 'math7'; // Default
+    String subdomain = 'app'; // Default for app.questerix.com
 
     if (kIsWeb) {
        final uri = Uri.base;
@@ -47,19 +48,20 @@ class AppConfigService extends StateNotifier<AppContext?> {
        }
     }
 
-    // 2. Fetch Config from Database
+    // 2. Fetch Config from Database (apps table)
     try {
       final response = await _supabase
-          .from('app_landing_pages')
-          .select('app_id, hero_title, theme')
+          .from('apps')
+          .select('app_id, display_name, subdomain')
           .eq('subdomain', subdomain)
+          .eq('is_active', true)
           .maybeSingle();
 
       if (response != null) {
           final context = AppContext(
             appId: response['app_id'] as String,
-            appName: (response['hero_title'] as String?) ?? Env.appName,
-            primaryColor: (response['theme'] as Map?)?['primary'] as String? ?? '0xFF319795',
+            appName: (response['display_name'] as String?) ?? Env.appName,
+            primaryColor: Env.themePrimaryColor, // Use env config for theme
           );
           
           state = context;
@@ -69,14 +71,16 @@ class AppConfigService extends StateNotifier<AppContext?> {
       debugPrint('Error loading app config for subdomain $subdomain: $e');
     }
 
-    // 3. Fallback / Offline
-    const defaultContext = AppContext(
-      appId: '11111111-1111-1111-1111-111111111111', // Math7 Baseline ID
-      appName: 'Math7 (Offline)',
-      primaryColor: '0xFF319795',
+    // 3. Fallback / Offline - use default app entry
+    final defaultContext = AppContext(
+      appId: '51f42753-b192-4bf8-9a3b-18269ad4096a', // 'app' subdomain app_id
+      appName: Env.appName,
+      primaryColor: Env.themePrimaryColor,
     );
+
     
     state = defaultContext;
     return defaultContext;
   }
 }
+

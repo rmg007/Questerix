@@ -28,6 +28,9 @@ param(
     [switch]$DryRun
 )
 
+# HARD RULE: Never publish landing pages during development phase
+$SkipLanding = $true
+
 # =============================================================================
 # CONFIGURATION
 # =============================================================================
@@ -73,12 +76,27 @@ function Invoke-PhaseValidation {
     Write-Phase "PHASE 1: VALIDATION"
     
     # Check required tools
-    $requiredTools = @('node', 'npm', 'flutter', 'wrangler')
+    $requiredTools = @('node', 'npm', 'flutter')
     foreach ($tool in $requiredTools) {
         if (-not (Get-Command $tool -ErrorAction SilentlyContinue)) {
             Write-Err "Required tool not found: $tool"
             exit 1
         }
+    }
+    
+    # Check wrangler (can be global or via npx)
+    if (-not (Get-Command 'wrangler' -ErrorAction SilentlyContinue)) {
+        Write-Info "Wrangler not found in PATH, checking if npx can run it..."
+        try {
+            # Just check if we can call npx wrangler --version
+            $null = npx wrangler --version 2>&1
+            Write-Success "Wrangler available via npx"
+        } catch {
+            Write-Err "Wrangler not found and npx cannot run it."
+            exit 1
+        }
+    } else {
+        Write-Success "Wrangler found in PATH"
     }
     Write-Success "All required tools available"
     
@@ -111,11 +129,11 @@ function Invoke-PhaseValidation {
         }
     }
     
-    if (-not $env:CLOUDFLARE_API_TOKEN) {
-        Write-Err "CLOUDFLARE_API_TOKEN not set in .secrets"
-        exit 1
+    if (-not $env:CLOUDFLARE_API_TOKEN -or $env:CLOUDFLARE_API_TOKEN -eq 'REPLACE_ME') {
+        Write-Warn "CLOUDFLARE_API_TOKEN not set in .secrets. Deployment will rely on local Wrangler login."
+    } else {
+        Write-Success "Cloudflare credentials loaded"
     }
-    Write-Success "Secrets loaded into environment"
     
     # Determine config file
     $script:ConfigFile = Join-Path $ScriptDir 'master-config.json'
@@ -241,7 +259,7 @@ function Invoke-PhaseDeploy {
         return
     }
     
-    & (Join-Path $ScriptDir 'scripts\deploy\deploy-all.ps1') -ConfigFile $script:ConfigFile
+    & (Join-Path $ScriptDir 'scripts\deploy\deploy-all.ps1') -ConfigFile $script:ConfigFile -SkipLanding:$SkipLanding
     
     Write-Success "All applications deployed"
 }
@@ -261,6 +279,16 @@ function Invoke-PhaseCleanup {
     if (Test-Path $envProd) { Remove-Item -Force $envProd }
     if (Test-Path $flutterDefines) { Remove-Item -Force $flutterDefines }
     
+    # Update AI Performance Registry
+    Write-Info "Syncing AI Performance Registry..."
+    try {
+        & (Join-Path $ScriptDir 'scripts\knowledge-base\sync-registry.ps1')
+        # Note: Actual database update happens via agent tool or manual CLI. 
+        # In a headless CI environment, we would use 'supabase db execute'.
+    } catch {
+        Write-Warn "Registry sync failed: $_"
+    }
+
     # Final report
     $cfLanding = $script:Config.cloudflare.landing_project
     $cfAdmin = $script:Config.cloudflare.admin_project

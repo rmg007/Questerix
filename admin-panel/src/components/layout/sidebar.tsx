@@ -1,5 +1,5 @@
 import { Link, useLocation, useNavigate } from 'react-router-dom'
-import { LayoutDashboard, Book, Layers, FileText, Upload, LogOut, Settings, Key, History, Users, X, UserCog } from 'lucide-react'
+import { LayoutDashboard, Book, Layers, FileText, Upload, LogOut, Settings, Key, History, Users, X, UserCog, Shield, Bug, AlertTriangle } from 'lucide-react'
 import { cn } from '@/lib/utils'
 import { supabase } from '@/lib/supabase'
 import { useState, useEffect } from 'react'
@@ -18,11 +18,14 @@ const baseNavigation = [
   { name: 'Questions', href: '/questions', icon: FileText },
   { name: 'Publish', href: '/publish', icon: Upload },
   { name: 'Version History', href: '/versions', icon: History },
+  { name: 'Error Logs', href: '/error-logs', icon: AlertTriangle },
+  { name: 'Known Issues', href: '/known-issues', icon: Bug },
 ]
 
 const superAdminNavigation = [
   { name: 'Invitation Codes', href: '/invitation-codes', icon: Key },
   { name: 'User Management', href: '/users', icon: UserCog },
+  { name: 'AI Governance', href: '/governance', icon: Shield },
 ]
 
 const bottomNavigation = [
@@ -80,7 +83,7 @@ export function Sidebar({ isOpen = true, onClose, isMobile = false }: SidebarPro
   }, [])
 
   const navigation = [
-    ...baseNavigation,
+    ...baseNavigation.filter(item => !(isSuperAdmin && item.name === 'My Groups')),
     ...(isSuperAdmin ? superAdminNavigation : []),
     ...bottomNavigation,
   ]

@@ -3,6 +3,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:student_app/src/core/connectivity/connectivity_service.dart';
 import 'package:student_app/src/core/sync/sync_service.dart';
 import 'package:student_app/src/core/theme/app_theme.dart';
+import 'package:student_app/src/core/theme/generated/generated.dart';
 import 'package:student_app/src/features/curriculum/screens/domains_screen.dart';
 import 'package:student_app/src/features/progress/screens/progress_screen.dart';
 import 'package:student_app/src/features/settings/screens/settings_screen.dart';
@@ -24,6 +25,83 @@ class MainShell extends ConsumerWidget {
       const SettingsScreen(),
     ];
 
+    // Responsive breakpoints
+    final screenWidth = MediaQuery.of(context).size.width;
+    final isTablet = screenWidth >= Breakpoints.tablet;
+    final isDesktop = screenWidth >= Breakpoints.desktop;
+
+    // Navigation items
+    final destinations = [
+      _NavDestination(
+        icon: AppIcons.home,
+        selectedIcon: AppIcons.home,
+        label: 'Home',
+      ),
+      _NavDestination(
+        icon: AppIcons.progress,
+        selectedIcon: AppIcons.progress,
+        label: 'Progress',
+        badge: syncState.isSyncing ? const _SyncingBadge() : null,
+      ),
+      _NavDestination(
+        icon: AppIcons.settings,
+        selectedIcon: AppIcons.settings,
+        label: 'Settings',
+        badge: connectivityAsync.maybeWhen(
+          data: (status) => status == ConnectivityStatus.offline
+              ? const _OfflineBadge()
+              : null,
+          orElse: () => null,
+        ),
+      ),
+    ];
+
+    // Desktop/Tablet: NavigationRail + Content (centered)
+    if (isTablet) {
+      return Scaffold(
+        body: Row(
+          children: [
+            // NavigationRail
+            NavigationRail(
+              selectedIndex: currentTab,
+              onDestinationSelected: (index) =>
+                  ref.read(currentTabProvider.notifier).state = index,
+              extended: isDesktop,
+              minWidth: 72,
+              minExtendedWidth: 200,
+              backgroundColor: Theme.of(context).scaffoldBackgroundColor,
+              destinations: destinations.map((d) => NavigationRailDestination(
+                icon: Badge(
+                  isLabelVisible: d.badge != null,
+                  child: Icon(d.icon),
+                ),
+                selectedIcon: Badge(
+                  isLabelVisible: d.badge != null,
+                  child: Icon(d.selectedIcon),
+                ),
+                label: Text(d.label),
+              )).toList(),
+            ),
+            // Divider
+            const VerticalDivider(thickness: 1, width: 1),
+            // Content (centered with max-width)
+            Expanded(
+              child: Center(
+                child: ConstrainedBox(
+                  constraints: const BoxConstraints(maxWidth: 1200),
+                  child: IndexedStack(
+                    index: currentTab,
+                    children: screens,
+                  ),
+                ),
+              ),
+            ),
+          ],
+        ),
+      );
+    }
+
+    // Mobile: BottomNavigationBar
     return Scaffold(
       body: IndexedStack(
         index: currentTab,
@@ -42,65 +120,80 @@ class MainShell extends ConsumerWidget {
         child: BottomNavigationBar(
           currentIndex: currentTab,
           onTap: (index) => ref.read(currentTabProvider.notifier).state = index,
-          items: [
-            const BottomNavigationBarItem(
-              icon: Icon(Icons.home_outlined),
-              activeIcon: Icon(Icons.home),
-              label: 'Home',
-            ),
-            BottomNavigationBarItem(
-              icon: Stack(
-                clipBehavior: Clip.none,
-                children: [
-                  const Icon(Icons.trending_up_outlined),
-                  if (syncState.isSyncing)
-                    const Positioned(
-                      right: -4,
-                      top: -4,
-                      child: SizedBox(
-                        width: 12,
-                        height: 12,
-                        child: CircularProgressIndicator(
-                          strokeWidth: 2,
-                          color: AppColors.primary,
-                        ),
-                      ),
-                    ),
-                ],
-              ),
-              activeIcon: const Icon(Icons.trending_up),
-              label: 'Progress',
-            ),
-            BottomNavigationBarItem(
-              icon: Stack(
-                clipBehavior: Clip.none,
-                children: [
-                  const Icon(Icons.settings_outlined),
-                  connectivityAsync.when(
-                    data: (status) => status == ConnectivityStatus.offline
-                        ? Positioned(
-                            right: -4,
-                            top: -4,
-                            child: Container(
-                              width: 10,
-                              height: 10,
-                              decoration: const BoxDecoration(
-                                color: AppColors.offline,
-                                shape: BoxShape.circle,
-                              ),
-                            ),
-                          )
-                        : const SizedBox.shrink(),
-                    loading: () => const SizedBox.shrink(),
-                    error: (_, __) => const SizedBox.shrink(),
+          items: destinations.map((d) => BottomNavigationBarItem(
+            icon: Stack(
+              clipBehavior: Clip.none,
+              children: [
+                Icon(d.icon),
+                if (d.badge != null)
+                  Positioned(
+                    right: -4,
+                    top: -4,
+                    child: d.badge!,
                   ),
-                ],
-              ),
-              activeIcon: const Icon(Icons.settings),
-              label: 'Settings',
+              ],
             ),
-          ],
+            activeIcon: Stack(
+              clipBehavior: Clip.none,
+              children: [
+                Icon(d.selectedIcon),
+                if (d.badge != null)
+                  Positioned(
+                    right: -4,
+                    top: -4,
+                    child: d.badge!,
+                  ),
+              ],
+            ),
+            label: d.label,
+          )).toList(),
         ),
+      ),
+    );
+  }
+}
+
+class _NavDestination {
+  final IconData icon;
+  final IconData selectedIcon;
+  final String label;
+  final Widget? badge;
+
+  _NavDestination({
+    required this.icon,
+    required this.selectedIcon,
+    required this.label,
+    this.badge,
+  });
+}
+
+class _SyncingBadge extends StatelessWidget {
+  const _SyncingBadge();
+
+  @override
+  Widget build(BuildContext context) {
+    return const SizedBox(
+      width: 12,
+      height: 12,
+      child: CircularProgressIndicator(
+        strokeWidth: 2,
+        color: AppColors.primary,
+      ),
+    );
+  }
+}
+
+class _OfflineBadge extends StatelessWidget {
+  const _OfflineBadge();
+
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      width: 10,
+      height: 10,
+      decoration: const BoxDecoration(
+        color: AppColors.offline,
+        shape: BoxShape.circle,
       ),
     );
   }

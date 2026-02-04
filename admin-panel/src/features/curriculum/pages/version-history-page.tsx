@@ -1,7 +1,7 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 import { useQuery } from '@tanstack/react-query';
 import { supabase } from '@/lib/supabase';
-import { History, Calendar, Package } from 'lucide-react';
+import { History, Calendar, Package, Download } from 'lucide-react';
 
 interface PublishHistory {
   version: number;
@@ -53,6 +53,35 @@ export function VersionHistoryPage() {
       return data;
     },
   });
+
+  const handleExport = async (version: number) => {
+    try {
+      const { data, error } = await supabase
+        .from('curriculum_snapshots')
+        .select('content')
+        .eq('version', version)
+        .single();
+
+      if (error) throw error;
+      if (!data?.content) {
+        alert('No content found for this version');
+        return;
+      }
+
+      const blob = new Blob([JSON.stringify(data.content, null, 2)], { type: 'application/json' });
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement('a');
+      a.href = url;
+      a.download = `questerix-curriculum-v${version}.json`;
+      document.body.appendChild(a);
+      a.click();
+      document.body.removeChild(a);
+      URL.revokeObjectURL(url);
+    } catch (error) {
+      console.error('Export failed:', error);
+      alert('Failed to export version data');
+    }
+  };
 
   return (
     <div className="space-y-6">
@@ -114,19 +143,28 @@ export function VersionHistoryPage() {
                       </div>
                     </div>
                   </div>
-                  <div className="flex items-center gap-6 text-sm">
-                    <div className="text-center">
-                      <p className="font-semibold text-gray-900">{item.domains_count}</p>
-                      <p className="text-gray-500">Domains</p>
+                  <div className="flex items-center gap-4">
+                    <div className="flex items-center gap-6 text-sm mr-4">
+                      <div className="text-center">
+                        <p className="font-semibold text-gray-900">{item.domains_count}</p>
+                        <p className="text-gray-500">Domains</p>
+                      </div>
+                      <div className="text-center">
+                        <p className="font-semibold text-gray-900">{item.skills_count}</p>
+                        <p className="text-gray-500">Skills</p>
+                      </div>
+                      <div className="text-center">
+                        <p className="font-semibold text-gray-900">{item.questions_count}</p>
+                        <p className="text-gray-500">Questions</p>
+                      </div>
                     </div>
-                    <div className="text-center">
-                      <p className="font-semibold text-gray-900">{item.skills_count}</p>
-                      <p className="text-gray-500">Skills</p>
-                    </div>
-                    <div className="text-center">
-                      <p className="font-semibold text-gray-900">{item.questions_count}</p>
-                      <p className="text-gray-500">Questions</p>
-                    </div>
+                    <button
+                      onClick={() => handleExport(item.version)}
+                      className="p-2 text-gray-400 hover:text-purple-600 hover:bg-purple-50 rounded-lg transition-all"
+                      title="Export JSON"
+                    >
+                      <Download className="w-5 h-5" />
+                    </button>
                   </div>
                 </div>
               </div>

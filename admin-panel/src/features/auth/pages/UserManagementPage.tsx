@@ -26,6 +26,7 @@ export function UserManagementPage() {
   const [loading, setLoading] = useState(true);
   const [searchQuery, setSearchQuery] = useState('');
   const [currentUserId, setCurrentUserId] = useState<string | null>(null);
+  const [currentUserRole, setCurrentUserRole] = useState<string | null>(null);
 
   useEffect(() => {
     fetchUsers();
@@ -36,16 +37,46 @@ export function UserManagementPage() {
     const { data: { user } } = await supabase.auth.getUser();
     if (user) {
       setCurrentUserId(user.id);
+      const { data: profile } = await supabase
+        .from('profiles')
+        .select('role')
+        .eq('id', user.id)
+        .single();
+      if (profile) {
+        setCurrentUserRole(profile.role);
+      }
     }
   };
 
   const fetchUsers = async () => {
     setLoading(true);
-    const { data, error } = await supabase
-      .from('profiles')
-      .select('id, email, full_name, role, created_at, deleted_at')
-      .in('role', ['admin', 'super_admin'])
-      .order('created_at', { ascending: false });
+    
+    // Get current profile for role check
+    const { data: { user: authUser } } = await supabase.auth.getUser();
+    let userRole = currentUserRole;
+    
+    if (authUser && !userRole) {
+      const { data: profile } = await supabase
+        .from('profiles')
+        .select('role')
+        .eq('id', authUser.id)
+        .single();
+      userRole = profile?.role || null;
+      if (userRole) setCurrentUserRole(userRole);
+    }
+
+    let query = supabase.from('profiles').select('id, email, full_name, role, created_at, deleted_at');
+    
+    // Super admins should only see regular admins (and themselves)
+    // Admins seeing this page is technically a violation of current design, but if they reach it, 
+    // they shouldn't see anyone higher than them.
+    if (userRole === 'super_admin') {
+      query = query.or(`role.eq.admin,id.eq.${authUser?.id}`);
+    } else {
+      query = query.in('role', ['admin']);
+    }
+
+    const { data, error } = await query.order('created_at', { ascending: false });
 
     if (error) {
       console.error('Error fetching users:', error);

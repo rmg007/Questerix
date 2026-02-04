@@ -33,7 +33,8 @@
   
   "cloudflare": {
     "account_id": "1ad655f025b0db1974614aac7ebec10a",
-    "landing_project": "questerix-landing-staging",
+    "landing_project": "questerix-landing-staging (DISABLED - NEVER DEPLOY)",
+    "landing_status": "DISABLED",
     "admin_project": "questerix-admin-staging",
     "student_project": "questerix-student-staging"
   }

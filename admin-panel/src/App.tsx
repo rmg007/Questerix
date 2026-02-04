@@ -27,6 +27,9 @@ import { GroupDetailPage } from './features/mentorship/pages/GroupDetailPage'
 import { AssignmentCreatePage } from './features/mentorship/pages/AssignmentCreatePage'
 import { GenerationPage } from './features/ai-assistant/pages/GenerationPage'
 import { SessionsPage } from './features/ai-assistant/pages/SessionsPage'
+import { GovernancePage } from './features/ai-assistant/pages/GovernancePage'
+import { KnownIssuesPage } from './features/monitoring/pages/KnownIssuesPage'
+import { ErrorLogsPage } from './features/monitoring/pages/ErrorLogsPage'
 
 const queryClient = new QueryClient()
 
@@ -74,7 +77,14 @@ function App() {
                     <UserManagementPage />
                   </SuperAdminGuard>
                 } />
+                <Route path="/governance" element={
+                  <SuperAdminGuard>
+                    <GovernancePage />
+                  </SuperAdminGuard>
+                } />
                 <Route path="/settings" element={<AccountSettingsPage />} />
+                <Route path="/known-issues" element={<KnownIssuesPage />} />
+                <Route path="/error-logs" element={<ErrorLogsPage />} />
               </Route>
               <Route path="*" element={<Navigate to="/" replace />} />
             </Routes>

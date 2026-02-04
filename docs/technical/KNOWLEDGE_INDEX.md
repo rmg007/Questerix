@@ -302,7 +302,7 @@ See `scripts/knowledge-base/README.md` for detailed troubleshooting guide.
 ### Phase 9.2: UI Integration (Optional)
 1. **Web Interface**: Build a simple search UI for non-technical users
 2. **VS Code Extension**: Integrate search into IDE
-3. **Slack Bot**: Query docs directly from Slack
+3. **API Integration**: Query docs via API (Phase 9.3)
 
 ---
 

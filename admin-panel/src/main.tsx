@@ -1,22 +1,17 @@
 import React from 'react'
 import ReactDOM from 'react-dom/client'
-import * as Sentry from '@sentry/react'
 import App from './App.tsx'
+import { ErrorBoundary } from './components/ErrorBoundary'
+import { initErrorTracking } from './lib/error-tracker'
 import './index.css'
 
-const sentryDsn = import.meta.env.VITE_SENTRY_DSN
-
-Sentry.init({
-  dsn: sentryDsn,
-  enabled: Boolean(sentryDsn),
-  environment: import.meta.env.MODE,
-  tracesSampleRate: 1.0,
-})
+// Initialize error tracking (Supabase-native, zero cost)
+initErrorTracking();
 
 ReactDOM.createRoot(document.getElementById('root')!).render(
   <React.StrictMode>
-    <Sentry.ErrorBoundary fallback={<div>Something went wrong.</div>}>
+    <ErrorBoundary>
       <App />
-    </Sentry.ErrorBoundary>
+    </ErrorBoundary>
   </React.StrictMode>,
 )

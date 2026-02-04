@@ -1,5 +1,13 @@
 import 'package:flutter/material.dart';
 
+// Design System Integration:
+// - Generated tokens: package:student_app/src/core/theme/generated/generated.dart
+// - Use BrandColors, SemanticColors, NeutralColors for new code
+// - Legacy AppColors below is kept for backward compatibility
+// - See design-system/README.md for full documentation
+
+/// Legacy color definitions - maintained for backward compatibility
+/// For new code, prefer using generated tokens from generated/app_colors.g.dart
 class AppColors {
   static const primary = Color(0xFF6366F1);
   static const primaryDark = Color(0xFF4F46E5);

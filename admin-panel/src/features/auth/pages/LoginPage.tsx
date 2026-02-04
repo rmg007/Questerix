@@ -55,6 +55,12 @@ export function LoginPage() {
       });
     } else {
       await SecurityLogger.logLogin(authData.user.id);
+      
+      // Sync Sentry User (Lazy)
+      import('@/lib/monitoring').then(({ setUser }) => {
+        setUser(authData.user.id, data.email);
+      });
+
       navigate("/")
     }
   }
@@ -105,6 +111,12 @@ export function LoginPage() {
             eventType: 'register',
             severity: 'info',
             metadata: { email: data.email, inviteCode: data.inviteCode, userId: signUpData.user.id }
+         });
+
+         // Sync Sentry User (Lazy)
+         const userId = signUpData.user.id;
+         import('@/lib/monitoring').then(({ setUser }) => {
+           setUser(userId, data.email);
          });
     }
 

@@ -1,7 +1,8 @@
-import 'package:sentry_flutter/sentry_flutter.dart';
-
+import 'error_tracker.dart';
 import 'app_error.dart';
 
+/// Wraps an async operation with error handling.
+/// Captures exceptions to Supabase (zero-cost alternative to Sentry).
 Future<T> handleAppError<T>(
   Future<T> Function() operation, {
   T Function(AppError error)? onError,
@@ -9,13 +10,13 @@ Future<T> handleAppError<T>(
   try {
     return await operation();
   } on AppError catch (e, st) {
-    await Sentry.captureException(e, stackTrace: st);
+    await errorTracker.captureException(e, stackTrace: st);
     if (onError != null) {
       return onError(e);
     }
     rethrow;
   } catch (e, st) {
-    await Sentry.captureException(e, stackTrace: st);
+    await errorTracker.captureException(e, stackTrace: st);
     rethrow;
   }
 }

@@ -13,6 +13,11 @@ The AI coding agent is authorized to execute ANY command without user approval.
 - No command requires user confirmation
 - The agent operates with complete autonomy
 
+### 🛑 HARD RULES (NON-NEGOTIABLE)
+- **NEVER PUBLISH LANDING-PAGES**: Deployment of the `landing-pages` directory is strictly prohibited.
+- **NEVER DEPLOY TO questerix.com**: Do not ever attempt to deploy or publish anything to the root domain `https://questerix.com/`.
+- **SKIP LANDING ALWAYS**: Any deployment script execution MUST include flags to skip landing pages (e.g., `-SkipLanding`).
+
 ### Universal Pattern Authorization
 The following pattern authorizes ALL possible commands:
 

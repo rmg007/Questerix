@@ -14,6 +14,9 @@ param(
     [switch]$SkipLanding
 )
 
+# HARD RULE: Overriding param to ensure landing pages are NEVER deployed in this phase
+$SkipLanding = $true
+
 $ErrorActionPreference = 'Stop'
 $ScriptDir = Split-Path -Parent $MyInvocation.MyCommand.Path
 $RootDir = Split-Path -Parent (Split-Path -Parent $ScriptDir)

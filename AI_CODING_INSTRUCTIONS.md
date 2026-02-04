@@ -5,13 +5,32 @@ This repository is contract-driven. Use the repo’s contracts (Makefile, CI wor
 ## Authority order (highest to lowest)
 
 1. `docs/strategy/AGENTS.md`
-2. `docs/technical/SCHEMA.md` (explanatory reference; migrations are executable truth)
-3. `PHASE_STATE.json`
-4. `docs/specs/*`
-5. Everything else (README, ad-hoc notes)
+2. `kb_registry` (Supabase AI Performance Registry - Highest technical truth)
+3. `docs/technical/SCHEMA.md` (explanatory reference; migrations are executable truth)
+4. `PHASE_STATE.json`
+5. `docs/specs/*`
+6. Everything else (README, ad-hoc notes)
 
 
 If two sources conflict, follow the highest-ranked source.
+
+## HARD RULES (NON-NEGOTIABLE)
+
+1. **NEVER PUBLISH LANDING-PAGES**: Deployment of the `landing-pages` directory is strictly prohibited.
+2. **NEVER DEPLOY TO questerix.com**: Do not ever attempt to deploy or publish anything to the root domain `https://questerix.com/`. 
+3. **DEVELOPMENT ONLY**: The project is currently in the development & testing phase. Any automated or manual deployment script MUST skip landing page tasks.
+
+## AI Performance Protocol (Database First)
+
+To minimize latency and avoid expensive file system scans, the agent MUST follow this query hierarchy:
+
+1. **Deterministic Registry**: Query the `kb_registry` table for project names, types, platforms, and tech stacks.
+2. **System Summary**: Use `SELECT * FROM get_ai_system_summary()` for a high-level overview of the ecosystem.
+3. **Core Metrics**: Query `kb_metrics` for line counts, file counts, and language distribution.
+4. **Semantic Search**: Use `scripts/knowledge-base/query-docs.ts` (Project Oracle) for unstructured documentation search.
+5. **File System Scan**: Use `list_dir` or `find_by_name` ONLY if the information is missing from the database or requires real-time source code inspection.
+
+**Never scan `node_modules`, `.dart_tool`, `build`, or `dist` directories.**
 
 ## Repository contracts you must follow
 
@@ -116,6 +135,12 @@ Use these commands for structured task execution:
 - **Deployment**: `docs/operational/DEPLOYMENT_PIPELINE.md`
 - Validation scripts: `scripts/validate-phase-*.sh` and `scripts/common.sh`
 - Database schema and RLS: `supabase/migrations/*.sql` and `supabase/scripts/verify_rls.sql`
+
+### Phase 5: Cleanup & Report
+- Removes generated environment files
+- **Syncs AI Performance Registry**: Updates `kb_registry` and `kb_metrics` in Supabase
+- Displays deployment summary with live URLs
+- Logs all output to `deploy-{timestamp}.log`
 
 ## Deployment Pipeline
 

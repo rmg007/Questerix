@@ -29,6 +29,7 @@ dependencies:
     path: ../questerix_domain
   flutter_secure_storage: ^10.0.0
   crypto: ^3.0.7
+  lucide_icons: ^0.257.0
 
 dev_dependencies:
   flutter_test:

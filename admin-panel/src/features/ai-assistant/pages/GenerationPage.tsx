@@ -3,10 +3,11 @@ import React, { useState } from 'react';
 import { Wand2, Download, AlertCircle, Save } from 'lucide-react';
 import { DocumentUploader } from '../components/DocumentUploader';
 import { QuestionReviewGrid, GeneratedQuestion } from '../components/QuestionReviewGrid';
-import { generateQuestions } from '../api/generateQuestions';
 import { useSkills } from '@/features/curriculum/hooks/use-skills';
 import { useBulkCreateQuestions } from '@/features/curriculum/hooks/use-questions';
 import { useToast } from '@/hooks/use-toast';
+import { useApp } from '@/contexts/AppContext';
+import { governedGenerateQuestions } from '../api/governedGeneration';
 import Papa from 'papaparse';
 
 interface DifficultyConfig {
@@ -29,10 +30,13 @@ export const GenerationPage: React.FC = () => {
   const [isSaving, setIsSaving] = useState(false);
   const [selectedSkillId, setSelectedSkillId] = useState<string>('');
   const [error, setError] = useState<string | null>(null);
+  const [validationSummary, setValidationSummary] = useState<any>(null);
+  const [governanceInfo, setGovernanceInfo] = useState<any>(null);
 
   const { data: skills } = useSkills();
   const bulkCreate = useBulkCreateQuestions();
   const { toast } = useToast();
+  const { currentApp } = useApp();
 
   const handleTextExtracted = (text: string, filename: string) => {
     setExtractedText(text);
@@ -56,20 +60,37 @@ export const GenerationPage: React.FC = () => {
     setError(null);
 
     try {
-      const { questions, metadata } = await generateQuestions({
+      if (!currentApp) throw new Error('No active app context found');
+
+      const result = await governedGenerateQuestions(currentApp.app_id, {
         text: extractedText,
         difficulty_distribution: difficultyConfig,
         custom_instructions: customInstructions || undefined,
       });
 
-      // Transform API response to GeneratedQuestion format
-      const transformedQuestions: GeneratedQuestion[] = questions.map((q, index) => ({
-        ...q,
-        id: `q-${Date.now()}-${index}`,
-      }));
+      // Transform API response to GeneratedQuestion format with validation findings
+      const transformedQuestions: GeneratedQuestion[] = result.questions.map((q, index) => {
+        const finding = result.validation?.findings.find(f => f.question_id === index);
+        return {
+          ...q,
+          id: `q-${Date.now()}-${index}`,
+          validation_errors: finding?.issues || [],
+        };
+      });
 
       setGeneratedQuestions(transformedQuestions);
-      console.log(`Generated ${metadata.questions_generated} questions in ${metadata.generation_time_ms}ms`);
+      setValidationSummary(result.validation);
+      setGovernanceInfo(result.governance);
+      
+      console.log(`Generated ${result.metadata.questions_generated} questions.`);
+      
+      if (result.validation?.status === 'flagged') {
+        toast({
+          title: 'Validation Warning',
+          description: 'AI content was generated but flagged for quality. Please review issues.',
+          variant: 'destructive'
+        });
+      }
     } catch (err) {
       console.error('Generation error:', err);
       setError(err instanceof Error ? err.message : 'Failed to generate questions');
@@ -297,6 +318,41 @@ export const GenerationPage: React.FC = () => {
                 </>
               )}
             </button>
+          </div>
+        </div>
+      )}
+
+      {/* Governance & Validation Summary */}
+      {governanceInfo && (
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+          <div className="bg-white p-4 rounded-lg shadow-sm border border-gray-200">
+            <h4 className="text-xs font-bold text-gray-500 uppercase mb-1">Tokens Consumed</h4>
+            <p className="text-2xl font-bold text-gray-900">{governanceInfo.tokens_consumed.toLocaleString()}</p>
+          </div>
+          <div className="bg-white p-4 rounded-lg shadow-sm border border-gray-200">
+            <h4 className="text-xs font-bold text-gray-500 uppercase mb-1">Quota Remaining</h4>
+            <p className="text-2xl font-bold text-purple-600">{governanceInfo.quota_remaining.toLocaleString()}</p>
+          </div>
+          <div className={`bg-white p-4 rounded-lg shadow-sm border border-gray-200 ${validationSummary?.status === 'approved' ? 'border-green-200' : 'border-red-200'}`}>
+            <h4 className="text-xs font-bold text-gray-500 uppercase mb-1">Validation Status</h4>
+            <div className="flex items-center gap-2">
+              <span className={`text-2xl font-bold ${validationSummary?.status === 'approved' ? 'text-green-600' : 'text-red-500'}`}>
+                {validationSummary?.status.toUpperCase()}
+              </span>
+              <span className="text-sm font-medium text-gray-500">
+                Score: {(validationSummary?.overall_score * 100).toFixed(0)}%
+              </span>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {validationSummary && validationSummary.status !== 'approved' && (
+        <div className="bg-amber-50 border border-amber-200 p-4 rounded-lg flex items-start gap-3">
+          <AlertCircle className="w-5 h-5 text-amber-500 mt-0.5" />
+          <div>
+            <h4 className="text-sm font-semibold text-amber-900">Validation Notice</h4>
+            <p className="text-sm text-amber-800">{validationSummary.summary}</p>
           </div>
         </div>
       )}

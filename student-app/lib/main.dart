@@ -5,6 +5,7 @@ import 'package:supabase_flutter/supabase_flutter.dart';
 
 import 'src/app.dart';
 import 'src/core/config/env.dart';
+import 'src/core/config/app_config_service.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
@@ -15,12 +16,26 @@ void main() async {
   // Fail-fast if configuration is missing to prevent "silent" failures.
   Env.validate();
 
+  await _initializeSupabase();
+
+  final container = ProviderContainer();
+  
+  // Initialize App Context (Multi-tenancy)
+  try {
+    await container.read(appConfigServiceProvider).load();
+  } catch (e, stack) {
+    debugPrint('Failed to load app config: $e');
+    if (Env.sentryEnabled) {
+      await Sentry.captureException(e, stackTrace: stack);
+    }
+  }
+
   // If Sentry is not enabled (or no DSN), run normally.
   if (!Env.sentryEnabled || Env.sentryDsn.isEmpty) {
-    await _initializeDependencies();
     runApp(
-      const ProviderScope(
-        child: QuesterixApp(),
+      UncontrolledProviderScope(
+        container: container,
+        child: const QuesterixApp(),
       ),
     );
     return;
@@ -32,18 +47,16 @@ void main() async {
       options.environment = Env.environment;
       options.tracesSampleRate = 1.0;
     },
-    appRunner: () async {
-      await _initializeDependencies();
-      runApp(
-        const ProviderScope(
-          child: QuesterixApp(),
-        ),
-      );
-    },
+    appRunner: () => runApp(
+      UncontrolledProviderScope(
+        container: container,
+        child: const QuesterixApp(),
+      ),
+    ),
   );
 }
 
-Future<void> _initializeDependencies() async {
+Future<void> _initializeSupabase() async {
   // Use centralized Env configuration
   // Strict mode: Throws if URL/Key are empty (Already validated by Env.validate)
   await Supabase.initialize(

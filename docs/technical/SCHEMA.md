@@ -52,6 +52,7 @@ CREATE TABLE public.profiles (
   email TEXT NOT NULL,
   full_name TEXT,
   avatar_url TEXT,
+  app_id UUID REFERENCES public.apps(app_id), -- Multi-tenant home
   created_at TIMESTAMPTZ DEFAULT NOW() NOT NULL,
   updated_at TIMESTAMPTZ DEFAULT NOW() NOT NULL,
   deleted_at TIMESTAMPTZ -- Null = Active
@@ -69,6 +70,7 @@ ALTER TABLE public.profiles ENABLE ROW LEVEL SECURITY;
 -- Top level subjects (e.g., "Mathematics", "Physics")
 CREATE TABLE public.domains (
   id UUID DEFAULT gen_random_uuid() PRIMARY KEY,
+  subject_id UUID REFERENCES public.subjects(subject_id) ON DELETE CASCADE, -- Link to Subject
   slug TEXT UNIQUE NOT NULL,                    -- url-friendly-id (regex: ^[a-z0-9_]+$)
   title TEXT NOT NULL,
   description TEXT,
@@ -148,6 +150,7 @@ CREATE TABLE public.attempts (
   -- IMPORTANT: user_id defaults to auth.uid() and should NOT be sent by clients
   user_id UUID REFERENCES public.profiles(id) ON DELETE CASCADE NOT NULL DEFAULT auth.uid(),
   question_id UUID REFERENCES public.questions(id) ON DELETE CASCADE NOT NULL,
+  app_id UUID REFERENCES public.apps(app_id) ON DELETE CASCADE, -- Multi-tenant scope
   
   -- The user's input (same schema as solution for comparison)
   response JSONB NOT NULL, 
@@ -163,6 +166,7 @@ CREATE TABLE public.attempts (
 
 -- Index for fast sync on high-volume table
 CREATE INDEX idx_attempts_user_updated ON public.attempts(user_id, updated_at);
+CREATE INDEX idx_attempts_app_id ON public.attempts(app_id);
 
 -- RLS: Students can insert/read own attempts. Admins can read all.
 ALTER TABLE public.attempts ENABLE ROW LEVEL SECURITY;
@@ -747,3 +751,70 @@ supabase/migrations/YYYYMMDDHHMMSS_description.sql
 ```
 
 Each migration must be idempotent and include appropriate `IF NOT EXISTS` or `CREATE OR REPLACE` clauses.
+
+---
+
+## 10. Mentor Hub (Section G)
+
+*Groups and Assignments for Classroom Management.*
+
+```sql
+-- Groups (Classrooms)
+CREATE TABLE public.groups (
+  id UUID DEFAULT gen_random_uuid() PRIMARY KEY,
+  owner_id UUID REFERENCES public.profiles(id) ON DELETE CASCADE NOT NULL,
+  app_id UUID REFERENCES public.apps(id), -- Scoped to an App
+  name TEXT NOT NULL,
+  join_code TEXT UNIQUE, -- Nullable if invite-only
+  requires_approval BOOLEAN DEFAULT TRUE NOT NULL,
+  created_at TIMESTAMPTZ DEFAULT NOW() NOT NULL,
+  updated_at TIMESTAMPTZ DEFAULT NOW() NOT NULL,
+  deleted_at TIMESTAMPTZ
+);
+
+-- Group Members (Students in Classrooms)
+CREATE TABLE public.group_members (
+  id UUID DEFAULT gen_random_uuid() PRIMARY KEY,
+  group_id UUID REFERENCES public.groups(id) ON DELETE CASCADE NOT NULL,
+  student_id UUID REFERENCES public.profiles(id) ON DELETE CASCADE NOT NULL,
+  role TEXT DEFAULT 'student' CHECK (role IN ('student', 'assistant')),
+  created_at TIMESTAMPTZ DEFAULT NOW() NOT NULL,
+  UNIQUE(group_id, student_id)
+);
+
+-- Group Join Requests (Pending Approvals)
+CREATE TABLE public.group_join_requests (
+  id UUID DEFAULT gen_random_uuid() PRIMARY KEY,
+  group_id UUID REFERENCES public.groups(id) ON DELETE CASCADE NOT NULL,
+  student_id UUID REFERENCES public.profiles(id) ON DELETE CASCADE NOT NULL,
+  status TEXT CHECK (status IN ('pending', 'approved', 'rejected')) DEFAULT 'pending',
+  created_at TIMESTAMPTZ DEFAULT NOW() NOT NULL,
+  updated_at TIMESTAMPTZ DEFAULT NOW() NOT NULL,
+  UNIQUE(group_id, student_id)
+);
+
+-- RLS: Owners maximize access. Members read-only.
+ALTER TABLE public.groups ENABLE ROW LEVEL SECURITY;
+ALTER TABLE public.group_members ENABLE ROW LEVEL SECURITY;
+ALTER TABLE public.group_join_requests ENABLE ROW LEVEL SECURITY;
+```
+
+---
+
+## 11. Security Hardening (Section J)
+
+*Tables for identity recovery and audit.*
+
+```sql
+-- Recovery Keys (Hashed)
+CREATE TABLE public.student_recovery_keys (
+  id UUID DEFAULT gen_random_uuid() PRIMARY KEY,
+  student_id UUID REFERENCES public.profiles(id) ON DELETE CASCADE NOT NULL,
+  key_hash TEXT NOT NULL, -- Argon2 hash of the human-readable phrase
+  created_at TIMESTAMPTZ DEFAULT NOW() NOT NULL,
+  used_at TIMESTAMPTZ,
+  expires_at TIMESTAMPTZ
+);
+
+ALTER TABLE public.student_recovery_keys ENABLE ROW LEVEL SECURITY;
+```

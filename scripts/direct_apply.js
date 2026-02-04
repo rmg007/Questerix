@@ -3,10 +3,10 @@ const fs = require('fs');
 const path = require('path');
 
 const dbPassword = 'QpJIzi2r6vaoghG5';
-const projectRef = '[YOUR-PROJECT-ID]';
+const projectRef = 'qvslbiceoonrgjxzkotb';
 const dbUrl = `postgresql://postgres:${dbPassword}@db.${projectRef}.supabase.co:5432/postgres`;
 
-const migrationFile = path.join(__dirname, '..', 'supabase', 'migrations', '20260131000001_phase1_rpcs.sql');
+const migrationFile = path.join(__dirname, '..', 'supabase', 'migrations', '20260204000004_fix_domains_schema.sql');
 
 async function apply() {
   console.log(`🔌 Connecting to database...`);

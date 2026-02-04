@@ -13,6 +13,12 @@ class $DomainsTable extends Domains with TableInfo<$DomainsTable, Domain> {
   late final GeneratedColumn<String> id = GeneratedColumn<String>(
       'id', aliasedName, false,
       type: DriftSqlType.string, requiredDuringInsert: true);
+  static const VerificationMeta _subjectIdMeta =
+      const VerificationMeta('subjectId');
+  @override
+  late final GeneratedColumn<String> subjectId = GeneratedColumn<String>(
+      'subject_id', aliasedName, true,
+      type: DriftSqlType.string, requiredDuringInsert: false);
   static const VerificationMeta _slugMeta = const VerificationMeta('slug');
   @override
   late final GeneratedColumn<String> slug = GeneratedColumn<String>(
@@ -74,6 +80,7 @@ class $DomainsTable extends Domains with TableInfo<$DomainsTable, Domain> {
   @override
   List<GeneratedColumn> get $columns => [
         id,
+        subjectId,
         slug,
         title,
         description,
@@ -97,6 +104,10 @@ class $DomainsTable extends Domains with TableInfo<$DomainsTable, Domain> {
       context.handle(_idMeta, id.isAcceptableOrUnknown(data['id']!, _idMeta));
     } else if (isInserting) {
       context.missing(_idMeta);
+    }
+    if (data.containsKey('subject_id')) {
+      context.handle(_subjectIdMeta,
+          subjectId.isAcceptableOrUnknown(data['subject_id']!, _subjectIdMeta));
     }
     if (data.containsKey('slug')) {
       context.handle(
@@ -153,6 +164,8 @@ class $DomainsTable extends Domains with TableInfo<$DomainsTable, Domain> {
     return Domain(
       id: attachedDatabase.typeMapping
           .read(DriftSqlType.string, data['${effectivePrefix}id'])!,
+      subjectId: attachedDatabase.typeMapping
+          .read(DriftSqlType.string, data['${effectivePrefix}subject_id']),
       slug: attachedDatabase.typeMapping
           .read(DriftSqlType.string, data['${effectivePrefix}slug'])!,
       title: attachedDatabase.typeMapping
@@ -180,6 +193,7 @@ class $DomainsTable extends Domains with TableInfo<$DomainsTable, Domain> {
 
 class Domain extends DataClass implements Insertable<Domain> {
   final String id;
+  final String? subjectId;
   final String slug;
   final String title;
   final String? description;
@@ -190,6 +204,7 @@ class Domain extends DataClass implements Insertable<Domain> {
   final DateTime? deletedAt;
   const Domain(
       {required this.id,
+      this.subjectId,
       required this.slug,
       required this.title,
       this.description,
@@ -202,6 +217,9 @@ class Domain extends DataClass implements Insertable<Domain> {
   Map<String, Expression> toColumns(bool nullToAbsent) {
     final map = <String, Expression>{};
     map['id'] = Variable<String>(id);
+    if (!nullToAbsent || subjectId != null) {
+      map['subject_id'] = Variable<String>(subjectId);
+    }
     map['slug'] = Variable<String>(slug);
     map['title'] = Variable<String>(title);
     if (!nullToAbsent || description != null) {
@@ -220,6 +238,9 @@ class Domain extends DataClass implements Insertable<Domain> {
   DomainsCompanion toCompanion(bool nullToAbsent) {
     return DomainsCompanion(
       id: Value(id),
+      subjectId: subjectId == null && nullToAbsent
+          ? const Value.absent()
+          : Value(subjectId),
       slug: Value(slug),
       title: Value(title),
       description: description == null && nullToAbsent
@@ -240,6 +261,7 @@ class Domain extends DataClass implements Insertable<Domain> {
     serializer ??= driftRuntimeOptions.defaultSerializer;
     return Domain(
       id: serializer.fromJson<String>(json['id']),
+      subjectId: serializer.fromJson<String?>(json['subjectId']),
       slug: serializer.fromJson<String>(json['slug']),
       title: serializer.fromJson<String>(json['title']),
       description: serializer.fromJson<String?>(json['description']),
@@ -255,6 +277,7 @@ class Domain extends DataClass implements Insertable<Domain> {
     serializer ??= driftRuntimeOptions.defaultSerializer;
     return <String, dynamic>{
       'id': serializer.toJson<String>(id),
+      'subjectId': serializer.toJson<String?>(subjectId),
       'slug': serializer.toJson<String>(slug),
       'title': serializer.toJson<String>(title),
       'description': serializer.toJson<String?>(description),
@@ -268,6 +291,7 @@ class Domain extends DataClass implements Insertable<Domain> {
 
   Domain copyWith(
           {String? id,
+          Value<String?> subjectId = const Value.absent(),
           String? slug,
           String? title,
           Value<String?> description = const Value.absent(),
@@ -278,6 +302,7 @@ class Domain extends DataClass implements Insertable<Domain> {
           Value<DateTime?> deletedAt = const Value.absent()}) =>
       Domain(
         id: id ?? this.id,
+        subjectId: subjectId.present ? subjectId.value : this.subjectId,
         slug: slug ?? this.slug,
         title: title ?? this.title,
         description: description.present ? description.value : this.description,
@@ -290,6 +315,7 @@ class Domain extends DataClass implements Insertable<Domain> {
   Domain copyWithCompanion(DomainsCompanion data) {
     return Domain(
       id: data.id.present ? data.id.value : this.id,
+      subjectId: data.subjectId.present ? data.subjectId.value : this.subjectId,
       slug: data.slug.present ? data.slug.value : this.slug,
       title: data.title.present ? data.title.value : this.title,
       description:
@@ -307,6 +333,7 @@ class Domain extends DataClass implements Insertable<Domain> {
   String toString() {
     return (StringBuffer('Domain(')
           ..write('id: $id, ')
+          ..write('subjectId: $subjectId, ')
           ..write('slug: $slug, ')
           ..write('title: $title, ')
           ..write('description: $description, ')
@@ -320,13 +347,14 @@ class Domain extends DataClass implements Insertable<Domain> {
   }
 
   @override
-  int get hashCode => Object.hash(id, slug, title, description, sortOrder,
-      isPublished, createdAt, updatedAt, deletedAt);
+  int get hashCode => Object.hash(id, subjectId, slug, title, description,
+      sortOrder, isPublished, createdAt, updatedAt, deletedAt);
   @override
   bool operator ==(Object other) =>
       identical(this, other) ||
       (other is Domain &&
           other.id == this.id &&
+          other.subjectId == this.subjectId &&
           other.slug == this.slug &&
           other.title == this.title &&
           other.description == this.description &&
@@ -339,6 +367,7 @@ class Domain extends DataClass implements Insertable<Domain> {
 
 class DomainsCompanion extends UpdateCompanion<Domain> {
   final Value<String> id;
+  final Value<String?> subjectId;
   final Value<String> slug;
   final Value<String> title;
   final Value<String?> description;
@@ -350,6 +379,7 @@ class DomainsCompanion extends UpdateCompanion<Domain> {
   final Value<int> rowid;
   const DomainsCompanion({
     this.id = const Value.absent(),
+    this.subjectId = const Value.absent(),
     this.slug = const Value.absent(),
     this.title = const Value.absent(),
     this.description = const Value.absent(),
@@ -362,6 +392,7 @@ class DomainsCompanion extends UpdateCompanion<Domain> {
   });
   DomainsCompanion.insert({
     required String id,
+    this.subjectId = const Value.absent(),
     required String slug,
     required String title,
     this.description = const Value.absent(),
@@ -378,6 +409,7 @@ class DomainsCompanion extends UpdateCompanion<Domain> {
         updatedAt = Value(updatedAt);
   static Insertable<Domain> custom({
     Expression<String>? id,
+    Expression<String>? subjectId,
     Expression<String>? slug,
     Expression<String>? title,
     Expression<String>? description,
@@ -390,6 +422,7 @@ class DomainsCompanion extends UpdateCompanion<Domain> {
   }) {
     return RawValuesInsertable({
       if (id != null) 'id': id,
+      if (subjectId != null) 'subject_id': subjectId,
       if (slug != null) 'slug': slug,
       if (title != null) 'title': title,
       if (description != null) 'description': description,
@@ -404,6 +437,7 @@ class DomainsCompanion extends UpdateCompanion<Domain> {
 
   DomainsCompanion copyWith(
       {Value<String>? id,
+      Value<String?>? subjectId,
       Value<String>? slug,
       Value<String>? title,
       Value<String?>? description,
@@ -415,6 +449,7 @@ class DomainsCompanion extends UpdateCompanion<Domain> {
       Value<int>? rowid}) {
     return DomainsCompanion(
       id: id ?? this.id,
+      subjectId: subjectId ?? this.subjectId,
       slug: slug ?? this.slug,
       title: title ?? this.title,
       description: description ?? this.description,
@@ -432,6 +467,9 @@ class DomainsCompanion extends UpdateCompanion<Domain> {
     final map = <String, Expression>{};
     if (id.present) {
       map['id'] = Variable<String>(id.value);
+    }
+    if (subjectId.present) {
+      map['subject_id'] = Variable<String>(subjectId.value);
     }
     if (slug.present) {
       map['slug'] = Variable<String>(slug.value);
@@ -467,6 +505,7 @@ class DomainsCompanion extends UpdateCompanion<Domain> {
   String toString() {
     return (StringBuffer('DomainsCompanion(')
           ..write('id: $id, ')
+          ..write('subjectId: $subjectId, ')
           ..write('slug: $slug, ')
           ..write('title: $title, ')
           ..write('description: $description, ')
@@ -1685,6 +1724,12 @@ class $AttemptsTable extends Attempts with TableInfo<$AttemptsTable, Attempt> {
   late final GeneratedColumn<int> timeSpentMs = GeneratedColumn<int>(
       'time_spent_ms', aliasedName, true,
       type: DriftSqlType.int, requiredDuringInsert: false);
+  static const VerificationMeta _localSignatureMeta =
+      const VerificationMeta('localSignature');
+  @override
+  late final GeneratedColumn<String> localSignature = GeneratedColumn<String>(
+      'local_signature', aliasedName, true,
+      type: DriftSqlType.string, requiredDuringInsert: false);
   static const VerificationMeta _createdAtMeta =
       const VerificationMeta('createdAt');
   @override
@@ -1712,6 +1757,7 @@ class $AttemptsTable extends Attempts with TableInfo<$AttemptsTable, Attempt> {
         isCorrect,
         scoreAwarded,
         timeSpentMs,
+        localSignature,
         createdAt,
         updatedAt,
         deletedAt
@@ -1767,6 +1813,12 @@ class $AttemptsTable extends Attempts with TableInfo<$AttemptsTable, Attempt> {
           timeSpentMs.isAcceptableOrUnknown(
               data['time_spent_ms']!, _timeSpentMsMeta));
     }
+    if (data.containsKey('local_signature')) {
+      context.handle(
+          _localSignatureMeta,
+          localSignature.isAcceptableOrUnknown(
+              data['local_signature']!, _localSignatureMeta));
+    }
     if (data.containsKey('created_at')) {
       context.handle(_createdAtMeta,
           createdAt.isAcceptableOrUnknown(data['created_at']!, _createdAtMeta));
@@ -1806,6 +1858,8 @@ class $AttemptsTable extends Attempts with TableInfo<$AttemptsTable, Attempt> {
           .read(DriftSqlType.int, data['${effectivePrefix}score_awarded'])!,
       timeSpentMs: attachedDatabase.typeMapping
           .read(DriftSqlType.int, data['${effectivePrefix}time_spent_ms']),
+      localSignature: attachedDatabase.typeMapping
+          .read(DriftSqlType.string, data['${effectivePrefix}local_signature']),
       createdAt: attachedDatabase.typeMapping
           .read(DriftSqlType.dateTime, data['${effectivePrefix}created_at'])!,
       updatedAt: attachedDatabase.typeMapping
@@ -1829,6 +1883,7 @@ class Attempt extends DataClass implements Insertable<Attempt> {
   final bool isCorrect;
   final int scoreAwarded;
   final int? timeSpentMs;
+  final String? localSignature;
   final DateTime createdAt;
   final DateTime updatedAt;
   final DateTime? deletedAt;
@@ -1840,6 +1895,7 @@ class Attempt extends DataClass implements Insertable<Attempt> {
       required this.isCorrect,
       required this.scoreAwarded,
       this.timeSpentMs,
+      this.localSignature,
       required this.createdAt,
       required this.updatedAt,
       this.deletedAt});
@@ -1854,6 +1910,9 @@ class Attempt extends DataClass implements Insertable<Attempt> {
     map['score_awarded'] = Variable<int>(scoreAwarded);
     if (!nullToAbsent || timeSpentMs != null) {
       map['time_spent_ms'] = Variable<int>(timeSpentMs);
+    }
+    if (!nullToAbsent || localSignature != null) {
+      map['local_signature'] = Variable<String>(localSignature);
     }
     map['created_at'] = Variable<DateTime>(createdAt);
     map['updated_at'] = Variable<DateTime>(updatedAt);
@@ -1874,6 +1933,9 @@ class Attempt extends DataClass implements Insertable<Attempt> {
       timeSpentMs: timeSpentMs == null && nullToAbsent
           ? const Value.absent()
           : Value(timeSpentMs),
+      localSignature: localSignature == null && nullToAbsent
+          ? const Value.absent()
+          : Value(localSignature),
       createdAt: Value(createdAt),
       updatedAt: Value(updatedAt),
       deletedAt: deletedAt == null && nullToAbsent
@@ -1893,6 +1955,7 @@ class Attempt extends DataClass implements Insertable<Attempt> {
       isCorrect: serializer.fromJson<bool>(json['isCorrect']),
       scoreAwarded: serializer.fromJson<int>(json['scoreAwarded']),
       timeSpentMs: serializer.fromJson<int?>(json['timeSpentMs']),
+      localSignature: serializer.fromJson<String?>(json['localSignature']),
       createdAt: serializer.fromJson<DateTime>(json['createdAt']),
       updatedAt: serializer.fromJson<DateTime>(json['updatedAt']),
       deletedAt: serializer.fromJson<DateTime?>(json['deletedAt']),
@@ -1909,6 +1972,7 @@ class Attempt extends DataClass implements Insertable<Attempt> {
       'isCorrect': serializer.toJson<bool>(isCorrect),
       'scoreAwarded': serializer.toJson<int>(scoreAwarded),
       'timeSpentMs': serializer.toJson<int?>(timeSpentMs),
+      'localSignature': serializer.toJson<String?>(localSignature),
       'createdAt': serializer.toJson<DateTime>(createdAt),
       'updatedAt': serializer.toJson<DateTime>(updatedAt),
       'deletedAt': serializer.toJson<DateTime?>(deletedAt),
@@ -1923,6 +1987,7 @@ class Attempt extends DataClass implements Insertable<Attempt> {
           bool? isCorrect,
           int? scoreAwarded,
           Value<int?> timeSpentMs = const Value.absent(),
+          Value<String?> localSignature = const Value.absent(),
           DateTime? createdAt,
           DateTime? updatedAt,
           Value<DateTime?> deletedAt = const Value.absent()}) =>
@@ -1934,6 +1999,8 @@ class Attempt extends DataClass implements Insertable<Attempt> {
         isCorrect: isCorrect ?? this.isCorrect,
         scoreAwarded: scoreAwarded ?? this.scoreAwarded,
         timeSpentMs: timeSpentMs.present ? timeSpentMs.value : this.timeSpentMs,
+        localSignature:
+            localSignature.present ? localSignature.value : this.localSignature,
         createdAt: createdAt ?? this.createdAt,
         updatedAt: updatedAt ?? this.updatedAt,
         deletedAt: deletedAt.present ? deletedAt.value : this.deletedAt,
@@ -1951,6 +2018,9 @@ class Attempt extends DataClass implements Insertable<Attempt> {
           : this.scoreAwarded,
       timeSpentMs:
           data.timeSpentMs.present ? data.timeSpentMs.value : this.timeSpentMs,
+      localSignature: data.localSignature.present
+          ? data.localSignature.value
+          : this.localSignature,
       createdAt: data.createdAt.present ? data.createdAt.value : this.createdAt,
       updatedAt: data.updatedAt.present ? data.updatedAt.value : this.updatedAt,
       deletedAt: data.deletedAt.present ? data.deletedAt.value : this.deletedAt,
@@ -1967,6 +2037,7 @@ class Attempt extends DataClass implements Insertable<Attempt> {
           ..write('isCorrect: $isCorrect, ')
           ..write('scoreAwarded: $scoreAwarded, ')
           ..write('timeSpentMs: $timeSpentMs, ')
+          ..write('localSignature: $localSignature, ')
           ..write('createdAt: $createdAt, ')
           ..write('updatedAt: $updatedAt, ')
           ..write('deletedAt: $deletedAt')
@@ -1975,8 +2046,18 @@ class Attempt extends DataClass implements Insertable<Attempt> {
   }
 
   @override
-  int get hashCode => Object.hash(id, userId, questionId, response, isCorrect,
-      scoreAwarded, timeSpentMs, createdAt, updatedAt, deletedAt);
+  int get hashCode => Object.hash(
+      id,
+      userId,
+      questionId,
+      response,
+      isCorrect,
+      scoreAwarded,
+      timeSpentMs,
+      localSignature,
+      createdAt,
+      updatedAt,
+      deletedAt);
   @override
   bool operator ==(Object other) =>
       identical(this, other) ||
@@ -1988,6 +2069,7 @@ class Attempt extends DataClass implements Insertable<Attempt> {
           other.isCorrect == this.isCorrect &&
           other.scoreAwarded == this.scoreAwarded &&
           other.timeSpentMs == this.timeSpentMs &&
+          other.localSignature == this.localSignature &&
           other.createdAt == this.createdAt &&
           other.updatedAt == this.updatedAt &&
           other.deletedAt == this.deletedAt);
@@ -2001,6 +2083,7 @@ class AttemptsCompanion extends UpdateCompanion<Attempt> {
   final Value<bool> isCorrect;
   final Value<int> scoreAwarded;
   final Value<int?> timeSpentMs;
+  final Value<String?> localSignature;
   final Value<DateTime> createdAt;
   final Value<DateTime> updatedAt;
   final Value<DateTime?> deletedAt;
@@ -2013,6 +2096,7 @@ class AttemptsCompanion extends UpdateCompanion<Attempt> {
     this.isCorrect = const Value.absent(),
     this.scoreAwarded = const Value.absent(),
     this.timeSpentMs = const Value.absent(),
+    this.localSignature = const Value.absent(),
     this.createdAt = const Value.absent(),
     this.updatedAt = const Value.absent(),
     this.deletedAt = const Value.absent(),
@@ -2026,6 +2110,7 @@ class AttemptsCompanion extends UpdateCompanion<Attempt> {
     this.isCorrect = const Value.absent(),
     this.scoreAwarded = const Value.absent(),
     this.timeSpentMs = const Value.absent(),
+    this.localSignature = const Value.absent(),
     required DateTime createdAt,
     required DateTime updatedAt,
     this.deletedAt = const Value.absent(),
@@ -2044,6 +2129,7 @@ class AttemptsCompanion extends UpdateCompanion<Attempt> {
     Expression<bool>? isCorrect,
     Expression<int>? scoreAwarded,
     Expression<int>? timeSpentMs,
+    Expression<String>? localSignature,
     Expression<DateTime>? createdAt,
     Expression<DateTime>? updatedAt,
     Expression<DateTime>? deletedAt,
@@ -2057,6 +2143,7 @@ class AttemptsCompanion extends UpdateCompanion<Attempt> {
       if (isCorrect != null) 'is_correct': isCorrect,
       if (scoreAwarded != null) 'score_awarded': scoreAwarded,
       if (timeSpentMs != null) 'time_spent_ms': timeSpentMs,
+      if (localSignature != null) 'local_signature': localSignature,
       if (createdAt != null) 'created_at': createdAt,
       if (updatedAt != null) 'updated_at': updatedAt,
       if (deletedAt != null) 'deleted_at': deletedAt,
@@ -2072,6 +2159,7 @@ class AttemptsCompanion extends UpdateCompanion<Attempt> {
       Value<bool>? isCorrect,
       Value<int>? scoreAwarded,
       Value<int?>? timeSpentMs,
+      Value<String?>? localSignature,
       Value<DateTime>? createdAt,
       Value<DateTime>? updatedAt,
       Value<DateTime?>? deletedAt,
@@ -2084,6 +2172,7 @@ class AttemptsCompanion extends UpdateCompanion<Attempt> {
       isCorrect: isCorrect ?? this.isCorrect,
       scoreAwarded: scoreAwarded ?? this.scoreAwarded,
       timeSpentMs: timeSpentMs ?? this.timeSpentMs,
+      localSignature: localSignature ?? this.localSignature,
       createdAt: createdAt ?? this.createdAt,
       updatedAt: updatedAt ?? this.updatedAt,
       deletedAt: deletedAt ?? this.deletedAt,
@@ -2115,6 +2204,9 @@ class AttemptsCompanion extends UpdateCompanion<Attempt> {
     if (timeSpentMs.present) {
       map['time_spent_ms'] = Variable<int>(timeSpentMs.value);
     }
+    if (localSignature.present) {
+      map['local_signature'] = Variable<String>(localSignature.value);
+    }
     if (createdAt.present) {
       map['created_at'] = Variable<DateTime>(createdAt.value);
     }
@@ -2140,6 +2232,7 @@ class AttemptsCompanion extends UpdateCompanion<Attempt> {
           ..write('isCorrect: $isCorrect, ')
           ..write('scoreAwarded: $scoreAwarded, ')
           ..write('timeSpentMs: $timeSpentMs, ')
+          ..write('localSignature: $localSignature, ')
           ..write('createdAt: $createdAt, ')
           ..write('updatedAt: $updatedAt, ')
           ..write('deletedAt: $deletedAt, ')
@@ -4289,6 +4382,7 @@ abstract class _$AppDatabase extends GeneratedDatabase {
 
 typedef $$DomainsTableCreateCompanionBuilder = DomainsCompanion Function({
   required String id,
+  Value<String?> subjectId,
   required String slug,
   required String title,
   Value<String?> description,
@@ -4301,6 +4395,7 @@ typedef $$DomainsTableCreateCompanionBuilder = DomainsCompanion Function({
 });
 typedef $$DomainsTableUpdateCompanionBuilder = DomainsCompanion Function({
   Value<String> id,
+  Value<String?> subjectId,
   Value<String> slug,
   Value<String> title,
   Value<String?> description,
@@ -4342,6 +4437,9 @@ class $$DomainsTableFilterComposer
   });
   ColumnFilters<String> get id => $composableBuilder(
       column: $table.id, builder: (column) => ColumnFilters(column));
+
+  ColumnFilters<String> get subjectId => $composableBuilder(
+      column: $table.subjectId, builder: (column) => ColumnFilters(column));
 
   ColumnFilters<String> get slug => $composableBuilder(
       column: $table.slug, builder: (column) => ColumnFilters(column));
@@ -4401,6 +4499,9 @@ class $$DomainsTableOrderingComposer
   ColumnOrderings<String> get id => $composableBuilder(
       column: $table.id, builder: (column) => ColumnOrderings(column));
 
+  ColumnOrderings<String> get subjectId => $composableBuilder(
+      column: $table.subjectId, builder: (column) => ColumnOrderings(column));
+
   ColumnOrderings<String> get slug => $composableBuilder(
       column: $table.slug, builder: (column) => ColumnOrderings(column));
 
@@ -4437,6 +4538,9 @@ class $$DomainsTableAnnotationComposer
   });
   GeneratedColumn<String> get id =>
       $composableBuilder(column: $table.id, builder: (column) => column);
+
+  GeneratedColumn<String> get subjectId =>
+      $composableBuilder(column: $table.subjectId, builder: (column) => column);
 
   GeneratedColumn<String> get slug =>
       $composableBuilder(column: $table.slug, builder: (column) => column);
@@ -4508,6 +4612,7 @@ class $$DomainsTableTableManager extends RootTableManager<
               $$DomainsTableAnnotationComposer($db: db, $table: table),
           updateCompanionCallback: ({
             Value<String> id = const Value.absent(),
+            Value<String?> subjectId = const Value.absent(),
             Value<String> slug = const Value.absent(),
             Value<String> title = const Value.absent(),
             Value<String?> description = const Value.absent(),
@@ -4520,6 +4625,7 @@ class $$DomainsTableTableManager extends RootTableManager<
           }) =>
               DomainsCompanion(
             id: id,
+            subjectId: subjectId,
             slug: slug,
             title: title,
             description: description,
@@ -4532,6 +4638,7 @@ class $$DomainsTableTableManager extends RootTableManager<
           ),
           createCompanionCallback: ({
             required String id,
+            Value<String?> subjectId = const Value.absent(),
             required String slug,
             required String title,
             Value<String?> description = const Value.absent(),
@@ -4544,6 +4651,7 @@ class $$DomainsTableTableManager extends RootTableManager<
           }) =>
               DomainsCompanion.insert(
             id: id,
+            subjectId: subjectId,
             slug: slug,
             title: title,
             description: description,
@@ -5634,6 +5742,7 @@ typedef $$AttemptsTableCreateCompanionBuilder = AttemptsCompanion Function({
   Value<bool> isCorrect,
   Value<int> scoreAwarded,
   Value<int?> timeSpentMs,
+  Value<String?> localSignature,
   required DateTime createdAt,
   required DateTime updatedAt,
   Value<DateTime?> deletedAt,
@@ -5647,6 +5756,7 @@ typedef $$AttemptsTableUpdateCompanionBuilder = AttemptsCompanion Function({
   Value<bool> isCorrect,
   Value<int> scoreAwarded,
   Value<int?> timeSpentMs,
+  Value<String?> localSignature,
   Value<DateTime> createdAt,
   Value<DateTime> updatedAt,
   Value<DateTime?> deletedAt,
@@ -5699,6 +5809,10 @@ class $$AttemptsTableFilterComposer
 
   ColumnFilters<int> get timeSpentMs => $composableBuilder(
       column: $table.timeSpentMs, builder: (column) => ColumnFilters(column));
+
+  ColumnFilters<String> get localSignature => $composableBuilder(
+      column: $table.localSignature,
+      builder: (column) => ColumnFilters(column));
 
   ColumnFilters<DateTime> get createdAt => $composableBuilder(
       column: $table.createdAt, builder: (column) => ColumnFilters(column));
@@ -5758,6 +5872,10 @@ class $$AttemptsTableOrderingComposer
   ColumnOrderings<int> get timeSpentMs => $composableBuilder(
       column: $table.timeSpentMs, builder: (column) => ColumnOrderings(column));
 
+  ColumnOrderings<String> get localSignature => $composableBuilder(
+      column: $table.localSignature,
+      builder: (column) => ColumnOrderings(column));
+
   ColumnOrderings<DateTime> get createdAt => $composableBuilder(
       column: $table.createdAt, builder: (column) => ColumnOrderings(column));
 
@@ -5814,6 +5932,9 @@ class $$AttemptsTableAnnotationComposer
 
   GeneratedColumn<int> get timeSpentMs => $composableBuilder(
       column: $table.timeSpentMs, builder: (column) => column);
+
+  GeneratedColumn<String> get localSignature => $composableBuilder(
+      column: $table.localSignature, builder: (column) => column);
 
   GeneratedColumn<DateTime> get createdAt =>
       $composableBuilder(column: $table.createdAt, builder: (column) => column);
@@ -5875,6 +5996,7 @@ class $$AttemptsTableTableManager extends RootTableManager<
             Value<bool> isCorrect = const Value.absent(),
             Value<int> scoreAwarded = const Value.absent(),
             Value<int?> timeSpentMs = const Value.absent(),
+            Value<String?> localSignature = const Value.absent(),
             Value<DateTime> createdAt = const Value.absent(),
             Value<DateTime> updatedAt = const Value.absent(),
             Value<DateTime?> deletedAt = const Value.absent(),
@@ -5888,6 +6010,7 @@ class $$AttemptsTableTableManager extends RootTableManager<
             isCorrect: isCorrect,
             scoreAwarded: scoreAwarded,
             timeSpentMs: timeSpentMs,
+            localSignature: localSignature,
             createdAt: createdAt,
             updatedAt: updatedAt,
             deletedAt: deletedAt,
@@ -5901,6 +6024,7 @@ class $$AttemptsTableTableManager extends RootTableManager<
             Value<bool> isCorrect = const Value.absent(),
             Value<int> scoreAwarded = const Value.absent(),
             Value<int?> timeSpentMs = const Value.absent(),
+            Value<String?> localSignature = const Value.absent(),
             required DateTime createdAt,
             required DateTime updatedAt,
             Value<DateTime?> deletedAt = const Value.absent(),
@@ -5914,6 +6038,7 @@ class $$AttemptsTableTableManager extends RootTableManager<
             isCorrect: isCorrect,
             scoreAwarded: scoreAwarded,
             timeSpentMs: timeSpentMs,
+            localSignature: localSignature,
             createdAt: createdAt,
             updatedAt: updatedAt,
             deletedAt: deletedAt,

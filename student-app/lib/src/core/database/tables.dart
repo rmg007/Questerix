@@ -3,6 +3,7 @@ import 'package:drift/drift.dart';
 /// Domains table - Top level subjects (e.g., "Mathematics", "Physics")
 class Domains extends Table {
   TextColumn get id => text()();
+  TextColumn get subjectId => text().nullable()();
   TextColumn get slug => text().withLength(min: 1, max: 100)();
   TextColumn get title => text().withLength(min: 1, max: 200)();
   TextColumn get description => text().nullable()();
@@ -62,6 +63,7 @@ class Attempts extends Table {
   BoolColumn get isCorrect => boolean().withDefault(const Constant(false))();
   IntColumn get scoreAwarded => integer().withDefault(const Constant(0))();
   IntColumn get timeSpentMs => integer().nullable()();
+  TextColumn get localSignature => text().nullable()(); // HMAC for SQlite integrity
   DateTimeColumn get createdAt => dateTime()();
   DateTimeColumn get updatedAt => dateTime()();
   DateTimeColumn get deletedAt => dateTime().nullable()();

@@ -128,7 +128,8 @@ export function usePublishCurriculum() {
       // Assuming 'publish_curriculum' works globally or hasn't been updated yet.
       // For now, let's just run it, but we might need to modify the SQL function 
       // to accept an app_id if we want granular publishing.
-      const { data, error } = await supabase.rpc('publish_curriculum');
+      // Note: This RPC function may need to be created in Supabase
+      const { data, error } = await (supabase.rpc as any)('publish_curriculum');
       if (error) throw error;
       return data;
     },

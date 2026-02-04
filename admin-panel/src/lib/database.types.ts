@@ -7,11 +7,15 @@ export type Json =
   | Json[]
 
 export type Database = {
+  // Allows to automatically instantiate createClient with right options
+  // instead of createClient<Database, { PostgrestVersion: 'XX' }>(URL, KEY)
+  __InternalSupabase: {
+    PostgrestVersion: "14.1"
+  }
   public: {
     Tables: {
       ai_generation_sessions: {
         Row: {
-          app_id: string | null
           created_at: string
           created_by: string
           deleted_at: string | null
@@ -32,7 +36,6 @@ export type Database = {
           updated_at: string
         }
         Insert: {
-          app_id?: string | null
           created_at?: string
           created_by: string
           deleted_at?: string | null
@@ -53,7 +56,6 @@ export type Database = {
           updated_at?: string
         }
         Update: {
-          app_id?: string | null
           created_at?: string
           created_by?: string
           deleted_at?: string | null
@@ -94,76 +96,50 @@ export type Database = {
             isOneToOne: false
             referencedRelation: "skills"
             referencedColumns: ["id"]
-          }
+          },
+          {
+            foreignKeyName: "ai_generation_sessions_source_document_id_fkey"
+            columns: ["source_document_id"]
+            isOneToOne: false
+            referencedRelation: "source_documents"
+            referencedColumns: ["id"]
+          },
         ]
       }
-      app_landing_pages: {
+      ai_governance_quotas: {
         Row: {
-          app_id: string | null
-          benefits_json: Json | null
-          canonical_url: string | null
-          created_at: string | null
-          hero_cta_text: string | null
-          hero_headline: string
-          hero_image_url: string | null
-          hero_subheadline: string | null
-          is_published: boolean | null
-          landing_page_id: string
-          meta_description: string
-          meta_title: string
-          og_image_url: string | null
-          pricing_json: Json | null
-          published_at: string | null
-          schema_org_json: Json | null
-          syllabus_json: Json | null
-          testimonials_json: Json | null
-          updated_at: string | null
+          app_id: string
+          created_at: string
+          id: string
+          monthly_limit_tokens: number
+          period_end: string
+          period_start: string
+          tokens_used: number
+          updated_at: string
         }
         Insert: {
-          app_id?: string | null
-          benefits_json?: Json | null
-          canonical_url?: string | null
-          created_at?: string | null
-          hero_cta_text?: string | null
-          hero_headline: string
-          hero_image_url?: string | null
-          hero_subheadline?: string | null
-          is_published?: boolean | null
-          landing_page_id?: string
-          meta_description: string
-          meta_title: string
-          og_image_url?: string | null
-          pricing_json?: Json | null
-          published_at?: string | null
-          schema_org_json?: Json | null
-          syllabus_json?: Json | null
-          testimonials_json?: Json | null
-          updated_at?: string | null
+          app_id: string
+          created_at?: string
+          id?: string
+          monthly_limit_tokens?: number
+          period_end: string
+          period_start: string
+          tokens_used?: number
+          updated_at?: string
         }
         Update: {
-          app_id?: string | null
-          benefits_json?: Json | null
-          canonical_url?: string | null
-          created_at?: string | null
-          hero_cta_text?: string | null
-          hero_headline?: string
-          hero_image_url?: string | null
-          hero_subheadline?: string | null
-          is_published?: boolean | null
-          landing_page_id?: string
-          meta_description?: string
-          meta_title?: string
-          og_image_url?: string | null
-          pricing_json?: Json | null
-          published_at?: string | null
-          schema_org_json?: Json | null
-          syllabus_json?: Json | null
-          testimonials_json?: Json | null
-          updated_at?: string | null
+          app_id?: string
+          created_at?: string
+          id?: string
+          monthly_limit_tokens?: number
+          period_end?: string
+          period_start?: string
+          tokens_used?: number
+          updated_at?: string
         }
         Relationships: [
           {
-            foreignKeyName: "app_landing_pages_app_id_fkey"
+            foreignKeyName: "ai_governance_quotas_app_id_fkey"
             columns: ["app_id"]
             isOneToOne: false
             referencedRelation: "apps"
@@ -174,79 +150,99 @@ export type Database = {
       apps: {
         Row: {
           app_id: string
-          config_json: Json | null
-          created_at: string | null
-          description: string | null
-          name: string
-          status: string | null
-          updated_at: string | null
+          created_at: string
+          display_name: string
+          is_active: boolean
+          slug: string
+          subdomain: string | null
+          theme_color: string | null
+          updated_at: string
         }
         Insert: {
           app_id?: string
-          config_json?: Json | null
-          created_at?: string | null
-          description?: string | null
-          name: string
-          status?: string | null
-          updated_at?: string | null
+          created_at?: string
+          display_name: string
+          is_active?: boolean
+          slug: string
+          subdomain?: string | null
+          theme_color?: string | null
+          updated_at?: string
         }
         Update: {
           app_id?: string
-          config_json?: Json | null
-          created_at?: string | null
-          description?: string | null
-          name?: string
-          status?: string | null
-          updated_at?: string | null
+          created_at?: string
+          display_name?: string
+          is_active?: boolean
+          slug?: string
+          subdomain?: string | null
+          theme_color?: string | null
+          updated_at?: string
         }
         Relationships: []
       }
       assignments: {
         Row: {
-          completion_trigger: Json | null
+          assigned_at: string
+          assigned_by: string
+          completed_at: string | null
           created_at: string
-          due_date: string | null
-          group_id: string | null
+          deadline: string | null
+          group_id: string
           id: string
-          scope: Database["public"]["Enums"]["assignment_scope"] | null
-          status: Database["public"]["Enums"]["assignment_status"] | null
+          scope: Database["public"]["Enums"]["assignment_scope"]
+          skill_id: string
+          status: Database["public"]["Enums"]["assignment_status"]
           student_id: string | null
-          target_id: string
           type: Database["public"]["Enums"]["assignment_type"]
-          updated_at: string
         }
         Insert: {
-          completion_trigger?: Json | null
+          assigned_at?: string
+          assigned_by: string
+          completed_at?: string | null
           created_at?: string
-          due_date?: string | null
-          group_id?: string | null
+          deadline?: string | null
+          group_id: string
           id?: string
-          scope?: Database["public"]["Enums"]["assignment_scope"] | null
-          status?: Database["public"]["Enums"]["assignment_status"] | null
+          scope?: Database["public"]["Enums"]["assignment_scope"]
+          skill_id: string
+          status?: Database["public"]["Enums"]["assignment_status"]
           student_id?: string | null
-          target_id: string
-          type: Database["public"]["Enums"]["assignment_type"]
-          updated_at?: string
+          type?: Database["public"]["Enums"]["assignment_type"]
         }
         Update: {
-          completion_trigger?: Json | null
+          assigned_at?: string
+          assigned_by?: string
+          completed_at?: string | null
           created_at?: string
-          due_date?: string | null
-          group_id?: string | null
+          deadline?: string | null
+          group_id?: string
           id?: string
-          scope?: Database["public"]["Enums"]["assignment_scope"] | null
-          status?: Database["public"]["Enums"]["assignment_status"] | null
+          scope?: Database["public"]["Enums"]["assignment_scope"]
+          skill_id?: string
+          status?: Database["public"]["Enums"]["assignment_status"]
           student_id?: string | null
-          target_id?: string
           type?: Database["public"]["Enums"]["assignment_type"]
-          updated_at?: string
         }
         Relationships: [
+          {
+            foreignKeyName: "assignments_assigned_by_fkey"
+            columns: ["assigned_by"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
           {
             foreignKeyName: "assignments_group_id_fkey"
             columns: ["group_id"]
             isOneToOne: false
             referencedRelation: "groups"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "assignments_skill_id_fkey"
+            columns: ["skill_id"]
+            isOneToOne: false
+            referencedRelation: "skills"
             referencedColumns: ["id"]
           },
           {
@@ -258,90 +254,196 @@ export type Database = {
           },
         ]
       }
+      attempts: {
+        Row: {
+          answer: string
+          created_at: string
+          difficulty: number | null
+          id: string
+          is_correct: boolean
+          question_id: string
+          response_time_ms: number | null
+          session_id: string
+          user_id: string
+        }
+        Insert: {
+          answer: string
+          created_at?: string
+          difficulty?: number | null
+          id?: string
+          is_correct: boolean
+          question_id: string
+          response_time_ms?: number | null
+          session_id: string
+          user_id: string
+        }
+        Update: {
+          answer?: string
+          created_at?: string
+          difficulty?: number | null
+          id?: string
+          is_correct?: boolean
+          question_id?: string
+          response_time_ms?: number | null
+          session_id?: string
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "attempts_question_id_fkey"
+            columns: ["question_id"]
+            isOneToOne: false
+            referencedRelation: "questions"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "attempts_session_id_fkey"
+            columns: ["session_id"]
+            isOneToOne: false
+            referencedRelation: "sessions"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "attempts_user_id_fkey"
+            columns: ["user_id"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       curriculum_meta: {
         Row: {
           id: string
-          version: number
           last_published_at: string | null
-          updated_at: string | null
+          status: Database["public"]["Enums"]["curriculum_status"]
+          updated_at: string
+          version: number
         }
         Insert: {
           id?: string
-          version?: number
           last_published_at?: string | null
-          updated_at?: string | null
+          status?: Database["public"]["Enums"]["curriculum_status"]
+          updated_at?: string
+          version?: number
         }
         Update: {
           id?: string
-          version?: number
           last_published_at?: string | null
-          updated_at?: string | null
+          status?: Database["public"]["Enums"]["curriculum_status"]
+          updated_at?: string
+          version?: number
         }
         Relationships: []
       }
       curriculum_snapshots: {
         Row: {
-          id: string
-          version: number
-          published_at: string
-          domains_count: number
-          skills_count: number
-          questions_count: number
+          content: Json | null
           created_at: string
-          content: Json
+          domains_count: number
+          id: string
+          published_at: string
+          questions_count: number
+          skills_count: number
+          version: number
         }
         Insert: {
-          id?: string
-          version?: number
-          published_at?: string
-          domains_count?: number
-          skills_count?: number
-          questions_count?: number
+          content?: Json | null
           created_at?: string
-          content?: Json
+          domains_count?: number
+          id?: string
+          published_at?: string
+          questions_count?: number
+          skills_count?: number
+          version: number
         }
         Update: {
-          id?: string
-          version?: number
-          published_at?: string
-          domains_count?: number
-          skills_count?: number
-          questions_count?: number
+          content?: Json | null
           created_at?: string
-          content?: Json
+          domains_count?: number
+          id?: string
+          published_at?: string
+          questions_count?: number
+          skills_count?: number
+          version?: number
+        }
+        Relationships: []
+      }
+      doc_indexes: {
+        Row: {
+          chunk_index: number
+          chunk_text: string
+          doc_path: string
+          embedding: string | null
+          id: string
+          indexed_at: string
+          last_hash: string | null
+          metadata: Json | null
+        }
+        Insert: {
+          chunk_index: number
+          chunk_text: string
+          doc_path: string
+          embedding?: string | null
+          id?: string
+          indexed_at?: string
+          last_hash?: string | null
+          metadata?: Json | null
+        }
+        Update: {
+          chunk_index?: number
+          chunk_text?: string
+          doc_path?: string
+          embedding?: string | null
+          id?: string
+          indexed_at?: string
+          last_hash?: string | null
+          metadata?: Json | null
         }
         Relationships: []
       }
       domains: {
         Row: {
           app_id: string | null
-          created_at: string | null
+          created_at: string
+          deleted_at: string | null
           description: string | null
           id: string
-          title: string
+          is_published: boolean
           slug: string
           sort_order: number
-          status: string
+          status: Database["public"]["Enums"]["curriculum_status"]
+          subject_id: string | null
+          title: string
+          updated_at: string
         }
         Insert: {
           app_id?: string | null
-          created_at?: string | null
+          created_at?: string
+          deleted_at?: string | null
           description?: string | null
           id?: string
-          title: string
+          is_published?: boolean
           slug: string
           sort_order?: number
-          status?: string
+          status?: Database["public"]["Enums"]["curriculum_status"]
+          subject_id?: string | null
+          title: string
+          updated_at?: string
         }
         Update: {
           app_id?: string | null
-          created_at?: string | null
+          created_at?: string
+          deleted_at?: string | null
           description?: string | null
           id?: string
-          title?: string
+          is_published?: boolean
           slug?: string
           sort_order?: number
-          status?: string
+          status?: Database["public"]["Enums"]["curriculum_status"]
+          subject_id?: string | null
+          title?: string
+          updated_at?: string
         }
         Relationships: [
           {
@@ -353,26 +455,105 @@ export type Database = {
           },
         ]
       }
+      error_logs: {
+        Row: {
+          app_id: string | null
+          app_version: string | null
+          created_at: string | null
+          error_message: string
+          error_type: string
+          extra_context: Json | null
+          id: string
+          occurred_at: string | null
+          platform: string
+          promoted_to_issue_id: string | null
+          stack_trace: string | null
+          status: string
+          url: string | null
+          user_agent: string | null
+          user_id: string | null
+        }
+        Insert: {
+          app_id?: string | null
+          app_version?: string | null
+          created_at?: string | null
+          error_message: string
+          error_type: string
+          extra_context?: Json | null
+          id?: string
+          occurred_at?: string | null
+          platform: string
+          promoted_to_issue_id?: string | null
+          stack_trace?: string | null
+          status?: string
+          url?: string | null
+          user_agent?: string | null
+          user_id?: string | null
+        }
+        Update: {
+          app_id?: string | null
+          app_version?: string | null
+          created_at?: string | null
+          error_message?: string
+          error_type?: string
+          extra_context?: Json | null
+          id?: string
+          occurred_at?: string | null
+          platform?: string
+          promoted_to_issue_id?: string | null
+          stack_trace?: string | null
+          status?: string
+          url?: string | null
+          user_agent?: string | null
+          user_id?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "error_logs_app_id_fkey"
+            columns: ["app_id"]
+            isOneToOne: false
+            referencedRelation: "apps"
+            referencedColumns: ["app_id"]
+          },
+          {
+            foreignKeyName: "error_logs_promoted_to_issue_id_fkey"
+            columns: ["promoted_to_issue_id"]
+            isOneToOne: false
+            referencedRelation: "known_issues"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "error_logs_user_id_fkey"
+            columns: ["user_id"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       group_members: {
         Row: {
+          created_at: string
           group_id: string
-          is_anonymous: boolean | null
-          joined_at: string
+          id: string
           nickname: string | null
+          role: string
           user_id: string
         }
         Insert: {
+          created_at?: string
           group_id: string
-          is_anonymous?: boolean | null
-          joined_at?: string
+          id?: string
           nickname?: string | null
+          role?: string
           user_id: string
         }
         Update: {
+          created_at?: string
           group_id?: string
-          is_anonymous?: boolean | null
-          joined_at?: string
+          id?: string
           nickname?: string | null
+          role?: string
           user_id?: string
         }
         Relationships: [
@@ -394,41 +575,35 @@ export type Database = {
       }
       groups: {
         Row: {
-          allow_anonymous_join: boolean | null
+          allow_anonymous_join: boolean
           app_id: string | null
-          code_expires_at: string | null
           created_at: string
           id: string
           join_code: string
           name: string
           owner_id: string
-          settings: Json | null
           type: Database["public"]["Enums"]["group_type"]
           updated_at: string
         }
         Insert: {
-          allow_anonymous_join?: boolean | null
+          allow_anonymous_join?: boolean
           app_id?: string | null
-          code_expires_at?: string | null
           created_at?: string
           id?: string
-          join_code: string
+          join_code?: string
           name: string
           owner_id: string
-          settings?: Json | null
-          type: Database["public"]["Enums"]["group_type"]
+          type?: Database["public"]["Enums"]["group_type"]
           updated_at?: string
         }
         Update: {
-          allow_anonymous_join?: boolean | null
+          allow_anonymous_join?: boolean
           app_id?: string | null
-          code_expires_at?: string | null
           created_at?: string
           id?: string
           join_code?: string
           name?: string
           owner_id?: string
-          settings?: Json | null
           type?: Database["public"]["Enums"]["group_type"]
           updated_at?: string
         }
@@ -449,86 +624,291 @@ export type Database = {
           },
         ]
       }
+      invitation_codes: {
+        Row: {
+          code: string
+          created_at: string
+          created_by: string | null
+          expires_at: string | null
+          id: string
+          max_uses: number | null
+          role: Database["public"]["Enums"]["user_role"]
+          used_at: string | null
+          used_by: string | null
+          uses: number
+        }
+        Insert: {
+          code?: string
+          created_at?: string
+          created_by?: string | null
+          expires_at?: string | null
+          id?: string
+          max_uses?: number | null
+          role?: Database["public"]["Enums"]["user_role"]
+          used_at?: string | null
+          used_by?: string | null
+          uses?: number
+        }
+        Update: {
+          code?: string
+          created_at?: string
+          created_by?: string | null
+          expires_at?: string | null
+          id?: string
+          max_uses?: number | null
+          role?: Database["public"]["Enums"]["user_role"]
+          used_at?: string | null
+          used_by?: string | null
+          uses?: number
+        }
+        Relationships: [
+          {
+            foreignKeyName: "invitation_codes_created_by_fkey"
+            columns: ["created_by"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "invitation_codes_used_by_fkey"
+            columns: ["used_by"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      kb_metrics: {
+        Row: {
+          created_at: string
+          id: string
+          metric_key: string
+          metric_value: Json
+          registry_id: string
+          updated_at: string
+        }
+        Insert: {
+          created_at?: string
+          id?: string
+          metric_key: string
+          metric_value: Json
+          registry_id: string
+          updated_at?: string
+        }
+        Update: {
+          created_at?: string
+          id?: string
+          metric_key?: string
+          metric_value?: Json
+          registry_id?: string
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "kb_metrics_registry_id_fkey"
+            columns: ["registry_id"]
+            isOneToOne: false
+            referencedRelation: "kb_registry"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      kb_registry: {
+        Row: {
+          category: string | null
+          created_at: string
+          dependencies: string[] | null
+          exports: string[] | null
+          file_path: string
+          id: string
+          last_synced_at: string
+          line_count: number | null
+          purpose: string | null
+          updated_at: string
+        }
+        Insert: {
+          category?: string | null
+          created_at?: string
+          dependencies?: string[] | null
+          exports?: string[] | null
+          file_path: string
+          id?: string
+          last_synced_at?: string
+          line_count?: number | null
+          purpose?: string | null
+          updated_at?: string
+        }
+        Update: {
+          category?: string | null
+          created_at?: string
+          dependencies?: string[] | null
+          exports?: string[] | null
+          file_path?: string
+          id?: string
+          last_synced_at?: string
+          line_count?: number | null
+          purpose?: string | null
+          updated_at?: string
+        }
+        Relationships: []
+      }
+      known_issues: {
+        Row: {
+          assigned_to: string | null
+          category: string
+          created_at: string
+          description: string
+          id: string
+          resolution_notes: string | null
+          resolved_at: string | null
+          sentry_link: string | null
+          severity: string
+          status: string
+          title: string
+          updated_at: string
+        }
+        Insert: {
+          assigned_to?: string | null
+          category?: string
+          created_at?: string
+          description: string
+          id?: string
+          resolution_notes?: string | null
+          resolved_at?: string | null
+          sentry_link?: string | null
+          severity?: string
+          status?: string
+          title: string
+          updated_at?: string
+        }
+        Update: {
+          assigned_to?: string | null
+          category?: string
+          created_at?: string
+          description?: string
+          id?: string
+          resolution_notes?: string | null
+          resolved_at?: string | null
+          sentry_link?: string | null
+          severity?: string
+          status?: string
+          title?: string
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "known_issues_assigned_to_fkey"
+            columns: ["assigned_to"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       profiles: {
         Row: {
+          app_id: string | null
           avatar_url: string | null
-          created_at: string | null
-          email: string | null
+          created_at: string
+          deleted_at: string | null
+          email: string
           full_name: string | null
           id: string
           role: Database["public"]["Enums"]["user_role"]
-          updated_at: string | null
+          updated_at: string
         }
         Insert: {
+          app_id?: string | null
           avatar_url?: string | null
-          created_at?: string | null
-          email?: string | null
+          created_at?: string
+          deleted_at?: string | null
+          email: string
           full_name?: string | null
           id: string
           role?: Database["public"]["Enums"]["user_role"]
-          updated_at?: string | null
+          updated_at?: string
         }
         Update: {
+          app_id?: string | null
           avatar_url?: string | null
-          created_at?: string | null
-          email?: string | null
+          created_at?: string
+          deleted_at?: string | null
+          email?: string
           full_name?: string | null
           id?: string
           role?: Database["public"]["Enums"]["user_role"]
-          updated_at?: string | null
+          updated_at?: string
         }
-        Relationships: []
+        Relationships: [
+          {
+            foreignKeyName: "profiles_app_id_fkey"
+            columns: ["app_id"]
+            isOneToOne: false
+            referencedRelation: "apps"
+            referencedColumns: ["app_id"]
+          },
+        ]
       }
       questions: {
         Row: {
           app_id: string | null
           content: string
-          created_at: string | null
+          created_at: string
+          deleted_at: string | null
           explanation: string | null
           id: string
+          is_published: boolean
           options: Json | null
           points: number
           skill_id: string
           solution: Json | null
           sort_order: number
-          status: string // User-defined enum inferred as string or specific enum
+          status: Database["public"]["Enums"]["curriculum_status"]
           type: Database["public"]["Enums"]["question_type"]
-          updated_at: string | null
-          deleted_at: string | null
+          updated_at: string
         }
         Insert: {
           app_id?: string | null
           content: string
-          created_at?: string | null
+          created_at?: string
+          deleted_at?: string | null
           explanation?: string | null
           id?: string
+          is_published?: boolean
           options?: Json | null
           points?: number
           skill_id: string
           solution?: Json | null
           sort_order?: number
-          status?: string
-          type: Database["public"]["Enums"]["question_type"]
-          updated_at?: string | null
-          deleted_at?: string | null
+          status?: Database["public"]["Enums"]["curriculum_status"]
+          type?: Database["public"]["Enums"]["question_type"]
+          updated_at?: string
         }
         Update: {
           app_id?: string | null
           content?: string
-          created_at?: string | null
+          created_at?: string
+          deleted_at?: string | null
           explanation?: string | null
           id?: string
+          is_published?: boolean
           options?: Json | null
           points?: number
           skill_id?: string
           solution?: Json | null
           sort_order?: number
-          status?: string
+          status?: Database["public"]["Enums"]["curriculum_status"]
           type?: Database["public"]["Enums"]["question_type"]
-          updated_at?: string | null
-          deleted_at?: string | null
+          updated_at?: string
         }
         Relationships: [
+          {
+            foreignKeyName: "questions_app_id_fkey"
+            columns: ["app_id"]
+            isOneToOne: false
+            referencedRelation: "apps"
+            referencedColumns: ["app_id"]
+          },
           {
             foreignKeyName: "questions_skill_id_fkey"
             columns: ["skill_id"]
@@ -538,136 +918,93 @@ export type Database = {
           },
         ]
       }
-      skills: {
+      sessions: {
         Row: {
-          app_id: string | null
-          created_at: string | null
-          description: string | null
-          domain_id: string | null
+          correct_count: number
+          created_at: string
+          ended_at: string | null
           id: string
-          title: string
-          slug: string
-          sort_order: number
-          status: string
-          difficulty_level: number // or string? SQL didn't specify type in my memory, usually integer 1-3.
+          session_type: string
+          skill_id: string
+          total_count: number
+          user_id: string
         }
         Insert: {
-          app_id?: string | null
-          created_at?: string | null
-          description?: string | null
-          domain_id?: string | null
+          correct_count?: number
+          created_at?: string
+          ended_at?: string | null
           id?: string
-          title: string
-          slug: string
-          sort_order?: number
-          status?: string
-          difficulty_level?: number 
+          session_type: string
+          skill_id: string
+          total_count?: number
+          user_id: string
         }
         Update: {
-          app_id?: string | null
-          created_at?: string | null
-          description?: string | null
-          domain_id?: string | null
+          correct_count?: number
+          created_at?: string
+          ended_at?: string | null
           id?: string
-          title?: string
-          slug?: string
-          sort_order?: number
-          status?: string
-          difficulty_level?: number
+          session_type?: string
+          skill_id?: string
+          total_count?: number
+          user_id?: string
         }
         Relationships: [
           {
-            foreignKeyName: "skills_domain_id_fkey"
-            columns: ["domain_id"]
+            foreignKeyName: "sessions_skill_id_fkey"
+            columns: ["skill_id"]
             isOneToOne: false
-            referencedRelation: "domains"
+            referencedRelation: "skills"
             referencedColumns: ["id"]
           },
-        ]
-      }
-      subjects: {
-        Row: {
-          app_id: string | null
-          created_at: string | null
-          description: string | null
-          id: string
-          name: string
-          order_index: number
-          updated_at: string | null
-        }
-        Insert: {
-          app_id?: string | null
-          created_at?: string | null
-          description?: string | null
-          id?: string
-          name: string
-          order_index: number
-          updated_at?: string | null
-        }
-        Update: {
-          app_id?: string | null
-          created_at?: string | null
-          description?: string | null
-          id?: string
-          name?: string
-          order_index?: number
-          updated_at?: string | null
-        }
-        Relationships: [
           {
-            foreignKeyName: "subjects_app_id_fkey"
-            columns: ["app_id"]
+            foreignKeyName: "sessions_user_id_fkey"
+            columns: ["user_id"]
             isOneToOne: false
-            referencedRelation: "apps"
-            referencedColumns: ["app_id"]
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
           },
         ]
       }
       skill_progress: {
         Row: {
+          correct_streak: number
+          created_at: string
           id: string
-          user_id: string
+          is_mastered: boolean
+          last_practiced_at: string | null
+          mastery_score: number
           skill_id: string
           total_attempts: number
-          correct_attempts: number
-          total_points: number
-          mastery_level: number
-          current_streak: number
-          best_streak: number
-          last_attempt_at: string | null
-          created_at: string
+          total_correct: number
           updated_at: string
-          deleted_at: string | null
+          user_id: string
         }
         Insert: {
+          correct_streak?: number
+          created_at?: string
           id?: string
-          user_id: string
+          is_mastered?: boolean
+          last_practiced_at?: string | null
+          mastery_score?: number
           skill_id: string
           total_attempts?: number
-          correct_attempts?: number
-          total_points?: number
-          mastery_level?: number
-          current_streak?: number
-          best_streak?: number
-          last_attempt_at?: string | null
-          created_at?: string
+          total_correct?: number
           updated_at?: string
-          deleted_at?: string | null
+          user_id: string
         }
         Update: {
+          correct_streak?: number
+          created_at?: string
           id?: string
-          user_id?: string
+          is_mastered?: boolean
+          last_practiced_at?: string | null
+          mastery_score?: number
           skill_id?: string
           total_attempts?: number
-          correct_attempts?: number
-          total_points?: number
-          mastery_level?: number
-          current_streak?: number
-          best_streak?: number
-          last_attempt_at?: string | null
-          created_at?: string
+          total_correct?: number
           updated_at?: string
-          deleted_at?: string | null
+          user_id?: string
         }
         Relationships: [
           {
@@ -683,56 +1020,212 @@ export type Database = {
             isOneToOne: false
             referencedRelation: "profiles"
             referencedColumns: ["id"]
-          }
+          },
         ]
       }
-      user_progress: {
+      skills: {
         Row: {
-          completed_at: string | null
+          app_id: string | null
+          created_at: string
+          deleted_at: string | null
+          description: string | null
+          difficulty_level: number
+          domain_id: string
           id: string
-          is_correct: boolean
-          question_id: string | null
-          skill_id: string | null
-          started_at: string | null
-          user_id: string | null
+          is_published: boolean
+          slug: string
+          sort_order: number
+          status: Database["public"]["Enums"]["curriculum_status"]
+          title: string
+          updated_at: string
         }
         Insert: {
-          completed_at?: string | null
+          app_id?: string | null
+          created_at?: string
+          deleted_at?: string | null
+          description?: string | null
+          difficulty_level?: number
+          domain_id: string
           id?: string
-          is_correct: boolean
-          question_id?: string | null
-          skill_id?: string | null
-          started_at?: string | null
-          user_id?: string | null
+          is_published?: boolean
+          slug: string
+          sort_order?: number
+          status?: Database["public"]["Enums"]["curriculum_status"]
+          title: string
+          updated_at?: string
         }
         Update: {
-          completed_at?: string | null
+          app_id?: string | null
+          created_at?: string
+          deleted_at?: string | null
+          description?: string | null
+          difficulty_level?: number
+          domain_id?: string
           id?: string
-          is_correct?: boolean
-          question_id?: string | null
-          skill_id?: string | null
-          started_at?: string | null
-          user_id?: string | null
+          is_published?: boolean
+          slug?: string
+          sort_order?: number
+          status?: Database["public"]["Enums"]["curriculum_status"]
+          title?: string
+          updated_at?: string
         }
         Relationships: [
           {
-            foreignKeyName: "user_progress_question_id_fkey"
-            columns: ["question_id"]
+            foreignKeyName: "skills_app_id_fkey"
+            columns: ["app_id"]
             isOneToOne: false
-            referencedRelation: "questions"
+            referencedRelation: "apps"
+            referencedColumns: ["app_id"]
+          },
+          {
+            foreignKeyName: "skills_domain_id_fkey"
+            columns: ["domain_id"]
+            isOneToOne: false
+            referencedRelation: "domains"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      source_documents: {
+        Row: {
+          content_hash: string | null
+          created_at: string
+          created_by: string
+          deleted_at: string | null
+          file_name: string
+          file_size: number | null
+          file_type: string
+          id: string
+          processing_status: string | null
+          raw_text: string | null
+          storage_path: string | null
+          updated_at: string
+        }
+        Insert: {
+          content_hash?: string | null
+          created_at?: string
+          created_by: string
+          deleted_at?: string | null
+          file_name: string
+          file_size?: number | null
+          file_type: string
+          id?: string
+          processing_status?: string | null
+          raw_text?: string | null
+          storage_path?: string | null
+          updated_at?: string
+        }
+        Update: {
+          content_hash?: string | null
+          created_at?: string
+          created_by?: string
+          deleted_at?: string | null
+          file_name?: string
+          file_size?: number | null
+          file_type?: string
+          id?: string
+          processing_status?: string | null
+          raw_text?: string | null
+          storage_path?: string | null
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "source_documents_created_by_fkey"
+            columns: ["created_by"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      staged_questions: {
+        Row: {
+          correct_answer: string
+          created_at: string
+          difficulty: number | null
+          id: string
+          is_selected: boolean
+          options: Json | null
+          question_text: string
+          session_id: string
+          skill_id: string | null
+          type: Database["public"]["Enums"]["question_type"] | null
+          updated_at: string
+        }
+        Insert: {
+          correct_answer: string
+          created_at?: string
+          difficulty?: number | null
+          id?: string
+          is_selected?: boolean
+          options?: Json | null
+          question_text: string
+          session_id: string
+          skill_id?: string | null
+          type?: Database["public"]["Enums"]["question_type"] | null
+          updated_at?: string
+        }
+        Update: {
+          correct_answer?: string
+          created_at?: string
+          difficulty?: number | null
+          id?: string
+          is_selected?: boolean
+          options?: Json | null
+          question_text?: string
+          session_id?: string
+          skill_id?: string | null
+          type?: Database["public"]["Enums"]["question_type"] | null
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "staged_questions_session_id_fkey"
+            columns: ["session_id"]
+            isOneToOne: false
+            referencedRelation: "ai_generation_sessions"
             referencedColumns: ["id"]
           },
           {
-            foreignKeyName: "user_progress_skill_id_fkey"
+            foreignKeyName: "staged_questions_skill_id_fkey"
             columns: ["skill_id"]
             isOneToOne: false
             referencedRelation: "skills"
             referencedColumns: ["id"]
           },
+        ]
+      }
+      student_recovery_keys: {
+        Row: {
+          created_at: string
+          id: string
+          secret_phrase: string
+          student_id: string
+          updated_at: string
+          usage_count: number
+        }
+        Insert: {
+          created_at?: string
+          id?: string
+          secret_phrase: string
+          student_id: string
+          updated_at?: string
+          usage_count?: number
+        }
+        Update: {
+          created_at?: string
+          id?: string
+          secret_phrase?: string
+          student_id?: string
+          updated_at?: string
+          usage_count?: number
+        }
+        Relationships: [
           {
-            foreignKeyName: "user_progress_user_id_fkey"
-            columns: ["user_id"]
-            isOneToOne: false
+            foreignKeyName: "student_recovery_keys_student_id_fkey"
+            columns: ["student_id"]
+            isOneToOne: true
             referencedRelation: "profiles"
             referencedColumns: ["id"]
           },
@@ -743,23 +1236,34 @@ export type Database = {
       [_ in never]: never
     }
     Functions: {
-      log_security_event: {
-        Args: {
-          p_event_type: string
-          p_severity: string // Simplified for now
-          p_metadata: Json
-          p_app_id: string | null
-          p_location: Json | null
-        }
-        Returns: void
+      check_user_app_access: {
+        Args: { user_id: string; target_app_id: string }
+        Returns: boolean
       }
-      publish_curriculum: {
+      generate_join_code: {
         Args: Record<PropertyKey, never>
-        Returns: {
-          success: boolean
-          version: number
-          published_at: string
+        Returns: string
+      }
+      generate_secret_phrase: {
+        Args: Record<PropertyKey, never>
+        Returns: string
+      }
+      get_current_app_id: {
+        Args: Record<PropertyKey, never>
+        Returns: string
+      }
+      match_documents: {
+        Args: {
+          query_embedding: string
+          match_threshold: number
+          match_count: number
         }
+        Returns: {
+          id: string
+          doc_path: string
+          chunk_text: string
+          similarity: number
+        }[]
       }
     }
     Enums: {
@@ -782,99 +1286,40 @@ export type Database = {
   }
 }
 
-type PublicSchema = Database[Extract<keyof Database, "public">]
+type DefaultSchema = Database[Extract<keyof Database, "public">]
 
 export type Tables<
-  PublicTableNameOrOptions extends
-    | keyof (PublicSchema["Tables"] & PublicSchema["Views"])
-    | { schema: keyof Database },
-  TableName extends PublicTableNameOrOptions extends { schema: keyof Database }
-    ? keyof (Database[PublicTableNameOrOptions["schema"]]["Tables"] &
-        Database[PublicTableNameOrOptions["schema"]]["Views"])
-    : never = never,
-> = PublicTableNameOrOptions extends { schema: keyof Database }
-  ? (Database[PublicTableNameOrOptions["schema"]]["Tables"] &
-      Database[PublicTableNameOrOptions["schema"]]["Views"])[TableName] extends {
-      Row: infer R
-    }
-    ? R
-    : never
-  : PublicTableNameOrOptions extends keyof (PublicSchema["Tables"] &
-        PublicSchema["Views"])
-  ? (PublicSchema["Tables"] &
-      PublicSchema["Views"])[PublicTableNameOrOptions] extends {
-      Row: infer R
-    }
-    ? R
-    : never
-  : never
+  TableName extends keyof DefaultSchema["Tables"]
+> = DefaultSchema["Tables"][TableName]["Row"]
 
 export type TablesInsert<
-  PublicTableNameOrOptions extends
-    | keyof PublicSchema["Tables"]
-    | { schema: keyof Database },
-  TableName extends PublicTableNameOrOptions extends { schema: keyof Database }
-    ? keyof Database[PublicTableNameOrOptions["schema"]]["Tables"]
-    : never = never,
-> = PublicTableNameOrOptions extends { schema: keyof Database }
-  ? Database[PublicTableNameOrOptions["schema"]]["Tables"][TableName] extends {
-      Insert: infer I
-    }
-    ? I
-    : never
-  : PublicTableNameOrOptions extends keyof PublicSchema["Tables"]
-  ? PublicSchema["Tables"][PublicTableNameOrOptions] extends {
-      Insert: infer I
-    }
-    ? I
-    : never
-  : never
+  TableName extends keyof DefaultSchema["Tables"]
+> = DefaultSchema["Tables"][TableName]["Insert"]
 
 export type TablesUpdate<
-  PublicTableNameOrOptions extends
-    | keyof PublicSchema["Tables"]
-    | { schema: keyof Database },
-  TableName extends PublicTableNameOrOptions extends { schema: keyof Database }
-    ? keyof Database[PublicTableNameOrOptions["schema"]]["Tables"]
-    : never = never,
-> = PublicTableNameOrOptions extends { schema: keyof Database }
-  ? Database[PublicTableNameOrOptions["schema"]]["Tables"][TableName] extends {
-      Update: infer U
-    }
-    ? U
-    : never
-  : PublicTableNameOrOptions extends keyof PublicSchema["Tables"]
-  ? PublicSchema["Tables"][PublicTableNameOrOptions] extends {
-      Update: infer U
-    }
-    ? U
-    : never
-  : never
+  TableName extends keyof DefaultSchema["Tables"]
+> = DefaultSchema["Tables"][TableName]["Update"]
 
 export type Enums<
-  PublicEnumNameOrOptions extends
-    | keyof PublicSchema["Enums"]
-    | { schema: keyof Database },
-  EnumName extends PublicEnumNameOrOptions extends { schema: keyof Database }
-    ? keyof Database[PublicEnumNameOrOptions["schema"]]["Enums"]
-    : never = never,
-> = PublicEnumNameOrOptions extends { schema: keyof Database }
-  ? Database[PublicEnumNameOrOptions["schema"]]["Enums"][EnumName]
-  : PublicEnumNameOrOptions extends keyof PublicSchema["Enums"]
-  ? PublicSchema["Enums"][PublicEnumNameOrOptions]
-  : never
+  EnumName extends keyof DefaultSchema["Enums"]
+> = DefaultSchema["Enums"][EnumName]
 
-export type CompositeTypes<
-  PublicCompositeTypeNameOrOptions extends
-    | keyof PublicSchema["CompositeTypes"]
-    | { schema: keyof Database },
-  CompositeTypeName extends PublicCompositeTypeNameOrOptions extends {
-    schema: keyof Database
-  }
-    ? keyof Database[PublicCompositeTypeNameOrOptions["schema"]]["CompositeTypes"]
-    : never = never,
-> = PublicCompositeTypeNameOrOptions extends { schema: keyof Database }
-  ? Database[PublicCompositeTypeNameOrOptions["schema"]]["CompositeTypes"][CompositeTypeName]
-  : PublicCompositeTypeNameOrOptions extends keyof PublicSchema["CompositeTypes"]
-  ? PublicSchema["CompositeTypes"][PublicCompositeTypeNameOrOptions]
-  : never
+export const Constants = {
+  public: {
+    Enums: {
+      assignment_scope: ["mandatory", "suggested"],
+      assignment_status: ["pending", "completed", "late"],
+      assignment_type: ["skill_mastery", "time_goal", "custom"],
+      curriculum_status: ["draft", "published", "live"],
+      group_type: ["class", "family"],
+      question_type: [
+        "multiple_choice",
+        "mcq_multi",
+        "text_input",
+        "boolean",
+        "reorder_steps",
+      ],
+      user_role: ["super_admin", "admin", "student", "mentor"],
+    },
+  },
+} as const

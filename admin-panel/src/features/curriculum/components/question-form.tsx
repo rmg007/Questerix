@@ -103,7 +103,13 @@ export function QuestionForm({ initialData }: QuestionFormProps) {
                   return '';
           }
       }
-      const sol = data.solution as any;
+      // Parse JSON solution
+      let sol: any;
+      try {
+        sol = typeof data.solution === 'string' ? JSON.parse(data.solution as string) : data.solution;
+      } catch {
+        sol = data.solution;
+      }
       switch (type) {
           case 'multiple_choice':
               return sol.correct_option_id || '';

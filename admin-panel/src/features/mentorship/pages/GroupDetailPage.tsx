@@ -13,16 +13,16 @@ interface Assignment {
   id: string
   type: string
   scope: string | null
-  due_date: string | null
+  deadline: string | null
   status: string | null
-  target_id: string
+  skill_id: string
 }
 
 interface Member {
   group_id: string
   user_id: string
   nickname: string | null
-  joined_at: string
+  created_at: string
   profiles: {
     email: string | null
     full_name: string | null
@@ -37,7 +37,7 @@ interface Skill {
 interface ProgressEntry {
   user_id: string
   skill_id: string
-  mastery_level: number
+  mastery_score: number
 }
 
 export function GroupDetailPage() {
@@ -142,7 +142,7 @@ export function GroupDetailPage() {
   // Fetch skill details for assignments
   const assignmentSkillIds = assignments
     ?.filter((a: Assignment) => a.type === 'skill_mastery')
-    .map((a: Assignment) => a.target_id) || []
+    .map((a: Assignment) => a.skill_id) || []
 
   const { data: assignmentSkills } = useQuery({
     queryKey: ['skills-details', assignmentSkillIds],
@@ -247,9 +247,9 @@ export function GroupDetailPage() {
 
   const getStatus = (memberId: string, skillId: string) => {
     const entry = progress?.find((p: ProgressEntry) => p.user_id === memberId && p.skill_id === skillId)
-    // Assuming entry.mastery_level is 0-100.
+    // Assuming entry.mastery_score is 0-100.
     if (!entry) return 'not_started'
-    if (entry.mastery_level >= 100) return 'mastered'
+    if (entry.mastery_score >= 100) return 'mastered'
     return 'in_progress'
   }
 
@@ -421,7 +421,7 @@ export function GroupDetailPage() {
                                 <p className="text-sm text-slate-500">{member.profiles.email}</p>
                               )}
                               <p className="text-xs text-slate-400">
-                                Joined {new Date(member.joined_at).toLocaleDateString()}
+                                Joined {new Date(member.created_at).toLocaleDateString()}
                               </p>
                             </>
                           )}
@@ -503,8 +503,8 @@ export function GroupDetailPage() {
                         <h3 className="font-semibold text-slate-900 capitalize">{assignment.type.replace('_', ' ')}</h3>
                         <p className="text-sm text-slate-500 flex items-center gap-2">
                           <span className="capitalize px-1.5 py-0.5 rounded bg-slate-200 text-slate-700 text-xs">{assignment.scope}</span>
-                          {assignment.due_date && (
-                             <span>Due: {new Date(assignment.due_date).toLocaleDateString()}</span>
+                          {assignment.deadline && (
+                             <span>Due: {new Date(assignment.deadline).toLocaleDateString()}</span>
                           )}
                         </p>
                       </div>

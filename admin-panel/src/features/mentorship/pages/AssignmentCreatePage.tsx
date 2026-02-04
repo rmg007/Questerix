@@ -74,13 +74,17 @@ export function AssignmentCreatePage() {
     mutationFn: async () => {
       if (!groupId || !targetId) throw new Error('Missing required fields')
 
+      const { data: { user } } = await supabase.auth.getUser()
+      if (!user) throw new Error('User not authenticated')
+
       const { error } = await supabase.from('assignments').insert({
         group_id: groupId,
-        target_id: targetId,
+        skill_id: targetId,
         type,
         scope,
-        due_date: dueDate ? new Date(dueDate).toISOString() : null,
-        status: 'pending'
+        deadline: dueDate ? new Date(dueDate).toISOString() : null,
+        status: 'pending',
+        assigned_by: user.id
       })
 
       if (error) throw error

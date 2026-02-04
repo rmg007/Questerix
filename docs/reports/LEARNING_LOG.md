@@ -49,4 +49,31 @@ Lessons learned from bugs, incidents, and development discoveries.
 
 ---
 
-<!-- Add new lessons above this line -->
+## 2026-02-04: Phase 11 Certification - Hardcoded Credentials Anti-Pattern
+
+- **Root Cause**: Database password hardcoded directly in `scripts/direct_apply.js` (Line 5)
+- **Discovery**: Found during `/certify` Phase 3 (Security Audit)
+- **Severity**: CRITICAL - Password exposed in Git history and source code
+- **Lesson**: ALL credentials must be externalized to environment variables, even in utility scripts
+- **Prevention**: 
+  - Updated `direct_apply.js` to use `process.env.DB_PASSWORD` with validation
+  - Installed `dotenv` package for .env file support
+  - Added error message guiding users to set credentials properly
+- **Why Missed in /process**: Script was created in previous session without security review
+- **Regression Test**: Manual verification that script fails without env var set
+
+---
+
+## 2026-02-04: Phase 11 Certification - CLI Argument Ignored
+
+- **Root Cause**: `scripts/direct_apply.js` had hardcoded migration filename, ignoring command-line argument
+- **Discovery**: Found during `/certify` Phase 1 (Database Audit) when wrong migration was applied
+- **Impact**: HIGH - Script appeared to work but always applied the same migration regardless of input
+- **Lesson**: Utility scripts accepting arguments MUST actually use those arguments
+- **Prevention**: Refactored to use `process.argv[2]` with proper validation and path resolution
+- **Why Missed in /process**: Script was tested with the hardcoded file, which succeeded by coincidence
+- **Testing Gap**: No verification that different inputs produced different outputs
+
+---
+
+<! -- Add new lessons above this line -->

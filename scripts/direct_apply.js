@@ -2,11 +2,29 @@ const { Client } = require('pg');
 const fs = require('fs');
 const path = require('path');
 
-const dbPassword = 'QpJIzi2r6vaoghG5';
-const projectRef = 'qvslbiceoonrgjxzkotb';
+require('dotenv').config();
+
+const dbPassword = process.env.DB_PASSWORD;
+const projectRef = process.env.SUPABASE_PROJECT_REF || 'qvslbiceoonrgjxzkotb';
+
+if (!dbPassword) {
+  console.error('❌ DB_PASSWORD environment variable not set');
+  console.error('Set it in deployment/.secrets or as an environment variable');
+  process.exit(1);
+}
+
 const dbUrl = `postgresql://postgres:${dbPassword}@db.${projectRef}.supabase.co:5432/postgres`;
 
-const migrationFile = path.join(__dirname, '..', 'supabase', 'migrations', '20260204000004_fix_domains_schema.sql');
+// Accept migration file as command-line argument
+const migrationArg = process.argv[2];
+if (!migrationArg) {
+  console.error('❌ Usage: node direct_apply.js <migration-file-path>');
+  process.exit(1);
+}
+
+const migrationFile = path.isAbsolute(migrationArg) 
+  ? migrationArg 
+  : path.join(__dirname, '..', migrationArg);
 
 async function apply() {
   console.log(`🔌 Connecting to database...`);

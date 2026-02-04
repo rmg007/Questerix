@@ -21,6 +21,8 @@
     "@tiptap/extension-underline": "^3.18.0",
     "@tiptap/react": "^3.18.0",
     "@tiptap/starter-kit": "^3.18.0",
-    "katex": "^0.16.28"
+    "dotenv": "^17.2.3",
+    "katex": "^0.16.28",
+    "pg": "^8.18.0"
   }
 }

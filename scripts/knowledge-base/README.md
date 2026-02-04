@@ -127,18 +127,28 @@ To index additional paths, modify the `INCLUDE_PATTERNS` array.
 
 ## 🤖 CI/CD Integration
 
-The indexer runs automatically on every push to `main` that modifies documentation files.
+The indexer runs **manually via GitHub Actions** for cost control.
 
 **Workflow**: `.github/workflows/docs-index.yml`
 
-**Triggers**:
-- Changes to `docs/**`
-- Changes to `README.md`, `AI_CODING_INSTRUCTIONS.md`, `ROADMAP.md`
-- Changes to `.agent/workflows/**`
+**Trigger Method**: Manual workflow dispatch
+- Go to: https://github.com/rmg007/Questerix/actions/workflows/docs-index.yml
+- Click **"Run workflow"** button
+- Select branch: `main`
+- Optionally provide a reason for the reindex
+- Click **"Run workflow"**
+
+**Alternative**: Use workflow command `/reindex_docs` (see `.agent/workflows/reindex_docs.md`)
 
 **Secrets Required** (GitHub Repository Settings):
-- `OPENAI_API_KEY`
+- `SUPABASE_URL`
 - `SUPABASE_SERVICE_ROLE_KEY`
+- `OPENAI_API_KEY`
+
+**Why Manual?**
+- ✅ Cost control - only run when needed
+- ✅ Hash deduplication makes repeat runs cheap
+- ✅ Typical cost per run: $0.0003 or less
 
 ## 📊 Cost Estimates
 

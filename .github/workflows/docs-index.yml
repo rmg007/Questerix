@@ -1,22 +1,26 @@
-name: Update Documentation Index
+name: Reindex Documentation (Manual)
 
+# Manual trigger only - run via GitHub Actions UI or workflow_dispatch API
+# This prevents automatic indexing on every push (cost control)
 on:
-  push:
-    branches:
-      - main
-    paths:
-      - 'docs/**'
-      - 'README.md'
-      - 'AI_CODING_INSTRUCTIONS.md'
-      - 'ROADMAP.md'
-      - '.agent/workflows/**'
-      - '**/README.md'
+  workflow_dispatch:
+    inputs:
+      reason:
+        description: 'Reason for reindexing (optional)'
+        required: false
+        type: string
 
 jobs:
   index-docs:
     runs-on: ubuntu-latest
     
     steps:
+      - name: Log reindex reason
+        run: |
+          echo "🔄 Manual reindex triggered"
+          echo "Reason: ${{ github.event.inputs.reason || 'No reason provided' }}"
+          echo "Triggered by: ${{ github.actor }}"
+          
       - name: Checkout repository
         uses: actions/checkout@v4
 

@@ -52,9 +52,10 @@ The Agent must monitor the `#dev-questerix` Slack channel via the Slack MCP for 
 **Execution Rules**:
 
 1. **Trigger Detection**: 
-   - Monitor for messages starting with `/agent` (case-insensitive)
-   - Extract command from message body (everything after `/agent`)
-   - Example: `/agent run validation` → execute `run validation`
+   - Monitor for messages starting with `@agent` (case-insensitive)
+   - Extract command from message body (everything after `@agent`)
+   - Example: `@agent run validation` → execute `run validation`
+   - **Note**: Using `@agent` instead of `/agent` to avoid Slack's slash command prefix
 
 2. **Command Execution**:
    - Execute the command using `run_command` tool in the project root directory

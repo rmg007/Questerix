@@ -271,6 +271,8 @@ description: Independent post-implementation audit and certification
 - If CONDITIONAL → User decision required
 - If FAILED → Return to `/process` Phase 3 for fixes
 
+> **Documentation Rule**: If ANY issue was found and fixed during this audit, you **MUST** add an entry to `docs/LEARNING_LOG.md` describing the gap and how it was missed in `/process`.
+
 ---
 
 ## 📊 Evidence Archive

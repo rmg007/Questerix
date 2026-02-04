@@ -6,7 +6,10 @@ description: Unified Questerix Development Lifecycle
 
 # 🚀 /process - The Unified Questerix Lifecycle
 
-This workflow governs the entire development cycle from idea to deployment. It enforces planning-first, recursive self-correction, rigorous testing, and reproducible documentation.
+This workflow governs the entire development cycle.
+**Core Principle**: **"Document As You Go."**
+- **Bug Fixed?** → Update `docs/LEARNING_LOG.md` immediately.
+- **Phase Done?** → Update relevant `docs/*.md` immediately.
 
 ---
 
@@ -78,6 +81,9 @@ Before Phase 1, create `.agent/artifacts/TASK_STATE.json`:
 - Add: `artifacts = [migration files, type files]`
 - `current_phase = 3`
 
+**Phase Documentation**:
+- Update `docs/DATABASE_SCHEMA.md` (or equivalent) with new tables/columns immediately.
+
 ---
 
 ## 🛠️ Phase 3: Implementation & Quality Loop (Recursive)
@@ -97,6 +103,7 @@ Before Phase 1, create `.agent/artifacts/TASK_STATE.json`:
     *   Verify handling of "Unexpected Nulls" or "Empty Data States".
 5.  **Self-Review**: After each chunk, run static analysis and "hallucination check."
 6.  **Fix Loop**: If errors, inconsistencies, or "spaghetti smells" are found, fix them immediately.
+    *   **Micro-Postmortem**: If you fixed a bug, **IMMEDIATELY** add a bullet point to `docs/LEARNING_LOG.md` with the Root Cause and Fix.
 7.  **Repeat**: Loop until all planned features are implemented and the Agent is 100% confident.
 
 **EXIT GATE**: All code implemented, stress-tested, and refactored for quality.
@@ -105,6 +112,9 @@ Before Phase 1, create `.agent/artifacts/TASK_STATE.json`:
 - Phase 3: `status = "completed"`, `completed_at = [timestamp]`
 - Add: `files_modified = [count]`, `commits = [commit hashes]`
 - `current_phase = 4`
+
+**Phase Documentation**:
+- if APIs/logic changed, update `docs/API.md` or relevant technical specs NOW.
 
 ---
 
@@ -120,6 +130,7 @@ Before Phase 1, create `.agent/artifacts/TASK_STATE.json`:
     *   Ensure expensive operations are run in background threads (Isolates/Workers).
     *   Verify virtualization/pagination for large lists.
 4.  **QA Loop**: Run tests. If any fail, fix the code and re-run.
+    *   **Micro-Postmortem**: For every test failure fixed, **IMMEDIATELY** add an entry to `docs/LEARNING_LOG.md`.
 5.  **Visual Design Audit (If UI changed)**:
     *   **Visual Inspection**: Use `browser_subagent` to capture screenshots of all modified screens.
     *   **Premium Critique**: Review for "Wow" factor: check gradients, glassmorphism, spacing consistency, and modern typography.
@@ -134,6 +145,9 @@ Before Phase 1, create `.agent/artifacts/TASK_STATE.json`:
 - Phase 4: `status = "completed"`, `completed_at = [timestamp]`
 - Add: `tests_passed = [count]`, `visual_proof = [screenshot paths]`
 - `current_phase = 5`
+
+**Phase Documentation**:
+- Capture any new test patterns or "gotchas" in `docs/TESTING.md` if applicable.
 
 ---
 

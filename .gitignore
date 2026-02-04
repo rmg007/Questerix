@@ -49,9 +49,6 @@ pubspec.lock
 *.env
 *.env.*
 
-# Local secret documentation (never commit)
-*.local.md
-
 # Temporary Scrub Scripts (Local only)
 scrub.ps1
 scrub.js
@@ -74,4 +71,3 @@ deploy-*.log
 # Build artifacts (regenerated each deploy)
 admin-panel/dist/
 student-app/build/
-.slack-bridge-state.json

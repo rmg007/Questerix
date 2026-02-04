@@ -581,7 +581,7 @@ CLI User                 Query Script              OpenAI API           Supabase
 ### **Phase 3: UI Integration**
 - Web-based search interface
 - VS Code extension
-- Slack bot integration
+
 - API endpoint for external tools
 
 ### **Phase 4: Intelligence**

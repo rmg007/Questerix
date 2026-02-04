@@ -1,4 +1,4 @@
-import { ArrowRight, BookOpen, Sigma, FlaskConical, GraduationCap } from 'lucide-react';
+import { ArrowRight, BookOpen, Sigma, FlaskConical, GraduationCap, type LucideIcon } from 'lucide-react';
 import { Header } from '../components/Header';
 import { Footer } from '../components/Footer';
 import { BlogSection } from '../components/BlogSection';
@@ -7,7 +7,7 @@ interface SubjectData {
   title: string;
   shortDesc: string;
   fullDesc: string;
-  icon: any;
+  icon: LucideIcon;
   colorClass: string;
   bgClass: string;
   link: string;

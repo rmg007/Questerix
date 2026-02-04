@@ -25,7 +25,7 @@ if (Test-Command "supabase") {
 
 # Set database credentials
 $dbPassword = "QpJIzi2r6vaoghG5"
-$projectRef = "[YOUR-PROJECT-ID]"
+$projectRef = "qvslbiceoonrgjxzkotb"
 $dbUrl = "postgresql://postgres:${dbPassword}@db.${projectRef}.supabase.co:5432/postgres"
 
 Write-Host "Constructed DB URL for project $projectRef" -ForegroundColor Cyan

@@ -1,5 +1,5 @@
 import { BrowserRouter, Routes, Route } from 'react-router-dom';
-import { useState, useEffect, useCallback } from 'react';
+import { useState, useEffect } from 'react';
 import { RootPage } from './pages/RootPage';
 import { SubjectHubPage } from './pages/SubjectHubPage';
 import { GradeLandingPage } from './pages/GradeLandingPage';
@@ -42,53 +42,53 @@ function HomePage() {
   const [data, setData] = useState<AppData | SubjectData | null>(null);
   const [loading, setLoading] = useState(() => !!getInitialSubdomain());
 
-  const handleSubdomain = useCallback(async (subdomain: string) => {
-     console.log('Handling subdomain:', subdomain);
-     
-     // 1. Try to find an App (e.g. m7)
-     const { data: appData, error: appError } = await supabase
-       .from('apps')
-       .select('*, subjects(*)')
-       .eq('subdomain', subdomain)
-       .maybeSingle();
+  useEffect(() => {
+    const subdomain = getInitialSubdomain();
+    if (!subdomain) return;
 
-     if (appError) console.error(appError);
+    const fetchSubdomain = async () => {
+      console.log('Handling subdomain:', subdomain);
       
-     if (appData) {
-       console.log('Found App:', appData);
-       setView('grade');
-       setData(appData);
-       setLoading(false);
-       return;
-     }
-
-     // 2. Try to find a Subject (e.g. math)
-     const { data: subjectData, error: subjectError } = await supabase
-        .from('subjects')
-        .select('*')
-        .eq('slug', subdomain)
+      // 1. Try to find an App (e.g. m7)
+      const { data: appData, error: appError } = await supabase
+        .from('apps')
+        .select('*, subjects(*)')
+        .eq('subdomain', subdomain)
         .maybeSingle();
 
-     if (subjectError) console.error(subjectError);
-
-      if (subjectData) {
-        console.log('Found Subject:', subjectData);
-        setView('subject');
-        setData(subjectData);
+      if (appError) console.error(appError);
+       
+      if (appData) {
+        console.log('Found App:', appData);
+        setView('grade');
+        setData(appData);
         setLoading(false);
         return;
       }
 
-      console.log('No match found for subdomain. Defaulting to root.');
-      setLoading(false);
-  }, []);
+      // 2. Try to find a Subject (e.g. math)
+      const { data: subjectData, error: subjectError } = await supabase
+         .from('subjects')
+         .select('*')
+         .eq('slug', subdomain)
+         .maybeSingle();
 
-  useEffect(() => {
-    const subdomain = getInitialSubdomain();
-    if (subdomain) {
-      handleSubdomain(subdomain);
-    }
-  }, [handleSubdomain]);
+      if (subjectError) console.error(subjectError);
+
+       if (subjectData) {
+         console.log('Found Subject:', subjectData);
+         setView('subject');
+         setData(subjectData);
+         setLoading(false);
+         return;
+       }
+
+       console.log('No match found for subdomain. Defaulting to root.');
+       setLoading(false);
+    };
+
+    fetchSubdomain();
+  }, []);
 
   if (loading) return (
      <div className="flex items-center justify-center min-h-screen bg-gray-50">

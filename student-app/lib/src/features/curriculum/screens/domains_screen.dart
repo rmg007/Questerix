@@ -4,6 +4,7 @@ import 'package:questerix_domain/questerix_domain.dart' as model;
 import 'package:student_app/src/core/connectivity/connectivity_service.dart';
 import 'package:student_app/src/core/sync/sync_service.dart';
 import 'package:student_app/src/core/theme/app_theme.dart';
+import 'package:student_app/src/core/theme/generated/generated.dart';
 import 'package:student_app/src/features/curriculum/repositories/domain_repository.dart';
 import 'package:student_app/src/features/curriculum/screens/skills_screen.dart';
 import 'package:student_app/src/features/progress/repositories/skill_progress_repository.dart';
@@ -34,7 +35,7 @@ class DomainsScreen extends ConsumerWidget {
                       color: Colors.white,
                     ),
                   )
-                : const Icon(Icons.sync),
+                : const Icon(AppIcons.refresh),
             tooltip: 'Sync',
             onPressed: syncState.isSyncing
                 ? null
@@ -66,7 +67,7 @@ class DomainsScreen extends ConsumerWidget {
                   mainAxisAlignment: MainAxisAlignment.center,
                   children: [
                     const Icon(
-                      Icons.error_outline,
+                      AppIcons.error,
                       size: 64,
                       color: AppColors.error,
                     ),
@@ -110,7 +111,7 @@ class DomainsScreen extends ConsumerWidget {
                         shape: BoxShape.circle,
                       ),
                       child: const Icon(
-                        Icons.school_outlined,
+                        AppIcons.learn,
                         size: 64,
                         color: AppColors.primary,
                       ),
@@ -132,7 +133,7 @@ class DomainsScreen extends ConsumerWidget {
                     ElevatedButton.icon(
                       onPressed: () =>
                           ref.read(syncServiceProvider.notifier).sync(),
-                      icon: const Icon(Icons.sync),
+                      icon: const Icon(AppIcons.refresh),
                       label: const Text('Sync Now'),
                     ),
                   ],
@@ -190,7 +191,7 @@ class DomainsScreen extends ConsumerWidget {
             child: const Row(
               mainAxisSize: MainAxisSize.min,
               children: [
-                Icon(Icons.wifi_off, size: 16, color: Colors.white),
+                Icon(AppIcons.mute, size: 16, color: Colors.white),
                 SizedBox(width: 4),
                 Text(
                   'Offline',
@@ -254,7 +255,7 @@ class _DomainCard extends ConsumerWidget {
                           borderRadius: BorderRadius.circular(12),
                         ),
                         child: const Icon(
-                          Icons.menu_book,
+                          AppIcons.domain,
                           color: AppColors.primary,
                         ),
                       ),
@@ -283,7 +284,7 @@ class _DomainCard extends ConsumerWidget {
                         ),
                       ),
                       const Icon(
-                        Icons.arrow_forward_ios,
+                        AppIcons.chevronRight,
                         size: 16,
                         color: AppColors.textTertiary,
                       ),
@@ -341,7 +342,7 @@ class _DomainCard extends ConsumerWidget {
                           mainAxisSize: MainAxisSize.min,
                           children: [
                             const Icon(
-                              Icons.star,
+                              AppIcons.points,
                               size: 16,
                               color: AppColors.points,
                             ),

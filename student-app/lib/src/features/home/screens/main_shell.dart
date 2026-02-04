@@ -27,8 +27,8 @@ class MainShell extends ConsumerWidget {
 
     // Responsive breakpoints
     final screenWidth = MediaQuery.of(context).size.width;
-    final isTablet = screenWidth >= Breakpoints.tablet;
-    final isDesktop = screenWidth >= Breakpoints.desktop;
+    final isTablet = screenWidth >= Breakpoints.lg;
+    final isDesktop = screenWidth >= Breakpoints.xl;
 
     // Navigation items
     final destinations = [

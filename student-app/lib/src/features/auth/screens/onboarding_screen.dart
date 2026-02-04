@@ -363,7 +363,7 @@ class _ParentApprovalStepState extends ConsumerState<_ParentApprovalStep> {
               textAlign: TextAlign.center,
             ),
             const SizedBox(height: 8),
-            Text(
+            const Text(
               'Enter your parent\'s email to get approved',
               style: TextStyle(
                 fontSize: 16,
@@ -418,7 +418,7 @@ class _ParentApprovalStepState extends ConsumerState<_ParentApprovalStep> {
                 ],
               ),
             const SizedBox(height: 16),
-            Text(
+            const Text(
               'By asking for approval, you agree to the Terms of Service.',
               style: TextStyle(fontSize: 12, color: AppColors.textSecondary),
               textAlign: TextAlign.center,
@@ -541,7 +541,7 @@ class _StudentSignupStepState extends ConsumerState<_StudentSignupStep> {
               textAlign: TextAlign.center,
             ),
             const SizedBox(height: 8),
-            Text(
+            const Text(
               'Enter your email to get started',
               style: TextStyle(
                 fontSize: 16,
@@ -578,11 +578,11 @@ class _StudentSignupStepState extends ConsumerState<_StudentSignupStep> {
                 Expanded(
                   child: GestureDetector(
                     onTap: () => _showTermsDialog(context),
-                    child: Text.rich(
+                    child: const Text.rich(
                       TextSpan(
                         text: 'I agree to the ',
                         style: TextStyle(color: AppColors.textSecondary),
-                        children: const [
+                        children: [
                           TextSpan(
                             text: 'Terms of Service',
                             style: TextStyle(

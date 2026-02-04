@@ -21,24 +21,24 @@ The project consists of:
 
 ## 📂 Key Files
 
-- **`AGENTS.md`**: The Supreme Law. The execution protocol every agent must follow.
+- **`docs/strategy/AGENTS.md`**: The Supreme Law. The execution protocol every agent must follow.
 - **`AI_CODING_INSTRUCTIONS.md`**: Short-form, code-grounded AI instructions (contracts, authority order, non-negotiables).
 - **`ROADMAP.md`**: The visual timeline of the project phases.
 - **`PHASE_STATE.json`**: The state file tracking the agent's progress.
-- **`AppShell/docs/specs/*`**: Detailed blueprints for UI, Data, and API.
+- **`docs/specs/*`**: Detailed blueprints for UI, Data, and API.
 - **`.mcp_config.json`**: Ready-to-use MCP server configuration.
 - **`MCP_SETUP_COMPLETE.md`**: MCP installation summary and next steps.
 
 ## 🧑‍💻 For Humans (Development)
 
-- `docs/DEVELOPMENT.md`
-- `docs/CI_CONTRACT.md`
-- `docs/VALIDATION.md`
-- `docs/MCP_SETUP_GUIDE.md`
+- `docs/technical/DEVELOPMENT.md`
+- `docs/operational/CI_CONTRACT.md`
+- `docs/technical/VALIDATION.md`
+- `docs/technical/MCP_SETUP_GUIDE.md`
 
 ## 🤖 For AI Agents
 
-1.  **Read `AGENTS.md`** immediately.
+1.  **Read `docs/strategy/AGENTS.md`** immediately.
 2.  **Check `PHASE_STATE.json`** to see where to begin.
 3.  **Execute** the current phase strictly according to the specs.
 4.  **Validate** using the provided scripts (e.g., `scripts/validate-phase-0.ps1`).
@@ -48,4 +48,4 @@ The project consists of:
 ### 🦾 Agent Commands
 - **`/autopilot`**: Triggers full autonomous build & maintenance capability.
 - **`/test`**: Runs the recommended "Enterprise QA" suite (Offline-Sync integration, E2E, Lint).
-*See `docs/DEVELOPMENT.md` for full command details.*
+*See `docs/technical/DEVELOPMENT.md` for full command details.*

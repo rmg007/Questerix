@@ -4,11 +4,12 @@ This repository is contract-driven. Use the repo’s contracts (Makefile, CI wor
 
 ## Authority order (highest to lowest)
 
-1. `AppShell/docs/AGENTS.md`
-2. `AppShell/docs/SCHEMA.md` (explanatory reference; migrations are executable truth)
+1. `docs/strategy/AGENTS.md`
+2. `docs/technical/SCHEMA.md` (explanatory reference; migrations are executable truth)
 3. `PHASE_STATE.json`
-4. `AppShell/docs/specs/*`
+4. `docs/specs/*`
 5. Everything else (README, ad-hoc notes)
+
 
 If two sources conflict, follow the highest-ranked source.
 
@@ -22,7 +23,7 @@ If two sources conflict, follow the highest-ranked source.
 - **IDE Requirement**: Antigravity IDE must have "Terminal execution policy" set to "Turbo" for autonomous execution to work. See `.agent/workflows/autopilot.md` for setup instructions.
 
 ### Autonomous Task Finalization
-- You must follow the **Autonomous Task Finalization** protocol defined in `AGENTS.md` before marking any task as complete.
+- You must follow the **Autonomous Task Finalization** protocol defined in `docs/strategy/AGENTS.md` before marking any task as complete.
 - This includes mandatory testing, refactoring, and documentation updates without asking for permission.
 
 ### Workflow Slash Commands (Trust & Verify System)
@@ -110,9 +111,9 @@ Use these commands for structured task execution:
 
 ## Where to look for “how to do X”
 
-- Local development: `docs/DEVELOPMENT.md`
-- CI expectations and Strict mode: `docs/CI_CONTRACT.md`
-- **Deployment**: `docs/DEPLOYMENT_PIPELINE.md`
+- Local development: `docs/technical/DEVELOPMENT.md`
+- CI expectations and Strict mode: `docs/operational/CI_CONTRACT.md`
+- **Deployment**: `docs/operational/DEPLOYMENT_PIPELINE.md`
 - Validation scripts: `scripts/validate-phase-*.sh` and `scripts/common.sh`
 - Database schema and RLS: `supabase/migrations/*.sql` and `supabase/scripts/verify_rls.sql`
 
@@ -143,4 +144,4 @@ The project uses a unified deployment orchestrator for deploying all three appli
 ./orchestrator.ps1 -DryRun
 ```
 
-See `docs/DEPLOYMENT_PIPELINE.md` for complete documentation.
+See `docs/operational/DEPLOYMENT_PIPELINE.md` for complete documentation.

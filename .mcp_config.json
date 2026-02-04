@@ -12,15 +12,6 @@
         "SUPABASE_PROJECT_ID": "[YOUR-PROJECT-ID]"
       }
     },
-    "slack": {
-      "command": "npx",
-      "args": ["-y", "@modelcontextprotocol/server-slack"],
-      "env": {
-        "SLACK_BOT_TOKEN": "${SLACK_BOT_TOKEN}",
-        "SLACK_TEAM_ID": "${SLACK_TEAM_ID}",
-        "SLACK_APP_TOKEN": "${SLACK_APP_TOKEN}"
-      }
-    },
     "playwright": {
       "command": "npx",
       "args": ["-y", "@modelcontextprotocol/server-playwright"],

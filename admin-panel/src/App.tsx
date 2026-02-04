@@ -26,6 +26,7 @@ import { GroupCreatePage } from './features/mentorship/pages/GroupCreatePage'
 import { GroupDetailPage } from './features/mentorship/pages/GroupDetailPage'
 import { AssignmentCreatePage } from './features/mentorship/pages/AssignmentCreatePage'
 import { GenerationPage } from './features/ai-assistant/pages/GenerationPage'
+import { SessionsPage } from './features/ai-assistant/pages/SessionsPage'
 
 const queryClient = new QueryClient()
 
@@ -67,6 +68,7 @@ function App() {
                 <Route path="/groups/:id" element={<GroupDetailPage />} />
                 <Route path="/groups/:groupId/assignments/new" element={<AssignmentCreatePage />} />
                 <Route path="/ai-questions" element={<GenerationPage />} />
+                <Route path="/ai-sessions" element={<SessionsPage />} />
                 <Route path="/users" element={
                   <SuperAdminGuard>
                     <UserManagementPage />

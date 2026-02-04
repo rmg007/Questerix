@@ -74,3 +74,4 @@ deploy-*.log
 # Build artifacts (regenerated each deploy)
 admin-panel/dist/
 student-app/build/
+.slack-bridge-state.json

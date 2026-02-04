@@ -8,7 +8,7 @@ param(
 
 # Configuration
 $SLACK_BOT_TOKEN = $env:SLACK_BOT_TOKEN
-$SLACK_CHANNEL = "C0ADBB25JGZ"  # #dev-questerix channel ID
+$SLACK_CHANNEL = "C0ADT6JHLQ0"  # #dev-questerix channel ID
 $PROJECT_ROOT = "C:\Users\mhali\OneDrive\Desktop\Important Projects\Questerix"
 $STATE_FILE = "$PROJECT_ROOT\.slack-bridge-state.json"
 

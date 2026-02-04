@@ -1,5 +1,5 @@
 import { Link, useLocation, useNavigate } from 'react-router-dom'
-import { LayoutDashboard, Book, Layers, FileText, Upload, LogOut, Settings, Key, History, Users, X } from 'lucide-react'
+import { LayoutDashboard, Book, Layers, FileText, Upload, LogOut, Settings, Key, History, Users, X, UserCog } from 'lucide-react'
 import { cn } from '@/lib/utils'
 import { supabase } from '@/lib/supabase'
 import { useState, useEffect } from 'react'
@@ -12,6 +12,7 @@ interface SidebarProps {
 
 const baseNavigation = [
   { name: 'Dashboard', href: '/', icon: LayoutDashboard },
+  { name: 'My Groups', href: '/groups', icon: Users },
   { name: 'Domains', href: '/domains', icon: Book },
   { name: 'Skills', href: '/skills', icon: Layers },
   { name: 'Questions', href: '/questions', icon: FileText },
@@ -21,7 +22,7 @@ const baseNavigation = [
 
 const superAdminNavigation = [
   { name: 'Invitation Codes', href: '/invitation-codes', icon: Key },
-  { name: 'User Management', href: '/users', icon: Users },
+  { name: 'User Management', href: '/users', icon: UserCog },
 ]
 
 const bottomNavigation = [

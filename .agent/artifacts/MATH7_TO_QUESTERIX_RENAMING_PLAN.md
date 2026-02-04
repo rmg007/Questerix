@@ -19,6 +19,7 @@ This is a **comprehensive transformation plan** covering:
 5. ✅ Repository cleanup
 
 **Principle:** One source of truth. Remove duplicates. Everything lives in GitHub.
+**CRITICAL PROTOCOL:** ZERO DATA LOSS. Changes must preserve 100% of user data (offline & online).
 
 ---
 
@@ -111,6 +112,13 @@ Questerix.com                # Root hub (future multi-tenant)
 | API | api.questerix.com | api.questerix.com | `master-config.json` |
 | Supabase | qvslbiceoonrgjzkotb.supabase.co | Same | N/A |
 
+### Critical: Legacy Domain Strategy (The "Origin-Trap" Fix)
+**Problem:** Redirecting `math7.app` to `Questerix.com` creates a new Origin, causing browsers to permanently lose access to IndexedDB (offline data).
+**Solution:** 
+1. **Maintain `math7.app`** indefinitely for existing users. 
+2. Only route **NEW** sign-ups to `Farida.Questerix.com`.
+3. Legacy branding can slowly fade, but the domain must remain active to serve the existing cached app.
+
 ### Files Requiring Domain Updates
 
 **`master-config.json`:**
@@ -174,20 +182,29 @@ Questerix.com                # Root hub (future multi-tenant)
 | `lib/src/app.dart` | `title: 'Math7'` | `title: 'Questerix'` |
 | `lib/main.dart` | `Math7App()` | `QuesterixApp()` |
 
-### 3.3 Database Rename (⚠️ BREAKING CHANGE)
+### 3.3 Database Rename (⚠️ CRITICAL SAFETY UPDATE)
 
 | File | Old | New |
 |------|-----|-----|
 | `lib/src/core/database/database.dart` | `name: 'math7'` | `name: 'questerix'` |
 
-**Impact:** Existing users will get a NEW empty database.
+**Local Storage Sandbox Protocol:**
+To support multi-tenancy on shared devices (e.g., proper isolation between subdomains), the database filename MUST include the `app_id` or tenant identifier.
+*   **Format:** `db_{tenant}.sqlite` (e.g., `db_math7.sqlite`)
 
-**Migration Strategy Options:**
-1. **Accept data loss** - Users re-sync from server (offline data lost)
-2. **Database migration** - Copy data from `math7.db` to `questerix.db` on first launch
-3. **Keep old name** - Less clean but backwards compatible
+**Mandatory Migration Logic (Zero Data Loss):**
+We **REJECT** the option of data loss. The app must execute a filesystem migration on startup:
+```dart
+// Startup Check (Pseudo-code)
+final oldDb = File('math7.db');
+final newDb = File('questerix.db'); // Or db_{tenant}.sqlite
 
-**Recommendation:** Option 2 if time permits, otherwise Option 1 with server re-sync.
+if (await oldDb.exists() && !await newDb.exists()) {
+  await oldDb.rename(newDb.path);
+  log('✅ Migrated legacy database to new naming convention.');
+}
+```
+**Decision:** Option 2 (Migration) is **MANDATORY**. Option 1 is **FORBIDDEN**.
 
 ### 3.4 UI Text Updates
 
@@ -352,12 +369,17 @@ Do not treat as source of truth.
 4. [ ] Verify: `flutter test`
 
 ### Phase 5: Database Migration (30 min)
-**Breaking change handling**
+**MANDATORY Zero Data Loss Migration**
 
 1. [ ] Change `name: 'math7'` → `name: 'questerix'` in `database.dart`
-2. [ ] Add migration logic (if time):
+2. [ ] **REQUIRED:** Implement filesystem migration logic in `main.dart`:
    ```dart
-   // Check if old DB exists, copy data to new DB
+   // Check if old DB exists, rename to new DB path
+   final oldDb = File(join(appDocDir, 'math7.db'));
+   final newDb = File(join(appDocDir, 'questerix.db'));
+   if (await oldDb.exists() && !await newDb.exists()) {
+     await oldDb.rename(newDb.path);
+   }
    ```
 3. [ ] Run code generation: `dart run build_runner build`
 4. [ ] Verify: `flutter test`
@@ -403,14 +425,17 @@ Do not treat as source of truth.
    
    - Renamed math7_domain package to questerix_domain
    - Updated all imports and class names
-   - Changed database name (breaking: users will re-sync)
+   - Implemented Zero Data Loss database migration
    - Updated all UI text to Questerix branding
    - Updated SEO and domain references
    - Consolidated documentation
+   
+   BREAKING: None. Existing user data is preserved via filesystem migration.
    ```
 2. [ ] Push to GitHub
 3. [ ] Update Cloudflare Pages custom domains
 4. [ ] Archive `Questerix-Docs-Backup` repo on GitHub
+5. [ ] Verify `math7.app` remains active for legacy users
 
 ---
 
@@ -418,11 +443,19 @@ Do not treat as source of truth.
 
 | Risk | Likelihood | Impact | Mitigation |
 |------|------------|--------|------------|
-| Database name change = data loss | HIGH | MEDIUM | Users re-sync from server |
+| ~~Database name change = data loss~~ | ~~HIGH~~ | ~~MEDIUM~~ | **MITIGATED**: Mandatory filesystem migration implemented |
 | Missed "Math7" references | MEDIUM | LOW | Comprehensive grep search |
 | Import typos break build | LOW | HIGH | `flutter analyze` before commit |
 | DNS propagation delays | LOW | MEDIUM | Patience, check propagation |
-| SEO ranking impact | MEDIUM | MEDIUM | Submit sitemap, set up redirects |
+| SEO ranking impact | MEDIUM | MEDIUM | Submit sitemap, maintain `math7.app` for legacy |
+| Origin-Storage data loss (Web) | HIGH | HIGH | **MITIGATED**: Keep `math7.app` active indefinitely |
+
+### Rollback Strategy
+If the deployment fails mid-way:
+1. **Git Revert:** `git revert HEAD~1` to undo the transformation commit.
+2. **DNS Restore:** Point custom domains back to previous deployment.
+3. **Supabase:** No database schema changes are involved; no rollback needed.
+4. **Communicate:** If users are affected, send notification via app update or email.
 
 ---
 
@@ -439,9 +472,9 @@ grep -ri "math7" student-app/lib --include="*.dart" | wc -l
 grep -ri "math7" student-app/test --include="*.dart" | wc -l
 # Expected: 0
 
-# 3. No math7.app domain references
-grep -ri "math7.app" . --include="*.html" --include="*.tsx" --include="*.ts" | wc -l
-# Expected: 0
+# 3. No math7.app domain references (Exclude Legacy Configs)
+grep -ri "math7.app" . --include="*.html" --include="*.tsx" --include="*.ts" | grep -v "legacy" | wc -l
+# Expected: 0 (Except in legacy-support configuration files)
 
 # 4. Flutter builds
 cd student-app && flutter analyze && flutter test
@@ -463,14 +496,14 @@ cd admin-panel && npm run build
 
 ---
 
-## Part 9: Open Decisions (Awaiting Your Input)
+## Part 9: Resolved Decisions
 
-| # | Question | Options | Impact |
-|---|----------|---------|--------|
-| 1 | **Database migration** | A) Accept data loss + re-sync<br>B) Write migration code | Dev time vs UX |
-| 2 | **Docs-Backup repo** | A) Archive on GitHub<br>B) Merge then delete<br>C) Just delete | Housekeeping |
-| 3 | **Admin panel domain** | A) admin.questerix.com<br>B) admin.farida.questerix.com | DNS config |
-| 4 | **math7.app redirect** | A) 301 redirect to Farida.Questerix.com<br>B) Let it expire | SEO preservation |
+| # | Question | **Final Answer** | Rationale |
+|---|----------|------------------|----------|
+| 1 | **Database migration** | ✅ **B) Write migration code** | Zero Data Loss is mandatory. |
+| 2 | **Docs-Backup repo** | ✅ **A) Archive on GitHub** | Low effort, preserves history. |
+| 3 | **Admin panel domain** | ✅ **A) admin.questerix.com** | Simpler, brand-level domain. |
+| 4 | **math7.app handling** | ✅ **C) Keep Active (No Redirect)** | Prevents Origin-Storage data loss for existing users. New users go to Questerix domain. |
 
 ---
 
@@ -544,6 +577,22 @@ cd admin-panel && npm run build
 | `Questerix-Docs-Backup/README.md` | Update to archive notice |
 | Various `.md` files in main repo | Remove stale references |
 
+### Admin Panel Verification
+| File | Expected State |
+|------|----------------|
+| `src/components/layout/sidebar.tsx` | Header shows "Questerix" (Already correct) |
+| `index.html` | `<title>` contains "Questerix" |
+| `package.json` | `name` field is `admin-panel` (No change needed) |
+
+### Platform Metadata (If Applicable)
+| Platform | File | Field to Update |
+|----------|------|----------------|
+| Android | `android/app/src/main/AndroidManifest.xml` | `android:label` |
+| iOS | `ios/Runner/Info.plist` | `CFBundleDisplayName` |
+| Web | `web/index.html` | `<title>` tag |
+
+*Note: Verify if app is currently distributed via stores. If web-only, Android/iOS can be skipped.*
+
 ---
 
 ## Appendix B: Estimated Timeline
@@ -571,4 +620,16 @@ cd admin-panel && npm run build
 ---
 
 *Plan created: 2026-02-03*  
-*Last updated: 2026-02-03T08:25*
+*Last updated: 2026-02-03T10:35*
+
+---
+
+## Appendix C: Related Documents
+
+| Document | Purpose | Status |
+|----------|---------|--------|
+| `MENTOR_DASHBOARD_ARCHITECTURE.md` | Parent/Teacher feature design | Separate Scope |
+| `MENTOR_FEATURE_IMPACT.md` | Impact analysis for Mentor features | Separate Scope |
+| `REMEDIATION_PLAN.md` | Security & Env hardening | Completed |
+
+*The Mentor Dashboard feature is intentionally **out of scope** for this renaming plan. It will be executed as a subsequent phase after the rebranding is complete.*

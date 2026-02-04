@@ -16,7 +16,7 @@
       "command": "npx",
       "args": ["-y", "@modelcontextprotocol/server-playwright"],
       "env": {
-        "PLAYWRIGHT_CONFIG_PATH": "c:\\Users\\mhali\\OneDrive\\Desktop\\Important Projects\\Math7\\admin-panel\\playwright.config.ts"
+        "PLAYWRIGHT_CONFIG_PATH": "c:\\Users\\mhali\\OneDrive\\Desktop\\Important Projects\\Questerix\\admin-panel\\playwright.config.ts"
       }
     },
     "sequential-thinking": {
@@ -24,10 +24,10 @@
       "args": ["-y", "@modelcontextprotocol/server-sequential-thinking"]
     },
     "code-scalpel": {
-      "command": "uvx",
+      "command": "C:\\Users\\mhali\\AppData\\Roaming\\Python\\Python313\\Scripts\\uvx.exe",
       "args": ["code-scalpel", "mcp"],
       "env": {
-        "CODE_SCALPEL_ROOT": "c:\\Users\\mhali\\OneDrive\\Desktop\\Important Projects\\Math7"
+        "CODE_SCALPEL_ROOT": "c:\\Users\\mhali\\OneDrive\\Desktop\\Important Projects\\Questerix"
       }
     }
   }

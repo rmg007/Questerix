@@ -57,7 +57,7 @@ export function DomainForm() {
         slug: existingDomain.slug,
         description: existingDomain.description || '',
         sort_order: existingDomain.sort_order,
-        status: (existingDomain as any).status || 'draft',
+        status: (existingDomain.status as 'draft' | 'live') || 'draft',
       })
     }
   }, [existingDomain, reset])

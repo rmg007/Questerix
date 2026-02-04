@@ -21,6 +21,10 @@ import { InvitationCodesPage } from './features/auth/pages/InvitationCodesPage'
 import { UserManagementPage } from './features/auth/pages/UserManagementPage'
 import { SuperAdminGuard } from './features/auth/components/super-admin-guard'
 import { AppProvider } from './contexts/AppContext'
+import { GroupsPage } from './features/mentorship/pages/GroupsPage'
+import { GroupCreatePage } from './features/mentorship/pages/GroupCreatePage'
+import { GroupDetailPage } from './features/mentorship/pages/GroupDetailPage'
+import { AssignmentCreatePage } from './features/mentorship/pages/AssignmentCreatePage'
 
 const queryClient = new QueryClient()
 
@@ -57,6 +61,10 @@ function App() {
                     <InvitationCodesPage />
                   </SuperAdminGuard>
                 } />
+                <Route path="/groups" element={<GroupsPage />} />
+                <Route path="/groups/new" element={<GroupCreatePage />} />
+                <Route path="/groups/:id" element={<GroupDetailPage />} />
+                <Route path="/groups/:groupId/assignments/new" element={<AssignmentCreatePage />} />
                 <Route path="/users" element={
                   <SuperAdminGuard>
                     <UserManagementPage />

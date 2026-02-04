@@ -6,6 +6,7 @@ import 'package:student_app/src/core/sync/sync_service.dart';
 import 'package:student_app/src/core/theme/app_theme.dart';
 import 'package:student_app/src/features/auth/providers/auth_provider.dart';
 import 'package:student_app/src/core/database/providers.dart';
+import 'package:supabase_flutter/supabase_flutter.dart';
 
 class SettingsScreen extends ConsumerWidget {
   const SettingsScreen({super.key});
@@ -26,12 +27,135 @@ class SettingsScreen extends ConsumerWidget {
         children: [
           _buildSyncSection(context, ref, syncState, connectivityAsync),
           const SizedBox(height: 24),
+          _buildMentorshipSection(context, ref),
+          const SizedBox(height: 24),
           _buildAccessibilitySection(context, ref, settings),
           const SizedBox(height: 24),
           _buildAccountSection(context, ref),
           const SizedBox(height: 24),
           _buildAboutSection(context),
         ],
+      ),
+    );
+  }
+
+  Widget _buildMentorshipSection(BuildContext context, WidgetRef ref) {
+    return Card(
+      child: Padding(
+        padding: const EdgeInsets.all(16),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Row(
+              children: [
+                const Icon(Icons.group, color: AppColors.primary),
+                const SizedBox(width: 12),
+                Text(
+                  'Mentorship',
+                  style: Theme.of(context).textTheme.titleMedium,
+                ),
+              ],
+            ),
+            const SizedBox(height: 16),
+            const Text(
+              'Join a class to receive assignments and track progress with your mentor.',
+              style: TextStyle(color: AppColors.textSecondary),
+            ),
+            const SizedBox(height: 16),
+            SizedBox(
+              width: double.infinity,
+              child: ElevatedButton.icon(
+                onPressed: () => _showJoinClassDialog(context, ref),
+                icon: const Icon(Icons.login),
+                label: const Text('Join Class via Code'),
+              ),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+
+  Future<void> _showJoinClassDialog(BuildContext context, WidgetRef ref) async {
+    final codeController = TextEditingController();
+    final isLoading = ValueNotifier<bool>(false);
+    String? errorText;
+
+    await showDialog(
+      context: context,
+      builder: (context) => StatefulBuilder(
+        builder: (context, setState) => AlertDialog(
+          title: const Text('Join Class'),
+          content: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              TextField(
+                controller: codeController,
+                decoration: InputDecoration(
+                  labelText: 'Enter 6-digit Code',
+                  hintText: 'e.g. X49JLG',
+                  errorText: errorText,
+                  border: const OutlineInputBorder(),
+                ),
+                textCapitalization: TextCapitalization.characters,
+                maxLength: 6,
+              ),
+            ],
+          ),
+          actions: [
+            TextButton(
+              onPressed: () => Navigator.pop(context),
+              child: const Text('Cancel'),
+            ),
+            ValueListenableBuilder<bool>(
+              valueListenable: isLoading,
+              builder: (context, loading, child) {
+                return ElevatedButton(
+                  onPressed: loading
+                      ? null
+                      : () async {
+                          if (codeController.text.length < 6) {
+                            setState(() => errorText = 'Code must be 6 characters');
+                            return;
+                          }
+                          isLoading.value = true;
+                          setState(() => errorText = null);
+                          
+                          try {
+                             final result = await Supabase.instance.client.rpc('join_group_by_code', params: {'code': codeController.text});
+                             
+                             if (result['success'] == true) {
+                               if (context.mounted) {
+                                 Navigator.pop(context);
+                                 ScaffoldMessenger.of(context).showSnackBar(
+                                   const SnackBar(content: Text('Successfully joined class!'), backgroundColor: Colors.green),
+                                 );
+                               }
+                             } else {
+                               if (context.mounted) {
+                                 setState(() => errorText = result['error'] ?? 'Failed to join');
+                               }
+                             }
+                          } catch (e) {
+                             if (context.mounted) {
+                               setState(() => errorText = 'Error: $e');
+                             }
+                          } finally {
+                            isLoading.value = false;
+                          }
+                        },
+                  child: loading
+                      ? const SizedBox(
+                          width: 20,
+                          height: 20,
+                          child: CircularProgressIndicator(strokeWidth: 2),
+                        )
+                      : const Text('Join'),
+                );
+              },
+            ),
+          ],
+        ),
       ),
     );
   }

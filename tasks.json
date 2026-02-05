@@ -5,8 +5,8 @@
     "cwd": "C:/Users/mhali/OneDrive/Desktop/Important Projects/Questerix"
   },
   {
-    "description": "Git commit",
-    "command": "git commit -m \"fix: resolve Flutter analysis errors and CI issues\" -m \"- Fix OutboxData -> OutboxEntry type in sync_service.dart\" -m \"- Fix batchDelete methods in Drift repositories to use deleteWhere\" -m \"- Remove unnecessary null check\" -m \"- Add ignore comment for mock setup in tests\" -m \"- Fix ops_runner.py Unicode encoding for Windows\"",
+    "description": "Git commit security fixes",
+    "command": "git commit -m \"security: comprehensive database hardening\" -m \"- Enable RLS on user_subscriptions and app_landing_pages\" -m \"- Add proper policies for group_join_requests and student_recovery_keys\" -m \"- Set search_path = public on 35 functions\" -m \"- Drop overly permissive policies on domains, skills, questions\"",
     "cwd": "C:/Users/mhali/OneDrive/Desktop/Important Projects/Questerix"
   },
   {

@@ -29,7 +29,6 @@
   },
   "next_steps": [
     "Index `known_issues` table in Project Oracle for AI learning",
-    "Create GitHub issue for sync batching refactor (from previous task)",
     "Implement daily error log cleanup cron (maintenance)",
     "Add email alerts for critical errors via Supabase Edge Functions"
   ]

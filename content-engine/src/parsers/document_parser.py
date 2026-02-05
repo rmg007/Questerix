@@ -70,7 +70,7 @@ class DocumentParser:
         
         logger.info(f"Parsing {ext} file: {file_path}")
         return method(file_path)
-    
+
     def parse_pdf(self, file_path: str) -> str:
         """Extract text from PDF file."""
         if PdfReader is None:
@@ -98,7 +98,7 @@ class DocumentParser:
         logger.info(f"Total extracted: {len(full_text)} characters")
         
         return full_text
-    
+
     def parse_docx(self, file_path: str) -> str:
         """Extract text from DOCX file."""
         if Document is None:
@@ -116,7 +116,7 @@ class DocumentParser:
         except Exception as e:
             logger.error(f"DOCX parsing error: {e}")
             raise
-    
+
     def parse_image(self, file_path: str) -> str:
         """
         For images, we don't do OCR in Python (expensive).
@@ -136,8 +136,9 @@ class DocumentParser:
         except Exception as e:
             logger.error(f"Image parsing error: {e}")
             raise
-    
-    def get_metadata(self, file_path: str) -> Dict[str, Any]:
+
+    @staticmethod
+    def get_metadata(file_path: str) -> Dict[str, Any]:
         """Extract file metadata."""
         path = Path(file_path)
         

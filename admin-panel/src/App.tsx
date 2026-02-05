@@ -16,6 +16,10 @@ import { QuestionCreatePage } from './features/curriculum/pages/question-create-
 import { QuestionEditPage } from './features/curriculum/pages/question-edit-page'
 import { PublishPage } from './features/curriculum/pages/publish-page'
 import { VersionHistoryPage } from './features/curriculum/pages/version-history-page'
+import { GovernancePage } from './features/ai-assistant/pages/GovernancePage'
+import { SubjectsPage } from './features/platform/pages/SubjectsPage'
+import { AppsPage } from './features/platform/pages/AppsPage'
+import { LandingsPage } from './features/platform/pages/LandingsPage'
 import { AccountSettingsPage } from './features/auth/pages/AccountSettingsPage'
 import { InvitationCodesPage } from './features/auth/pages/InvitationCodesPage'
 import { UserManagementPage } from './features/auth/pages/UserManagementPage'
@@ -27,7 +31,6 @@ import { GroupDetailPage } from './features/mentorship/pages/GroupDetailPage'
 import { AssignmentCreatePage } from './features/mentorship/pages/AssignmentCreatePage'
 import { GenerationPage } from './features/ai-assistant/pages/GenerationPage'
 import { SessionsPage } from './features/ai-assistant/pages/SessionsPage'
-import { GovernancePage } from './features/ai-assistant/pages/GovernancePage'
 import { KnownIssuesPage } from './features/monitoring/pages/KnownIssuesPage'
 import { ErrorLogsPage } from './features/monitoring/pages/ErrorLogsPage'
 
@@ -80,6 +83,21 @@ function App() {
                 <Route path="/governance" element={
                   <SuperAdminGuard>
                     <GovernancePage />
+                  </SuperAdminGuard>
+                } />
+                <Route path="/platform/subjects" element={
+                  <SuperAdminGuard>
+                    <SubjectsPage />
+                  </SuperAdminGuard>
+                } />
+                <Route path="/platform/apps" element={
+                  <SuperAdminGuard>
+                    <AppsPage />
+                  </SuperAdminGuard>
+                } />
+                <Route path="/platform/landings" element={
+                  <SuperAdminGuard>
+                    <LandingsPage />
                   </SuperAdminGuard>
                 } />
                 <Route path="/settings" element={<AccountSettingsPage />} />

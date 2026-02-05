@@ -20,7 +20,7 @@ export function useKnownIssues() {
     queryKey: ['known-issues'],
     queryFn: async () => {
       // Note: known_issues table types will be available after regenerating database.types.ts
-      const { data, error } = await (supabase as any)
+      const { data, error } = await (supabase as unknown as { from: (t: string) => any })
         .from('known_issues')
         .select('*')
         .order('created_at', { ascending: false });

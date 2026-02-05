@@ -1,8 +1,7 @@
-/* eslint-disable @typescript-eslint/no-explicit-any */
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { supabase } from '@/lib/supabase';
 import { Database } from '@/lib/database.types';
-import { useApp } from '@/contexts/AppContext';
+import { useApp } from '@/hooks/use-app';
 
 type Skill = Database['public']['Tables']['skills']['Row'];
 
@@ -66,7 +65,7 @@ export function useSkills(domainId?: string) {
       if (error) throw error;
       return data as unknown as (Skill & { domains: { title: string } | null })[];
     },
-    enabled: !!currentApp?.app_id,
+    enabled: Boolean(currentApp?.app_id),
   });
 }
 
@@ -120,7 +119,7 @@ export function usePaginatedSkills(params: PaginationParams) {
         totalPages: Math.ceil((count ?? 0) / pageSize),
       };
     },
-    enabled: !!currentApp?.app_id,
+    enabled: Boolean(currentApp?.app_id),
   });
 }
 
@@ -138,7 +137,7 @@ export function useSkill(id: string) {
             if (error) throw error;
             return data as Skill;
         },
-        enabled: !!id && !!currentApp?.app_id,
+        enabled: Boolean(id) && Boolean(currentApp?.app_id),
     });
 }
 
@@ -175,11 +174,11 @@ export function useUpdateSkill() {
     const queryClient = useQueryClient();
 
     return useMutation({
-        mutationFn: async ({ id, ...updates }: { id: string } & Partial<Skill>) => {
+        mutationFn: async ({ skill_id, ...updates }: { skill_id: string } & Partial<Skill>) => {
             const { data, error } = await (supabase
                 .from('skills') as any)
                 .update(updates)
-                .eq('id', id)
+                .eq('skill_id', skill_id)
                 .select()
                 .single();
 
@@ -189,7 +188,7 @@ export function useUpdateSkill() {
         onSuccess: (data) => {
             queryClient.invalidateQueries({ queryKey: ['skills'] });
             queryClient.invalidateQueries({ queryKey: ['skills-paginated'] });
-            queryClient.invalidateQueries({ queryKey: ['skill', data.id] });
+            queryClient.invalidateQueries({ queryKey: ['skill', (data as any).skill_id] });
         },
     });
 }
@@ -198,11 +197,11 @@ export function useDeleteSkill() {
     const queryClient = useQueryClient();
 
     return useMutation({
-        mutationFn: async (id: string) => {
+        mutationFn: async (skill_id: string) => {
             const { error } = await (supabase
                 .from('skills') as any)
                 .update({ deleted_at: new Date().toISOString() })
-                .eq('id', id);
+                .eq('skill_id', skill_id);
             
             if (error) throw error;
         },

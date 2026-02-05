@@ -1,5 +1,7 @@
 import { Link, useLocation, useNavigate } from 'react-router-dom'
-import { LayoutDashboard, Book, Layers, FileText, Upload, LogOut, Settings, Key, History, Users, X, UserCog, Shield, Bug, AlertTriangle } from 'lucide-react'
+import { LayoutDashboard, Book, Layers, FileText, Upload, LogOut, Settings, Key, History, Users, X, UserCog, Shield, Bug, AlertTriangle, Globe, Boxes, Layout } from 'lucide-react'
+import { useApp } from '@/contexts/AppContext'
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select'
 import { cn } from '@/lib/utils'
 import { supabase } from '@/lib/supabase'
 import { useState, useEffect } from 'react'
@@ -28,6 +30,12 @@ const superAdminNavigation = [
   { name: 'AI Governance', href: '/governance', icon: Shield },
 ]
 
+const platformNavigation = [
+  { name: 'Subjects', href: '/platform/subjects', icon: Boxes },
+  { name: 'Apps', href: '/platform/apps', icon: Layout },
+  { name: 'Landing Pages', href: '/platform/landings', icon: Globe },
+]
+
 const bottomNavigation = [
   { name: 'Settings', href: '/settings', icon: Settings },
 ]
@@ -41,6 +49,7 @@ interface UserInfo {
 export function Sidebar({ isOpen = true, onClose, isMobile = false }: SidebarProps) {
   const location = useLocation()
   const navigate = useNavigate()
+  const { currentApp, setCurrentApp, apps, isLoading: appsLoading } = useApp()
   const [isSuperAdmin, setIsSuperAdmin] = useState(false)
   const [userInfo, setUserInfo] = useState<UserInfo | null>(null)
 
@@ -84,6 +93,7 @@ export function Sidebar({ isOpen = true, onClose, isMobile = false }: SidebarPro
 
   const navigation = [
     ...baseNavigation.filter(item => !(isSuperAdmin && item.name === 'My Groups')),
+    ...(isSuperAdmin ? platformNavigation : []),
     ...(isSuperAdmin ? superAdminNavigation : []),
     ...bottomNavigation,
   ]
@@ -112,19 +122,39 @@ export function Sidebar({ isOpen = true, onClose, isMobile = false }: SidebarPro
             </svg>
           </div>
           <div>
-            <h1 className="text-lg font-bold text-white tracking-tight">Questerix</h1>
-            <p className="text-xs text-purple-300 font-medium">Admin Panel</p>
+            <h1 className="text-lg font-bold text-white tracking-tight leading-none mb-1">Questerix</h1>
+            <p className="text-[10px] text-purple-300 font-medium uppercase tracking-widest">Admin Panel</p>
           </div>
         </div>
-        {isMobile && onClose && (
-          <button
-            onClick={onClose}
-            className="p-2 rounded-lg text-purple-200 hover:bg-white/10 hover:text-white transition-colors"
-            aria-label="Close sidebar"
-          >
-            <X className="h-5 w-5" />
-          </button>
-        )}
+      </div>
+      
+      {/* App Selector */}
+      <div className="px-4 py-4 border-b border-white/5 bg-white/5 backdrop-blur-sm">
+        <label className="text-[10px] font-semibold text-purple-300/60 uppercase tracking-wider mb-2 block px-2">
+          Current Application
+        </label>
+        <Select
+          value={currentApp?.app_id}
+          onValueChange={(value) => {
+            const app = apps.find(a => a.app_id === value)
+            if (app) setCurrentApp(app)
+          }}
+        >
+          <SelectTrigger className="w-full bg-white/5 border-white/10 text-white hover:bg-white/10 transition-colors rounded-xl focus:ring-0">
+            <SelectValue placeholder={appsLoading ? "Loading apps..." : "Select app"} />
+          </SelectTrigger>
+          <SelectContent className="bg-[#1a1b4b] border-white/10 text-white">
+            {apps.map((app) => (
+              <SelectItem 
+                key={app.app_id} 
+                value={app.app_id}
+                className="focus:bg-purple-500/20 focus:text-white"
+              >
+                {app.display_name}
+              </SelectItem>
+            ))}
+          </SelectContent>
+        </Select>
       </div>
       
       {/* Navigation - Scrollable Area */}

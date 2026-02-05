@@ -20,7 +20,7 @@ export async function governedGenerateQuestions(
 
   // 2. Initial quota check
   // Note: consume_tenant_tokens RPC will be typed after regenerating database.types.ts
-  const { data: quotaData, error: quotaError } = await (supabase as any).rpc('consume_tenant_tokens', {
+  const { data: quotaData, error: quotaError } = await (supabase as unknown as { rpc: (n: string, p: any) => Promise<{ data: any; error: any }> }).rpc('consume_tenant_tokens', {
     p_app_id: appId,
     p_token_count: 0,
   });
@@ -44,7 +44,7 @@ export async function governedGenerateQuestions(
   const actualTokens = generationResult.metadata.token_count + 
                       Math.ceil(JSON.stringify(validationResult).length / 4);
                       
-  const { data: finalQuotaData } = await (supabase as any).rpc('consume_tenant_tokens', {
+  const { data: finalQuotaData } = await (supabase as unknown as { rpc: (n: string, p: any) => Promise<{ data: any; error: any }> }).rpc('consume_tenant_tokens', {
     p_app_id: appId,
     p_token_count: actualTokens,
   });

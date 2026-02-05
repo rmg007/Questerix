@@ -40,7 +40,7 @@ const getInitialSubdomain = () => {
 function HomePage() {
   const [view, setView] = useState<'root' | 'subject' | 'grade'>('root');
   const [data, setData] = useState<AppData | SubjectData | null>(null);
-  const [loading, setLoading] = useState(() => !!getInitialSubdomain());
+  const [loading, setLoading] = useState(() => Boolean(getInitialSubdomain()));
 
   useEffect(() => {
     const subdomain = getInitialSubdomain();

@@ -134,27 +134,28 @@ class SyncService extends StateNotifier<SyncState> {
                 },
               );
 
-              // Update local skill progress if returned
-              if (response.isNotEmpty) {
-                final progressList = response.map((json) {
-                  return SkillProgressCompanion(
-                    id: Value(json['id'] as String),
-                    userId: Value(json['user_id'] as String),
-                    skillId: Value(json['skill_id'] as String),
-                    totalAttempts: Value(json['total_attempts'] as int),
-                    correctAttempts: Value(json['correct_attempts'] as int),
-                    totalPoints: Value(json['total_points'] as int),
-                    masteryLevel: Value(json['mastery_level'] as int),
-                    currentStreak: Value(json['current_streak'] as int),
-                    longestStreak: Value(json['longest_streak'] as int),
-                    lastAttemptAt: Value(
-                        DateTime.parse(json['last_attempt_at'] as String)),
-                    createdAt:
-                        Value(DateTime.parse(json['created_at'] as String)),
-                    updatedAt:
-                        Value(DateTime.parse(json['updated_at'] as String)),
-                  );
-                }).toList();
+            // Update local skill progress if returned
+            if (response.isNotEmpty) {
+              final progressList = response.map((json) {
+                return SkillProgressCompanion(
+                  id: Value(json['id'] as String),
+                  userId: Value(json['user_id'] as String),
+                  skillId: Value(json['skill_id'] as String),
+                  totalAttempts: Value(json['total_attempts'] as int),
+                  correctAttempts: Value(json['correct_attempts'] as int),
+                  totalPoints: Value(json['total_points'] as int),
+                  masteryLevel: Value((json['mastery_level'] as num).round()),
+                  currentStreak: Value(json['current_streak'] as int),
+                  longestStreak: Value(json['longest_streak'] as int),
+                  lastAttemptAt: Value(json['last_attempt_at'] != null
+                      ? DateTime.parse(json['last_attempt_at'] as String)
+                      : null),
+                  createdAt:
+                      Value(DateTime.parse(json['created_at'] as String)),
+                  updatedAt:
+                      Value(DateTime.parse(json['updated_at'] as String)),
+                );
+              }).toList();
 
                 await _database.batch((batch) {
                   for (final progress in progressList) {
@@ -205,6 +206,7 @@ class SyncService extends StateNotifier<SyncState> {
     await _pullDomains();
     await _pullSkills();
     await _pullQuestions();
+    await _pullSkillProgress();
   }
 
   Future<void> _pullDomains() async {
@@ -289,6 +291,60 @@ class SyncService extends StateNotifier<SyncState> {
     }
 
     await _updateLastSync('questions', DateTime.now());
+  }
+
+  Future<void> _pullSkillProgress() async {
+    final lastSync = await _getLastSync('skill_progress');
+
+    final response = await _supabase.rpc('pull_changes', params: {
+      'table_name': 'skill_progress',
+      'last_sync_time': lastSync.toIso8601String(),
+    }) as Map<String, dynamic>;
+
+    final active = response['active'] as List;
+    final deleted = response['deleted'] as List;
+
+    // Upsert active records
+    if (active.isNotEmpty) {
+      final progressList = active.map((json) {
+        return SkillProgressCompanion(
+          id: Value(json['id'] as String),
+          userId: Value(json['user_id'] as String),
+          skillId: Value(json['skill_id'] as String),
+          totalAttempts: Value(json['total_attempts'] as int),
+          correctAttempts: Value(json['correct_attempts'] as int),
+          totalPoints: Value(json['total_points'] as int),
+          masteryLevel: Value((json['master_level'] as num).round()),
+          currentStreak: Value(json['current_streak'] as int),
+          longestStreak: Value(json['longest_streak'] as int),
+          lastAttemptAt: Value(json['last_attempt_at'] != null
+              ? DateTime.parse(json['last_attempt_at'] as String)
+              : null),
+          createdAt: Value(DateTime.parse(json['created_at'] as String)),
+          updatedAt: Value(DateTime.parse(json['updated_at'] as String)),
+        );
+      }).toList();
+
+      await _database.batch((batch) {
+        for (final progress in progressList) {
+          batch.insert(
+            _database.skillProgress,
+            progress,
+            mode: InsertMode.insertOrReplace,
+          );
+        }
+      });
+    }
+
+    // Delete tombstoned records
+    if (deleted.isNotEmpty) {
+      final deletedIds = deleted.map((json) => json['id'] as String).toList();
+      await (_database.delete(_database.skillProgress)
+            ..where((t) => t.id.isIn(deletedIds)))
+          .go();
+    }
+
+    await _updateLastSync('skill_progress', DateTime.now());
   }
 
   Future<DateTime> _getLastSync(String tableName) async {

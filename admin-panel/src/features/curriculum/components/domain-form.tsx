@@ -31,7 +31,7 @@ export function DomainForm() {
   const updateDomain = useUpdateDomain()
   const { data: domains } = useDomains()
   
-  const isEditing = !!id
+  const isEditing = Boolean(id)
   const existingDomain = domains?.find(d => d.id === id)
 
   const {

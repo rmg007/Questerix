@@ -62,7 +62,7 @@ export function GroupDetailPage() {
       if (error) throw error
       return data
     },
-    enabled: !!id
+    enabled: Boolean(id)
   })
 
   // Fetch group members
@@ -86,7 +86,7 @@ export function GroupDetailPage() {
       if (error) throw error
       return data
     },
-    enabled: !!id
+    enabled: Boolean(id)
   })
 
   // Update member nickname mutation
@@ -136,7 +136,7 @@ export function GroupDetailPage() {
       if (error) throw error
       return data
     },
-    enabled: !!id
+    enabled: Boolean(id)
   })
 
   // Fetch skill details for assignments
@@ -172,7 +172,7 @@ export function GroupDetailPage() {
       if (error) throw error
       return data
     },
-    enabled: !!id && memberIds.length > 0 && assignmentSkillIds.length > 0
+    enabled: Boolean(id) && memberIds.length > 0 && assignmentSkillIds.length > 0
   })
 
   const removeMemberMutation = useMutation({

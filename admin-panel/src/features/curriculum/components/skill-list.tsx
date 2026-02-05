@@ -40,14 +40,14 @@ import { CSS } from '@dnd-kit/utilities';
 const DEFAULT_PAGE_SIZE = 10;
 
 interface Skill {
-    id: string;
-    title: string;
+    skill_id: string;
+    name: string;
     slug: string;
     sort_order: number;
     status?: string;
     difficulty_level?: number;
     domain_id?: string;
-    domains?: { title: string } | null;
+    domains?: { name: string } | null;
 }
 
 interface SortableRowProps {
@@ -106,13 +106,13 @@ function SortableRow({ skill, isSelected, onSelect, onDelete, onDuplicate, rende
             </td>
             <td className="px-6 py-4">
                 <div>
-                    <span className="font-medium text-gray-900">{skill.title}</span>
+                    <span className="font-medium text-gray-900">{skill.name}</span>
                     <p className="text-sm text-gray-500">{skill.slug}</p>
                 </div>
             </td>
             <td className="px-6 py-4">
                 <span className="px-3 py-1 bg-purple-100 text-purple-700 rounded-full text-sm font-medium">
-                    {skill.domains?.title}
+                    {skill.domains?.name}
                 </span>
             </td>
             <td className="px-6 py-4">
@@ -216,9 +216,9 @@ function SortableCard({ skill, isSelected, onSelect, onDelete, onDuplicate, rend
                 </div>
             </div>
             <div className="flex flex-wrap items-center gap-2 text-sm">
-                {skill.domains?.title && (
+                {skill.domains?.name && (
                     <span className="px-2 py-1 bg-purple-100 text-purple-700 rounded-full text-xs font-medium">
-                        {skill.domains.title}
+                        {skill.domains.name}
                     </span>
                 )}
                 <span className="inline-flex items-center gap-1 text-gray-600">
@@ -235,20 +235,20 @@ function SortableCard({ skill, isSelected, onSelect, onDelete, onDuplicate, rend
             </div>
             <div className="flex items-center justify-end gap-2 pt-2 border-t border-gray-100">
                 <Link
-                    to={`/skills/${skill.id}/edit`}
+                    to={`/skills/${skill.skill_id}/edit`}
                     className="px-4 py-2 bg-blue-100 text-blue-700 rounded-full text-sm font-medium hover:bg-blue-200 transition-colors"
                 >
                     Edit
                 </Link>
                 <button
-                    onClick={() => onDuplicate(skill.id)}
+                    onClick={() => onDuplicate(skill.skill_id)}
                     disabled={isDuplicating}
                     className="px-4 py-2 bg-purple-100 text-purple-700 rounded-full text-sm font-medium hover:bg-purple-200 transition-colors disabled:opacity-50"
                 >
                     Duplicate
                 </button>
                 <button
-                    onClick={() => onDelete(skill.id)}
+                    onClick={() => onDelete(skill.skill_id)}
                     className="px-4 py-2 bg-red-100 text-red-700 rounded-full text-sm font-medium hover:bg-red-200 transition-colors"
                 >
                     Delete
@@ -335,14 +335,14 @@ export function SkillList() {
         const { active, over } = event;
 
         if (over && active.id !== over.id) {
-            const oldIndex = skills.findIndex((s: any) => s.id === active.id);
-            const newIndex = skills.findIndex((s: any) => s.id === over.id);
+            const oldIndex = skills.findIndex((s: any) => s.skill_id === active.id);
+            const newIndex = skills.findIndex((s: any) => s.skill_id === over.id);
 
             if (oldIndex !== -1 && newIndex !== -1) {
                 const reorderedSkills = arrayMove(skills, oldIndex, newIndex);
 
                 const updates = reorderedSkills.map((skill: any, index: number) => ({
-                    id: skill.id,
+                    skill_id: skill.skill_id,
                     sort_order: index + 1 + (page - 1) * pageSize,
                 }));
 
@@ -564,7 +564,7 @@ export function SkillList() {
                             >
                                 <option value="all">All Domains</option>
                                 {domains?.map(domain => (
-                                    <option key={domain.id} value={domain.id}>{domain.title}</option>
+                                    <option key={domain.domain_id} value={domain.domain_id}>{domain.name}</option>
                                 ))}
                             </select>
                         </div>

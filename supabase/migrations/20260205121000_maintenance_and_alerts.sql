@@ -34,11 +34,10 @@ LANGUAGE plpgsql
 AS $$
 BEGIN
     -- Only alert on 'critical' severity or specific high-impact error types
-    -- Note: severity isn't in error_logs yet, let's add it or use extra_context
-    IF NEW.error_type ILIKE '%Critical%' OR (NEW.extra_context->>'severity') = 'critical' THEN
-        -- This is where a Database Webhook would normally fire.
-        -- For now, we'll mark it as needing an alert.
-        NEW.extra_context = jsonb_set(NEW.extra_context, '{alert_needed}', 'true');
+    -- Use COALESCE to handle NULL extra_context safely
+    IF NEW.error_type ILIKE '%Critical%' OR (COALESCE(NEW.extra_context, '{}'::jsonb)->>'severity') = 'critical' THEN
+        -- Mark for Edge Function processing
+        NEW.extra_context = jsonb_set(COALESCE(NEW.extra_context, '{}'::jsonb), '{alert_needed}', '"true"');
     END IF;
     RETURN NEW;
 END;
@@ -51,18 +50,28 @@ CREATE TRIGGER on_critical_error
     EXECUTE FUNCTION public.trigger_critical_alert();
 
 -- 3. Vector Index Optimization (Search Recall Fix)
--- Re-create the index with HNSW for better recall on dynamic data
--- If HNSW is unavailable, it will fallback to IVFFlat or error out, 
--- notifying us to stick to IVFFlat with more lists.
-
-DROP INDEX IF EXISTS knowledge_chunks_embedding_idx;
-
--- Using HNSW for better recall and performance as the KB grows
--- m=16, ef_construction=64 are good balanced defaults
-CREATE INDEX knowledge_chunks_embedding_idx 
-    ON knowledge_chunks 
-    USING hnsw (embedding vector_cosine_ops)
-    WITH (m = 16, ef_construction = 64);
+-- Ensure HNSW extension is available before trying to use it
+DO $$ 
+BEGIN
+    IF EXISTS (SELECT 1 FROM pg_extension WHERE extname = 'vector') THEN
+        DROP INDEX IF EXISTS knowledge_chunks_embedding_idx;
+        
+        -- Using HNSW for better recall and performance as the KB grows
+        -- Note: If this fails, the vector extension might be outdated (pre-0.5.0)
+        BEGIN
+            CREATE INDEX knowledge_chunks_embedding_idx 
+                ON knowledge_chunks 
+                USING hnsw (embedding vector_cosine_ops)
+                WITH (m = 16, ef_construction = 64);
+        EXCEPTION WHEN OTHERS THEN
+            RAISE NOTICE 'HNSW failed, falling back to IVFFlat with more lists';
+            CREATE INDEX knowledge_chunks_embedding_idx 
+                ON knowledge_chunks 
+                USING ivfflat (embedding vector_cosine_ops)
+                WITH (lists = 100);
+        END;
+    END IF;
+END $$;
 
 -- 4. Cleanup/Maintenance Schedule Documentation
 -- To enable the cron job, run:

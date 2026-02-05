@@ -41,8 +41,8 @@ export function AIGeneratorPage() {
 
     const handleConfigSubmit = () => {
         // Build initial prompt instruction based on config
-        const selectedSkill = skills?.find((s: any) => s.id === config.skillId);
-        const skillName = selectedSkill ? selectedSkill.title : "General Math";
+        const selectedSkill = skills?.find((s) => s.skill_id === config.skillId);
+        const skillName = selectedSkill ? selectedSkill.name : "General Math";
         
         const initialPrompt = `Analyze the provided context material.
 Focus heavily on the topic: "${skillName}".
@@ -54,13 +54,13 @@ Ensure questions are clear, concise, and suitable for the curriculum.`;
     };
 
     const handleGenerate = async () => {
-        const selectedSkill = skills?.find((s: any) => s.id === config.skillId);
+        const selectedSkill = skills?.find((s) => s.skill_id === config.skillId);
         
         const result = await generate({
             context: fileContent,
             count: config.count,
             difficulty: config.difficulty,
-            skillTitle: selectedSkill?.title || 'Math',
+            skillTitle: selectedSkill?.name || 'Math',
             promptInstruction: promptInstruction,
             questionType: config.type
         });
@@ -85,7 +85,7 @@ Ensure questions are clear, concise, and suitable for the curriculum.`;
             options: q.options ? JSON.stringify(q.options) : '',
             correct_answer: q.correct_answer,
             // Important: We need to output the Skill Title so Bulk Import can map it
-            skill_title: skills?.find((s: any) => s.id === config.skillId)?.title || '',
+            skill_title: skills?.find((s) => s.skill_id === config.skillId)?.name || '',
             status: 'draft'
         }));
 
@@ -195,8 +195,8 @@ Ensure questions are clear, concise, and suitable for the curriculum.`;
                                         <SelectValue placeholder="Select a skill..." />
                                     </SelectTrigger>
                                     <SelectContent>
-                                        {skills?.map((s: any) => (
-                                            <SelectItem key={s.id} value={s.id}>{s.title}</SelectItem>
+                                        {skills?.map((s) => (
+                                            <SelectItem key={s.skill_id} value={s.skill_id}>{s.name}</SelectItem>
                                         ))}
                                     </SelectContent>
                                 </Select>

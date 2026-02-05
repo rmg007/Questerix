@@ -5,7 +5,7 @@ export type SecurityEventSeverity = 'info' | 'low' | 'medium' | 'high' | 'critic
 export interface SecurityEventData {
   eventType: string;
   severity: SecurityEventSeverity;
-  metadata?: Record<string, any>;
+  metadata?: Record<string, unknown>;
   appId?: string;
 }
 
@@ -24,7 +24,7 @@ class SecurityLoggerService {
         p_app_id: data.appId || null,
         // Location is optional and often handled by the edge function/RPC via headers
         p_location: null 
-      } as any);
+      } as unknown as { error: unknown }); // RPC type casting workaround
 
       if (error) {
         if (import.meta.env.DEV) {
@@ -56,7 +56,7 @@ class SecurityLoggerService {
     });
   }
 
-  async logSensitiveAction(action: string, metadata?: any) {
+  async logSensitiveAction(action: string, metadata?: Record<string, unknown>) {
     return this.log({
       eventType: 'sensitive_action',
       severity: 'medium',

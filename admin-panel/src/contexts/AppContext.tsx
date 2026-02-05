@@ -1,60 +1,67 @@
-import { createContext, useContext, useEffect, useState } from 'react';
+import { ReactNode, useState, useEffect } from 'react';
 import { supabase } from '@/lib/supabase';
-import type { Database } from '@/lib/database.types';
+import { App } from '@/features/platform/hooks/use-apps';
+import { AppContext } from './AppContextDefinition';
 
-type App = Database['public']['Tables']['apps']['Row'];
+const STORAGE_KEY = 'questerix_admin_current_app_id';
 
-interface AppContextType {
-  currentApp: App | null;
-  setCurrentApp: (app: App) => void;
-  apps: App[];
-  isLoading: boolean;
-}
-
-const AppContext = createContext<AppContextType | undefined>(undefined);
-
-export function AppProvider({ children }: { children: React.ReactNode }) {
+export function AppProvider({ children }: { children: ReactNode }) {
   const [currentApp, setCurrentApp] = useState<App | null>(null);
   const [apps, setApps] = useState<App[]>([]);
   const [isLoading, setIsLoading] = useState(true);
 
-  useEffect(() => {
-    async function loadApps() {
-      try {
-        const { data, error } = await supabase
-          .from('apps')
-          .select('*')
-          .order('display_name');
+  async function loadApps() {
+    setIsLoading(true);
+    try {
+      const { data, error } = await supabase
+        .from('apps')
+        .select('*')
+        .order('display_name');
+      
+      if (error) throw error;
+      
+      if (data && data.length > 0) {
+        setApps(data);
         
-        if (error) throw error;
+        // Try to restore from localStorage
+        const savedAppId = localStorage.getItem(STORAGE_KEY);
+        const savedApp = data.find(a => a.app_id === savedAppId);
         
-        if (data && data.length > 0) {
-          setApps(data);
+        if (savedApp) {
+          setCurrentApp(savedApp);
+        } else {
           // Auto-select first active app or first app
-          const activeApp = (data as any[]).find(a => a.is_active) || data[0];
+          const activeApp = data.find(a => a.is_active) || data[0];
           setCurrentApp(activeApp);
         }
-      } catch (err) {
-        console.error('Failed to load apps:', err);
-      } finally {
-        setIsLoading(false);
       }
+    } catch (err) {
+      console.error('Failed to load apps:', err);
+    } finally {
+      setIsLoading(false);
     }
+  }
 
+  useEffect(() => {
     loadApps();
   }, []);
 
+  const handleSetCurrentApp = (app: App) => {
+    setCurrentApp(app);
+    localStorage.setItem(STORAGE_KEY, app.app_id);
+  };
+
   return (
-    <AppContext.Provider value={{ currentApp, setCurrentApp, apps, isLoading }}>
+    <AppContext.Provider value={{ 
+      currentApp, 
+      setCurrentApp: handleSetCurrentApp, 
+      apps, 
+      isLoading,
+      refreshApps: loadApps
+    }}>
       {children}
     </AppContext.Provider>
   );
 }
 
-export function useApp() {
-  const context = useContext(AppContext);
-  if (context === undefined) {
-    throw new Error('useApp must be used within an AppProvider');
-  }
-  return context;
-}
+// useApp hook moved to @/hooks/use-app.ts

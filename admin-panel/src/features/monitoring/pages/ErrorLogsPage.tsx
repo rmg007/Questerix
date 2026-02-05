@@ -322,7 +322,7 @@ export function ErrorLogsPage() {
       </Card>
 
       {/* Error Detail Dialog */}
-      <Dialog open={!!selectedError && !promoteDialogOpen} onOpenChange={() => setSelectedError(null)}>
+      <Dialog open={Boolean(selectedError) && !promoteDialogOpen} onOpenChange={() => setSelectedError(null)}>
         <DialogContent className="max-w-2xl max-h-[80vh] overflow-y-auto">
           <DialogHeader>
             <DialogTitle className="font-mono text-red-600">{selectedError?.error_type}</DialogTitle>

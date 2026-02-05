@@ -1,4 +1,4 @@
-/* eslint-disable @typescript-eslint/no-explicit-any */
+
 import { usePublishCurriculum, usePublishPreview } from '../hooks/use-publish';
 import { CheckCircle, AlertTriangle, Upload, BookOpen, Layers, HelpCircle, AlertCircle, Info, Rocket } from 'lucide-react';
 import { useState } from 'react';
@@ -18,8 +18,8 @@ export function PublishPage() {
             await publishMutation.mutateAsync();
             setPublishedVersion(newVersion);
             setSuccess(true);
-        } catch (e: any) {
-            setError(e.message || 'Failed to publish');
+        } catch (e: unknown) {
+            setError((e as Error).message || 'Failed to publish');
         }
     };
 

@@ -2,7 +2,7 @@ import 'package:flutter_test/flutter_test.dart';
 import 'package:mocktail/mocktail.dart';
 import 'package:student_app/src/core/database/database.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
-import 'package:drift/drift.dart';
+import 'package:drift/drift.dart' hide isNotNull, isNull;
 import 'package:drift/native.dart';
 
 // Mocks
@@ -31,35 +31,35 @@ void main() {
     test('Groups outbox items by table and action', () async {
       // Create test outbox items
       await database.into(database.outbox).insert(
-        OutboxCompanion.insert(
+        OutboxCompanion(
           id: const Value('outbox-1'),
-          table: 'attempts',
-          action: 'INSERT',
-          recordId: 'attempt-1',
-          payload: '{"id": "attempt-1"}',
-          createdAt: DateTime.now(),
+          table: const Value('attempts'),
+          action: const Value('INSERT'),
+          recordId: const Value('attempt-1'),
+          payload: const Value('{"id": "attempt-1"}'),
+          createdAt: Value(DateTime.now()),
         ),
       );
       
       await database.into(database.outbox).insert(
-        OutboxCompanion.insert(
+        OutboxCompanion(
           id: const Value('outbox-2'),
-          table: 'attempts',
-          action: 'INSERT',
-          recordId: 'attempt-2',
-          payload: '{"id": "attempt-2"}',
-          createdAt: DateTime.now(),
+          table: const Value('attempts'),
+          action: const Value('INSERT'),
+          recordId: const Value('attempt-2'),
+          payload: const Value('{"id": "attempt-2"}'),
+          createdAt: Value(DateTime.now()),
         ),
       );
       
       await database.into(database.outbox).insert(
-        OutboxCompanion.insert(
+        OutboxCompanion(
           id: const Value('outbox-3'),
-          table: 'skill_progress',
-          action: 'UPDATE',
-          recordId: 'progress-1',
-          payload: '{"id": "progress-1"}',
-          createdAt: DateTime.now(),
+          table: const Value('skill_progress'),
+          action: const Value('UPDATE'),
+          recordId: const Value('progress-1'),
+          payload: const Value('{"id": "progress-1"}'),
+          createdAt: Value(DateTime.now()),
         ),
       );
 
@@ -81,24 +81,24 @@ void main() {
 
     test('Handles mixed actions on same table', () async {
       await database.into(database.outbox).insert(
-        OutboxCompanion.insert(
+        OutboxCompanion(
           id: const Value('outbox-4'),
-          table: 'questions',
-          action: 'INSERT',
-          recordId: 'q1',
-          payload: '{"id": "q1"}',
-          createdAt: DateTime.now(),
+          table: const Value('questions'),
+          action: const Value('INSERT'),
+          recordId: const Value('q1'),
+          payload: const Value('{"id": "q1"}'),
+          createdAt: Value(DateTime.now()),
         ),
       );
       
       await database.into(database.outbox).insert(
-        OutboxCompanion.insert(
+        OutboxCompanion(
           id: const Value('outbox-5'),
-          table: 'questions',
-          action: 'DELETE',
-          recordId: 'q2',
-          payload: '{"id": "q2"}',
-          createdAt: DateTime.now(),
+          table: const Value('questions'),
+          action: const Value('DELETE'),
+          recordId: const Value('q2'),
+          payload: const Value('{"id": "q2"}'),
+          createdAt: Value(DateTime.now()),
         ),
       );
 
@@ -119,13 +119,13 @@ void main() {
     test('Marks items as failed after 5 retries', () async {
       const itemId = 'outbox-6';
       await database.into(database.outbox).insert(
-        OutboxCompanion.insert(
-          id: const Value(itemId),
-          table: 'attempts',
-          action: 'INSERT',
-          recordId: 'attempt-1',
-          payload: '{"id": "attempt-1"}',
-          createdAt: DateTime.now(),
+        OutboxCompanion(
+          id: Value(itemId),
+          table: const Value('attempts'),
+          action: const Value('INSERT'),
+          recordId: const Value('attempt-1'),
+          payload: const Value('{"id": "attempt-1"}'),
+          createdAt: Value(DateTime.now()),
           retryCount: const Value(5),
         ),
       );
@@ -151,13 +151,13 @@ void main() {
     test('Does not delete failed items', () async {
       const itemId = 'outbox-7';
       await database.into(database.outbox).insert(
-        OutboxCompanion.insert(
-          id: const Value(itemId),
-          table: 'attempts',
-          action: 'INSERT',
-          recordId: 'attempt-1',
-          payload: '{"id": "attempt-1"}',
-          createdAt: DateTime.now(),
+        OutboxCompanion(
+          id: Value(itemId),
+          table: const Value('attempts'),
+          action: const Value('INSERT'),
+          recordId: const Value('attempt-1'),
+          payload: const Value('{"id": "attempt-1"}'),
+          createdAt: Value(DateTime.now()),
           retryCount: const Value(6),
           status: const Value('failed'),
         ),
@@ -210,24 +210,24 @@ void main() {
     test('Attempts are synced before skill_progress', () async {
       // Create attempts and skill_progress items
       await database.into(database.outbox).insert(
-        OutboxCompanion.insert(
+        OutboxCompanion(
           id: const Value('outbox-8'),
-          table: 'skill_progress',
-          action: 'UPDATE',
-          recordId: 'progress-1',
-          payload: '{"id": "progress-1"}',
-          createdAt: DateTime.now(),
+          table: const Value('skill_progress'),
+          action: const Value('UPDATE'),
+          recordId: const Value('progress-1'),
+          payload: const Value('{"id": "progress-1"}'),
+          createdAt: Value(DateTime.now()),
         ),
       );
       
       await database.into(database.outbox).insert(
-        OutboxCompanion.insert(
+        OutboxCompanion(
           id: const Value('outbox-9'),
-          table: 'attempts',
-          action: 'INSERT',
-          recordId: 'attempt-1',
-          payload: '{"id": "attempt-1"}',
-          createdAt: DateTime.now(),
+          table: const Value('attempts'),
+          action: const Value('INSERT'),
+          recordId: const Value('attempt-1'),
+          payload: const Value('{"id": "attempt-1"}'),
+          createdAt: Value(DateTime.now()),
         ),
       );
 
@@ -252,13 +252,13 @@ void main() {
     test('Increments retry count on failure', () async {
       const itemId = 'outbox-10';
       await database.into(database.outbox).insert(
-        OutboxCompanion.insert(
-          id: const Value(itemId),
-          table: 'attempts',
-          action: 'INSERT',
-          recordId: 'attempt-1',
-          payload: '{"id": "attempt-1"}',
-          createdAt: DateTime.now(),
+        OutboxCompanion(
+          id: Value(itemId),
+          table: const Value('attempts'),
+          action: const Value('INSERT'),
+          recordId: const Value('attempt-1'),
+          payload: const Value('{"id": "attempt-1"}'),
+          createdAt: Value(DateTime.now()),
           retryCount: const Value(0),
         ),
       );
@@ -285,13 +285,13 @@ void main() {
       for (var retryCount = 0; retryCount <= 5; retryCount++) {
         final itemId = 'outbox-retry-$retryCount';
         await database.into(database.outbox).insert(
-          OutboxCompanion.insert(
+          OutboxCompanion(
             id: Value(itemId),
-            table: 'attempts',
-            action: 'INSERT',
-            recordId: 'attempt-$retryCount',
-            payload: '{"id": "attempt-$retryCount"}',
-            createdAt: DateTime.now(),
+            table: const Value('attempts'),
+            action: const Value('INSERT'),
+            recordId: Value('attempt-$retryCount'),
+            payload: Value('{"id": "attempt-$retryCount"}'),
+            createdAt: Value(DateTime.now()),
             retryCount: Value(retryCount),
           ),
         );
@@ -312,13 +312,13 @@ void main() {
       final payload = '{"id": "test-1", "data": "value"}';
       
       await database.into(database.outbox).insert(
-        OutboxCompanion.insert(
+        OutboxCompanion(
           id: const Value('outbox-11'),
-          table: 'attempts',
-          action: 'INSERT',
-          recordId: 'test-1',
-          payload: payload,
-          createdAt: DateTime.now(),
+          table: const Value('attempts'),
+          action: const Value('INSERT'),
+          recordId: const Value('test-1'),
+          payload: Value(payload),
+          createdAt: Value(DateTime.now()),
         ),
       );
 

@@ -379,5 +379,46 @@ Set-Content -Path "output/app_colors.g.dart" -Value $dartContent
 |------|--------|---------|
 | `student-app/.../sync_service.dart` | Refactored | Implemented batched push logic |
 | `scripts/knowledge-base/index-issues.ts` | Created | Database-to-Oracle indexing script |
-| `supabase/migrations/...maintenance_and_alerts.sql` | Created | automated maintenance & alerts |
-| `supabase/functions/critical-alert/index.ts` | Created | Real-time crash alerting |
+## 2026-02-05: Phase 16 - Schema Alignment & Mastery Sync
+
+### Session Context
+- **Objective**: Standardize mastery tracking schema and implement bi-directional synchronization.
+- **Technologies**: Supabase (PostgreSQL), Drift (Flutter), SQL Migrations.
+
+---
+
+### Key Learnings
+
+#### 1. "Naming Drift" in Offline-First Apps
+**What Happened**: The Supabase schema used `best_streak` while the Drift client (frontend) expected `longest_streak`. This caused the sync mapping logic to fail when parsing RPC responses.
+- **Root Cause**: Independent development of the database schema and mobile client without a shared "Contract of Truth" for calculated fields.
+- **Fix**: Applied a standardization migration to rename columns in Supabase to match the Drift models.
+- **Prevention**: Always verify the `tables.dart` definitions against the `000...baseline.sql` before implementing sync logic. Use a shared field registry if possible.
+
+#### 2. Vector Index Precision (HNSW vs. IVFFlat)
+**Observation**: Documentation search recall for Project Oracle was inconsistent.
+- **Technical Insight**: `IVFFlat` is a cluster-based index that requires frequent `REINDEX` as the "centroid" locations shift with new documentation. `HNSW` is a graph-based index that maintains high recall without cluster re-centering.
+- **Action**: Migrated the `knowledge_chunks_embedding_idx` to `HNSW`.
+- **Lesson**: For RAG systems where data arrives incrementally (like dev docs), `HNSW` is superior to `IVFFlat` despite slightly higher memory overhead.
+
+#### 3. Closing the Sync Loop (Bi-directional Pull)
+**Implementation Note**: Initially, `skill_progress` was only "pushed" (calculated on server via triggers). This created a "Stale State" when a user switched devices.
+- **Solution**: Added `skill_progress` to the `pull_changes` RPC and implemented `_pullSkillProgress` in the Flutter client.
+- **Lesson**: Any table that is updated via server-side triggers *must* be included in the "Pull" sequence of the sync engine, or the client will never see the server's computed truth.
+
+---
+
+### Recommendations for Future Work
+1. **Schema Checksum**: Implement a script that compares Drift table definitions (generated `.g.dart`) with Supabase table metadata and alerts on name mismatches.
+2. **HNSW Monitoring**: Monitor pgvector memory usage more closely as the documentation corpus grows beyond 1,000 chunks.
+
+---
+
+### Files Modified/Created
+
+| File | Action | Purpose |
+|------|--------|---------|
+| `supabase/migrations/...standardize_sync_schema.sql` | Created | Aligned SQL with Drift names |
+| `supabase/migrations/...update_pull_changes.sql` | Created | Enabled pull support for mastery |
+| `student-app/.../sync_service.dart` | Modified | Implemented mastery pull logic |
+| `supabase/migrations/...maintenance_and_alerts.sql` | Modified | Switched to HNSW index |

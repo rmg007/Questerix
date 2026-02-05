@@ -6,6 +6,7 @@ import { Button } from '@/components/ui/button'
 import { ArrowLeft, Calendar, Target, Clock, CheckCircle } from 'lucide-react'
 import { useToast } from '@/hooks/use-toast'
 import { cn } from '@/lib/utils'
+import { useApp } from '@/hooks/use-app'
 
 // Types
 type AssignmentType = 'skill_mastery' | 'time_goal' | 'custom'
@@ -25,6 +26,7 @@ export function AssignmentCreatePage() {
   const navigate = useNavigate()
   const { toast } = useToast()
   const queryClient = useQueryClient()
+  const { currentApp } = useApp()
 
   // Form State
   const [type, setType] = useState<AssignmentType>('skill_mastery')
@@ -35,26 +37,32 @@ export function AssignmentCreatePage() {
 
   // Fetch Group Details
   const { data: group } = useQuery({
-    queryKey: ['group', groupId],
+    queryKey: ['group', groupId, currentApp?.app_id],
     queryFn: async () => {
+      if (!currentApp?.app_id) throw new Error('No app selected')
+      
       const { data, error } = await supabase
         .from('groups')
         .select('*')
         .eq('id', groupId!)
+        .eq('app_id', currentApp.app_id)
         .single()
       if (error) throw error
       return data
     },
-    enabled: !!groupId
+    enabled: Boolean(groupId) && Boolean(currentApp?.app_id)
   })
 
   // Fetch Skills for Selection
   const { data: skills } = useQuery<Skill[]>({
-    queryKey: ['skills-search', searchTerm],
+    queryKey: ['skills-search', searchTerm, currentApp?.app_id],
     queryFn: async () => {
+      if (!currentApp?.app_id) throw new Error('No app selected')
+
       let query = supabase
         .from('skills')
         .select('id, title, domain_id, domains(title)')
+        .eq('app_id', currentApp.app_id)
         .limit(20)
       
       if (searchTerm) {
@@ -66,25 +74,24 @@ export function AssignmentCreatePage() {
       // eslint-disable-next-line @typescript-eslint/no-explicit-any
       return data as any as Skill[]
     },
-    enabled: type === 'skill_mastery'
+    enabled: type === 'skill_mastery' && Boolean(currentApp?.app_id)
   })
 
   // Create Assignment Mutation
   const createAssignment = useMutation({
     mutationFn: async () => {
-      if (!groupId || !targetId) throw new Error('Missing required fields')
+      if (!groupId || !targetId || !currentApp?.app_id) throw new Error('Missing required fields')
 
       const { data: { user } } = await supabase.auth.getUser()
       if (!user) throw new Error('User not authenticated')
 
       const { error } = await supabase.from('assignments').insert({
         group_id: groupId,
-        skill_id: targetId,
+        target_id: targetId,
         type,
         scope,
-        deadline: dueDate ? new Date(dueDate).toISOString() : null,
-        status: 'pending',
-        assigned_by: user.id
+        due_date: dueDate ? new Date(dueDate).toISOString() : null,
+        status: 'pending'
       })
 
       if (error) throw error

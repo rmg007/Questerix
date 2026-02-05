@@ -2,7 +2,7 @@
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { supabase } from '@/lib/supabase';
 import { Database } from '@/lib/database.types';
-import { useApp } from '@/contexts/AppContext';
+import { useApp } from '@/hooks/use-app';
 
 type Question = Database['public']['Tables']['questions']['Row'];
 type QuestionInsert = Database['public']['Tables']['questions']['Insert'];
@@ -57,7 +57,7 @@ export function useQuestions(skillId?: string) {
       if (error) throw error;
       return data as unknown as (Question & { skills: { title: string, domains: { title: string } | null } | null })[];
     },
-    enabled: !!currentApp?.app_id,
+    enabled: Boolean(currentApp?.app_id),
   });
 }
 
@@ -112,7 +112,7 @@ export function usePaginatedQuestions(params: PaginationParams) {
         totalPages: Math.ceil((count ?? 0) / pageSize),
       };
     },
-    enabled: !!currentApp?.app_id,
+    enabled: Boolean(currentApp?.app_id),
   });
 }
 
@@ -130,7 +130,7 @@ export function useQuestion(id: string) {
             if (error) throw error;
             return data as Question;
         },
-        enabled: !!id && !!currentApp?.app_id,
+        enabled: Boolean(id) && Boolean(currentApp?.app_id),
     });
 }
 

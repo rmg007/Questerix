@@ -37,8 +37,8 @@ import { CSS } from '@dnd-kit/utilities'
 const DEFAULT_PAGE_SIZE = 10
 
 interface Domain {
-  id: string
-  title: string
+  domain_id: string
+  name: string
   slug: string
   sort_order: number
   status?: string
@@ -102,7 +102,7 @@ function SortableRow({ domain, isSelected, onSelect, onDelete, renderStatusBadge
         </span>
       </td>
       <td className="px-6 py-4">
-        <span className="font-medium text-gray-900">{domain.title}</span>
+        <span className="font-medium text-gray-900">{domain.name}</span>
       </td>
       <td className="px-6 py-4">
         <code className="px-2 py-1 bg-gray-100 rounded text-sm text-gray-600">{domain.slug}</code>
@@ -181,7 +181,7 @@ function SortableCard({ domain, isSelected, onSelect, onDelete, renderStatusBadg
             <span className="inline-flex items-center justify-center w-7 h-7 rounded-lg bg-purple-100 text-purple-700 font-semibold text-xs flex-shrink-0">
               {domain.sort_order}
             </span>
-            <h3 className="font-medium text-gray-900 truncate">{domain.title}</h3>
+            <h3 className="font-medium text-gray-900 truncate">{domain.name}</h3>
           </div>
           <code className="px-2 py-0.5 bg-gray-100 rounded text-xs text-gray-600">{domain.slug}</code>
         </div>
@@ -273,7 +273,7 @@ export function DomainList() {
   const totalCount = paginatedData?.totalCount ?? 0
   const totalPages = paginatedData?.totalPages ?? 1
 
-  const domainIds = useMemo(() => domains.map(d => d.id), [domains])
+  const domainIds = useMemo(() => domains.map(d => d.domain_id), [domains])
 
   const isDragDisabled = Boolean(debouncedSearch) || statusFilter !== 'all' || sortBy !== 'sort_order'
 
@@ -281,14 +281,14 @@ export function DomainList() {
     const { active, over } = event
 
     if (over && active.id !== over.id) {
-      const oldIndex = domains.findIndex(d => d.id === active.id)
-      const newIndex = domains.findIndex(d => d.id === over.id)
+      const oldIndex = domains.findIndex(d => d.domain_id === active.id)
+      const newIndex = domains.findIndex(d => d.domain_id === over.id)
 
       if (oldIndex !== -1 && newIndex !== -1) {
         const reorderedDomains = arrayMove(domains, oldIndex, newIndex)
         
         const updates = reorderedDomains.map((domain, index) => ({
-          id: domain.id,
+          domain_id: domain.domain_id,
           sort_order: index + 1 + (page - 1) * pageSize,
         }))
 
@@ -316,7 +316,7 @@ export function DomainList() {
     if (selectedIds.size === domains.length) {
       setSelectedIds(new Set())
     } else {
-      setSelectedIds(new Set(domains.map(d => d.id)))
+      setSelectedIds(new Set(domains.map(d => d.domain_id)))
     }
   }
 

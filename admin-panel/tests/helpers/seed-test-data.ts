@@ -258,7 +258,7 @@ export async function verifySeedData(supabase: SupabaseClient<Database>): Promis
   const { data: skills } = await supabase.from('skills').select('id').limit(1);
   const { data: questions } = await supabase.from('questions').select('id').limit(1);
 
-  return !!(domains && domains.length > 0 && skills && skills.length > 0 && questions && questions.length > 0);
+  return Boolean(domains && domains.length > 0 && skills && skills.length > 0 && questions && questions.length > 0);
 }
 
 /**

@@ -95,7 +95,7 @@ export function useDashboardStats() {
         readyToPublish: publishedCount,
       };
     },
-    enabled: !!currentApp?.app_id,
+    enabled: Boolean(currentApp?.app_id),
     refetchInterval: 60000,
   });
 }
@@ -175,7 +175,7 @@ export function useRecentActivity() {
         .sort((a, b) => new Date(b.timestamp).getTime() - new Date(a.timestamp).getTime())
         .slice(0, 10);
     },
-    enabled: !!currentApp?.app_id,
+    enabled: Boolean(currentApp?.app_id),
     refetchInterval: 30000,
   });
 }

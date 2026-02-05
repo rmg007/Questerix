@@ -1,7 +1,7 @@
  
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { supabase } from '@/lib/supabase';
-import { useApp } from '@/contexts/AppContext';
+import { useApp } from '@/hooks/use-app';
 
 interface CurriculumMeta {
   version: number;
@@ -48,7 +48,7 @@ export function useCurriculumMeta() {
       if (error && error.code !== 'PGRST116') throw error; // Ignore not found
       return data as CurriculumMeta ?? { version: 0, last_published_at: null };
     },
-    enabled: !!currentApp?.app_id,
+    enabled: Boolean(currentApp?.app_id),
   });
 }
 
@@ -117,7 +117,7 @@ export function usePublishPreview() {
         readyToPublishCount: liveCount,
       };
     },
-    enabled: !!currentApp?.app_id,
+    enabled: Boolean(currentApp?.app_id),
     refetchInterval: 30000,
   });
 }
@@ -132,7 +132,7 @@ export function usePublishCurriculum() {
       
       // FIX M4: Pass app_id to RPC
       // Note: Type cast needed until database.types.ts is regenerated
-      const { data, error } = await (supabase.rpc as any)('publish_curriculum', {
+      const { data, error } = await (supabase as unknown as { rpc: (n: string, p: any) => Promise<{ data: any; error: any }> }).rpc('publish_curriculum', {
         p_app_id: currentApp.app_id
       });
       if (error) throw error;

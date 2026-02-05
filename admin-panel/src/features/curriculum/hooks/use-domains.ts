@@ -2,7 +2,7 @@
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { supabase } from '@/lib/supabase';
 import { Database } from '@/lib/database.types';
-import { useApp } from '@/contexts/AppContext';
+import { useApp } from '@/hooks/use-app';
 
 type Domain = Database['public']['Tables']['domains']['Row'];
 
@@ -52,7 +52,7 @@ export function useDomains() {
       if (error) throw error;
       return data as Domain[];
     },
-    enabled: !!currentApp?.app_id,
+    enabled: Boolean(currentApp?.app_id),
   });
 }
 
@@ -97,7 +97,7 @@ export function usePaginatedDomains(params: PaginationParams) {
         totalPages: Math.ceil((count ?? 0) / pageSize),
       };
     },
-    enabled: !!currentApp?.app_id,
+    enabled: Boolean(currentApp?.app_id),
   });
 }
 
@@ -115,7 +115,7 @@ export function useDomain(id: string) {
             if (error) throw error;
             return data as Domain;
         },
-        enabled: !!id && !!currentApp?.app_id,
+        enabled: Boolean(id) && Boolean(currentApp?.app_id),
     });
 }
 
@@ -152,11 +152,11 @@ export function useUpdateDomain() {
     const queryClient = useQueryClient();
 
     return useMutation({
-        mutationFn: async ({ id, ...updates }: { id: string } & Partial<Domain>) => {
+        mutationFn: async ({ domain_id, ...updates }: { domain_id: string } & Partial<Domain>) => {
             const { data, error } = await (supabase
                 .from('domains') as any)
                 .update(updates as any)
-                .eq('id', id)
+                .eq('domain_id', domain_id)
                 .select()
                 .single();
 
@@ -166,7 +166,7 @@ export function useUpdateDomain() {
         onSuccess: (data) => {
             queryClient.invalidateQueries({ queryKey: ['domains'] });
             queryClient.invalidateQueries({ queryKey: ['domains-paginated'] });
-            queryClient.invalidateQueries({ queryKey: ['domain', data.id] });
+            queryClient.invalidateQueries({ queryKey: ['domain', (data as any).domain_id] });
         },
     });
 }
@@ -175,11 +175,11 @@ export function useDeleteDomain() {
     const queryClient = useQueryClient();
 
     return useMutation({
-        mutationFn: async (id: string) => {
+        mutationFn: async (domain_id: string) => {
             const { error } = await (supabase
                 .from('domains') as any)
                 .update({ deleted_at: new Date().toISOString() } as any)
-                .eq('id', id);
+                .eq('domain_id', domain_id);
             
             if (error) throw error;
         },
@@ -194,11 +194,11 @@ export function useBulkDeleteDomains() {
     const queryClient = useQueryClient();
 
     return useMutation({
-        mutationFn: async (ids: string[]) => {
+        mutationFn: async (domain_ids: string[]) => {
             const { error } = await (supabase
                 .from('domains') as any)
                 .update({ deleted_at: new Date().toISOString() } as any)
-                .in('id', ids);
+                .in('domain_id', domain_ids);
 
             if (error) throw error;
         },

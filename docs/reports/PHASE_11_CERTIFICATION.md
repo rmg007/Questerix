@@ -134,7 +134,7 @@ $ python -m compileall content-engine/src -q
 ### Security Audit Fix
 ```javascript
 // BEFORE (CRITICAL VULNERABILITY):
-const dbPassword = 'QpJIzi2r6vaoghG5';
+const dbPassword = 'REDACTED_DATABASE_PASSWORD';
 
 // AFTER (SECURE):
 const dbPassword = process.env.DB_PASSWORD;

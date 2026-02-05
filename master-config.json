@@ -5,7 +5,7 @@
   
   "global": {
     "SUPABASE_URL": "https://qvslbiceoonrgjxzkotb.supabase.co",
-    "SUPABASE_ANON_KEY": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InF2c2xiaWNlb29ucmdqeHprb3RiIiwicm9sZSI6ImFub24iLCJpYXQiOjE3Njk1MTE5NjksImV4cCI6MjA4NTA4Nzk2OX0.tksExuWD4OZyb4MoYRliQ71WQ8rywcaYMxbH2UXWe8s",
+    "SUPABASE_ANON_KEY": "YOUR_SUPABASE_ANON_KEY",
     "API_BASE_URL": "https://api.questerix.com"
   },
   
@@ -32,7 +32,7 @@
   },
   
   "cloudflare": {
-    "account_id": "1ad655f025b0db1974614aac7ebec10a",
+    "account_id": "YOUR_CLOUDFLARE_ACCOUNT_ID",
     "landing_project": "questerix-landing (DISABLED - NEVER DEPLOY)",
     "landing_status": "DISABLED",
     "admin_project": "questerix-admin",

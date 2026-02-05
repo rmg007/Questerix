@@ -24,7 +24,11 @@ if (Test-Command "supabase") {
 }
 
 # Set database credentials
-$dbPassword = "QpJIzi2r6vaoghG5"
+$dbPassword = $env:SUPABASE_DB_PASSWORD
+if (-not $dbPassword) {
+    Write-Error "SUPABASE_DB_PASSWORD environment variable is not set."
+    exit 1
+}
 $projectRef = "qvslbiceoonrgjxzkotb"
 $dbUrl = "postgresql://postgres:${dbPassword}@db.${projectRef}.supabase.co:5432/postgres"
 

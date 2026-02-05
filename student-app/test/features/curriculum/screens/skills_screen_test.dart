@@ -14,11 +14,17 @@ import 'package:student_app/src/features/progress/repositories/attempt_repositor
 import 'package:student_app/src/features/progress/repositories/session_repository.dart';
 
 class MockSkillRepository extends Mock implements SkillRepository {}
-class MockSkillProgressRepository extends Mock implements SkillProgressRepository {}
+
+class MockSkillProgressRepository extends Mock
+    implements SkillProgressRepository {}
+
 // Practice Deps
 class MockQuestionRepository extends Mock implements QuestionRepository {}
+
 class MockAttemptRepository extends Mock implements AttemptRepository {}
-class MockPracticeSessionRepository extends Mock implements PracticeSessionRepository {}
+
+class MockPracticeSessionRepository extends Mock
+    implements PracticeSessionRepository {}
 
 void main() {
   late MockSkillRepository mockSkillRepository;
@@ -41,18 +47,20 @@ void main() {
 
     when(() => mockQuestionRepository.getRandomBySkill(any(), any()))
         .thenAnswer((_) async => []);
-    when(() => mockPracticeSessionRepository.startSession(skillId: any(named: 'skillId')))
-        .thenAnswer((_) async => 'session-1');
+    when(() => mockPracticeSessionRepository.startSession(
+        skillId: any(named: 'skillId'))).thenAnswer((_) async => 'session-1');
   });
 
   Widget createWidgetUnderTest() {
     return ProviderScope(
       overrides: [
         skillRepositoryProvider.overrideWithValue(mockSkillRepository),
-        skillProgressRepositoryProvider.overrideWithValue(mockSkillProgressRepository),
+        skillProgressRepositoryProvider
+            .overrideWithValue(mockSkillProgressRepository),
         questionRepositoryProvider.overrideWithValue(mockQuestionRepository),
         attemptRepositoryProvider.overrideWithValue(mockAttemptRepository),
-        practiceSessionRepositoryProvider.overrideWithValue(mockPracticeSessionRepository),
+        practiceSessionRepositoryProvider
+            .overrideWithValue(mockPracticeSessionRepository),
       ],
       child: const MaterialApp(
         home: SkillsScreen(
@@ -64,11 +72,12 @@ void main() {
   }
 
   group('SkillsScreen Widget Tests', () {
-    testWidgets('displays loading indicator initially', (WidgetTester tester) async {
-       final controller = StreamController<List<model.Skill>>();
-       addTearDown(() => controller.close());
-       
-       when(() => mockSkillRepository.watchByDomain(any()))
+    testWidgets('displays loading indicator initially',
+        (WidgetTester tester) async {
+      final controller = StreamController<List<model.Skill>>();
+      addTearDown(() => controller.close());
+
+      when(() => mockSkillRepository.watchByDomain(any()))
           .thenAnswer((_) => controller.stream);
 
       await tester.pumpWidget(createWidgetUnderTest());
@@ -77,7 +86,8 @@ void main() {
       expect(find.byType(CircularProgressIndicator), findsOneWidget);
     });
 
-    testWidgets('displays skills list when loaded', (WidgetTester tester) async {
+    testWidgets('displays skills list when loaded',
+        (WidgetTester tester) async {
       final mockSkills = [
         model.Skill(
           id: 'skill-1',
@@ -113,8 +123,9 @@ void main() {
       expect(find.text('Quadratic Equations'), findsOneWidget);
     });
 
-    testWidgets('displays error message when loading fails', (WidgetTester tester) async {
-        when(() => mockSkillRepository.watchByDomain(any()))
+    testWidgets('displays error message when loading fails',
+        (WidgetTester tester) async {
+      when(() => mockSkillRepository.watchByDomain(any()))
           .thenAnswer((_) => Stream.error('API Error'));
 
       await tester.pumpWidget(createWidgetUnderTest());
@@ -126,8 +137,8 @@ void main() {
       expect(find.text('Error loading skills'), findsOneWidget);
     });
 
-
-    testWidgets('navigates to practice screen when skill is selected', (WidgetTester tester) async {
+    testWidgets('navigates to practice screen when skill is selected',
+        (WidgetTester tester) async {
       final mockSkills = [
         model.Skill(
           id: 'skill-1',
@@ -142,7 +153,7 @@ void main() {
         ),
       ];
 
-       when(() => mockSkillRepository.watchByDomain(any()))
+      when(() => mockSkillRepository.watchByDomain(any()))
           .thenAnswer((_) => Stream.value(mockSkills));
 
       await tester.pumpWidget(createWidgetUnderTest());

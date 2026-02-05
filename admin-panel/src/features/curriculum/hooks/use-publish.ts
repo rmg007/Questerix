@@ -31,21 +31,24 @@ interface PublishPreview {
 }
 
 export function useCurriculumMeta() {
-  // Curriculum meta might be global or tenant specific. 
-  // If we are publishing per-app, we likely need a per-app version/publish-date record.
-  // For now, assuming singleton usage.
+  const { currentApp } = useApp();
+  
+  // FIX M3: Query by app_id, not singleton
   return useQuery({
-    queryKey: ['curriculum-meta'],
+    queryKey: ['curriculum-meta', currentApp?.app_id],
     queryFn: async (): Promise<CurriculumMeta> => {
+      if (!currentApp?.app_id) throw new Error('No app selected');
+      
       const { data, error } = await supabase
         .from('curriculum_meta')
         .select('version, last_published_at')
-        .eq('id', 'singleton')
+        .eq('app_id', currentApp.app_id)  // FIX: Tenant-scoped
         .single();
       
-      if (error) throw error;
-      return data as CurriculumMeta;
+      if (error && error.code !== 'PGRST116') throw error; // Ignore not found
+      return data as CurriculumMeta ?? { version: 0, last_published_at: null };
     },
+    enabled: !!currentApp?.app_id,
   });
 }
 
@@ -59,6 +62,7 @@ export function usePublishPreview() {
 
       const validationIssues: ValidationIssue[] = [];
 
+      // FIX M3: Separate meta query (tenant-scoped) from content counts
       const [
         metaResult,
         draftDomainsResult,
@@ -68,7 +72,7 @@ export function usePublishPreview() {
         draftQuestionsResult,
         liveQuestionsResult,
       ] = await Promise.all([
-        supabase.from('curriculum_meta').select('version, last_published_at').eq('id', 'singleton').single(),
+        supabase.from('curriculum_meta').select('version, last_published_at').eq('app_id', currentApp.app_id).maybeSingle(),
         supabase.from('domains').select('*', { count: 'exact', head: true }).eq('app_id', currentApp.app_id).is('deleted_at', null).eq('status', 'draft'),
         supabase.from('domains').select('*', { count: 'exact', head: true }).eq('app_id', currentApp.app_id).is('deleted_at', null).eq('status', 'live'),
         supabase.from('skills').select('*', { count: 'exact', head: true }).eq('app_id', currentApp.app_id).is('deleted_at', null).eq('status', 'draft'),
@@ -77,7 +81,7 @@ export function usePublishPreview() {
         supabase.from('questions').select('*', { count: 'exact', head: true }).eq('app_id', currentApp.app_id).is('deleted_at', null).eq('status', 'live'),
       ]);
 
-      if (metaResult.error) throw metaResult.error;
+      if (metaResult.error && metaResult.error.code !== 'PGRST116') throw metaResult.error;
 
       const stats: PublishStats = {
         draftDomains: draftDomainsResult.count ?? 0,
@@ -120,16 +124,17 @@ export function usePublishPreview() {
 
 export function usePublishCurriculum() {
   const queryClient = useQueryClient();
+  const { currentApp } = useApp();
   
   return useMutation({
     mutationFn: async () => {
-      // The rpc 'publish_curriculum' might need updates to handle per-app publishing
-      // or we might need to update the status manually if the RPC isn't updated.
-      // Assuming 'publish_curriculum' works globally or hasn't been updated yet.
-      // For now, let's just run it, but we might need to modify the SQL function 
-      // to accept an app_id if we want granular publishing.
-      // Note: This RPC function may need to be created in Supabase
-      const { data, error } = await (supabase.rpc as any)('publish_curriculum');
+      if (!currentApp?.app_id) throw new Error('No app selected');
+      
+      // FIX M4: Pass app_id to RPC
+      // Note: Type cast needed until database.types.ts is regenerated
+      const { data, error } = await (supabase.rpc as any)('publish_curriculum', {
+        p_app_id: currentApp.app_id
+      });
       if (error) throw error;
       return data;
     },

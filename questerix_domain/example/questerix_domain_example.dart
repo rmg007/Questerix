@@ -11,9 +11,9 @@ void main() {
     updatedAt: DateTime.now(),
     isActive: true,
   );
-  
+
   print('Domain: ${domain.title}');
-  
+
   // Example: Validate a slug
   final error = QuesterixValidators.validateSlug('valid_slug');
   print('Validation error: ${error ?? "None (valid)"}');

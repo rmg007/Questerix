@@ -60,9 +60,12 @@ void main() {
 
       when(() => mockSupabaseClient.auth).thenReturn(mockGoTrue);
 
-      when(() => mockAuthRepo.signInWithEmail(email: any(named: 'email')))
+      // FIX M2: Update auth method mocks to include appId parameter
+      when(() => mockAuthRepo.signInWithEmail(
+          email: any(named: 'email'),
+          appId: any(named: 'appId'))).thenAnswer((_) async {});
+      when(() => mockAuthRepo.signInAnonymously(appId: any(named: 'appId')))
           .thenAnswer((_) async {});
-      when(() => mockAuthRepo.signInAnonymously()).thenAnswer((_) async {});
       when(() => mockAuthRepo.signOut()).thenAnswer((_) async {});
     });
 
@@ -114,15 +117,15 @@ void main() {
       await tester.tap(find.text('Continue'));
       await tester.pumpAndSettle();
 
-      expect(find.text('Ask a parent for help'), findsOneWidget);
+      expect(find.text('Ask a Parent for Help'), findsOneWidget);
 
       await tester.enterText(find.byType(TextField), 'parent@example.com');
       await tester.pump();
       await tester.tap(find.text('Send Request'));
       await tester.pumpAndSettle();
 
-      verify(() => mockAuthRepo.signInWithEmail(email: 'parent@example.com'))
-          .called(1);
+      verify(() => mockAuthRepo.signInWithEmail(
+          email: 'parent@example.com', appId: any(named: 'appId'))).called(1);
       expect(find.text('Email sent to parent! Check inbox.'), findsOneWidget);
 
       addTearDown(tester.view.resetPhysicalSize);

@@ -58,7 +58,8 @@ class Env {
   );
 
   /// Whether offline-first mode is enabled
-  static bool get enableOfflineFirst => _offlineFirstRaw.toLowerCase() == 'true';
+  static bool get enableOfflineFirst =>
+      _offlineFirstRaw.toLowerCase() == 'true';
 
   /// Drift database schema version
   static const String _driftDbVersionRaw = String.fromEnvironment(
@@ -68,18 +69,6 @@ class Env {
 
   /// Parsed Drift database version
   static int get driftDbVersion => int.parse(_driftDbVersionRaw);
-
-  /// Sentry error tracking enabled
-  static const bool sentryEnabled = bool.fromEnvironment(
-    'SENTRY_ENABLED',
-    defaultValue: false,
-  );
-
-  /// Sentry DSN for error reporting
-  static const String sentryDsn = String.fromEnvironment(
-    'SENTRY_DSN',
-    defaultValue: '',
-  );
 
   /// Current environment (development, staging, production)
   static const String environment = String.fromEnvironment(
@@ -127,10 +116,10 @@ class Env {
         'appName': appName,
         'environment': environment,
         'supabaseUrl': supabaseUrl.isNotEmpty ? '***configured***' : 'NOT SET',
-        'supabaseAnonKey': supabaseAnonKey.isNotEmpty ? '***configured***' : 'NOT SET',
+        'supabaseAnonKey':
+            supabaseAnonKey.isNotEmpty ? '***configured***' : 'NOT SET',
         'themePrimaryColor': _themePrimaryColorRaw,
         'enableOfflineFirst': enableOfflineFirst.toString(),
         'driftDbVersion': driftDbVersion.toString(),
-        'sentryEnabled': sentryEnabled.toString(),
       };
 }

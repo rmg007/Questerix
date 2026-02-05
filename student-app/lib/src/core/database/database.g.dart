@@ -13,6 +13,11 @@ class $DomainsTable extends Domains with TableInfo<$DomainsTable, Domain> {
   late final GeneratedColumn<String> id = GeneratedColumn<String>(
       'id', aliasedName, false,
       type: DriftSqlType.string, requiredDuringInsert: true);
+  static const VerificationMeta _appIdMeta = const VerificationMeta('appId');
+  @override
+  late final GeneratedColumn<String> appId = GeneratedColumn<String>(
+      'app_id', aliasedName, true,
+      type: DriftSqlType.string, requiredDuringInsert: false);
   static const VerificationMeta _subjectIdMeta =
       const VerificationMeta('subjectId');
   @override
@@ -80,6 +85,7 @@ class $DomainsTable extends Domains with TableInfo<$DomainsTable, Domain> {
   @override
   List<GeneratedColumn> get $columns => [
         id,
+        appId,
         subjectId,
         slug,
         title,
@@ -104,6 +110,10 @@ class $DomainsTable extends Domains with TableInfo<$DomainsTable, Domain> {
       context.handle(_idMeta, id.isAcceptableOrUnknown(data['id']!, _idMeta));
     } else if (isInserting) {
       context.missing(_idMeta);
+    }
+    if (data.containsKey('app_id')) {
+      context.handle(
+          _appIdMeta, appId.isAcceptableOrUnknown(data['app_id']!, _appIdMeta));
     }
     if (data.containsKey('subject_id')) {
       context.handle(_subjectIdMeta,
@@ -164,6 +174,8 @@ class $DomainsTable extends Domains with TableInfo<$DomainsTable, Domain> {
     return Domain(
       id: attachedDatabase.typeMapping
           .read(DriftSqlType.string, data['${effectivePrefix}id'])!,
+      appId: attachedDatabase.typeMapping
+          .read(DriftSqlType.string, data['${effectivePrefix}app_id']),
       subjectId: attachedDatabase.typeMapping
           .read(DriftSqlType.string, data['${effectivePrefix}subject_id']),
       slug: attachedDatabase.typeMapping
@@ -193,6 +205,7 @@ class $DomainsTable extends Domains with TableInfo<$DomainsTable, Domain> {
 
 class Domain extends DataClass implements Insertable<Domain> {
   final String id;
+  final String? appId;
   final String? subjectId;
   final String slug;
   final String title;
@@ -204,6 +217,7 @@ class Domain extends DataClass implements Insertable<Domain> {
   final DateTime? deletedAt;
   const Domain(
       {required this.id,
+      this.appId,
       this.subjectId,
       required this.slug,
       required this.title,
@@ -217,6 +231,9 @@ class Domain extends DataClass implements Insertable<Domain> {
   Map<String, Expression> toColumns(bool nullToAbsent) {
     final map = <String, Expression>{};
     map['id'] = Variable<String>(id);
+    if (!nullToAbsent || appId != null) {
+      map['app_id'] = Variable<String>(appId);
+    }
     if (!nullToAbsent || subjectId != null) {
       map['subject_id'] = Variable<String>(subjectId);
     }
@@ -238,6 +255,8 @@ class Domain extends DataClass implements Insertable<Domain> {
   DomainsCompanion toCompanion(bool nullToAbsent) {
     return DomainsCompanion(
       id: Value(id),
+      appId:
+          appId == null && nullToAbsent ? const Value.absent() : Value(appId),
       subjectId: subjectId == null && nullToAbsent
           ? const Value.absent()
           : Value(subjectId),
@@ -261,6 +280,7 @@ class Domain extends DataClass implements Insertable<Domain> {
     serializer ??= driftRuntimeOptions.defaultSerializer;
     return Domain(
       id: serializer.fromJson<String>(json['id']),
+      appId: serializer.fromJson<String?>(json['appId']),
       subjectId: serializer.fromJson<String?>(json['subjectId']),
       slug: serializer.fromJson<String>(json['slug']),
       title: serializer.fromJson<String>(json['title']),
@@ -277,6 +297,7 @@ class Domain extends DataClass implements Insertable<Domain> {
     serializer ??= driftRuntimeOptions.defaultSerializer;
     return <String, dynamic>{
       'id': serializer.toJson<String>(id),
+      'appId': serializer.toJson<String?>(appId),
       'subjectId': serializer.toJson<String?>(subjectId),
       'slug': serializer.toJson<String>(slug),
       'title': serializer.toJson<String>(title),
@@ -291,6 +312,7 @@ class Domain extends DataClass implements Insertable<Domain> {
 
   Domain copyWith(
           {String? id,
+          Value<String?> appId = const Value.absent(),
           Value<String?> subjectId = const Value.absent(),
           String? slug,
           String? title,
@@ -302,6 +324,7 @@ class Domain extends DataClass implements Insertable<Domain> {
           Value<DateTime?> deletedAt = const Value.absent()}) =>
       Domain(
         id: id ?? this.id,
+        appId: appId.present ? appId.value : this.appId,
         subjectId: subjectId.present ? subjectId.value : this.subjectId,
         slug: slug ?? this.slug,
         title: title ?? this.title,
@@ -315,6 +338,7 @@ class Domain extends DataClass implements Insertable<Domain> {
   Domain copyWithCompanion(DomainsCompanion data) {
     return Domain(
       id: data.id.present ? data.id.value : this.id,
+      appId: data.appId.present ? data.appId.value : this.appId,
       subjectId: data.subjectId.present ? data.subjectId.value : this.subjectId,
       slug: data.slug.present ? data.slug.value : this.slug,
       title: data.title.present ? data.title.value : this.title,
@@ -333,6 +357,7 @@ class Domain extends DataClass implements Insertable<Domain> {
   String toString() {
     return (StringBuffer('Domain(')
           ..write('id: $id, ')
+          ..write('appId: $appId, ')
           ..write('subjectId: $subjectId, ')
           ..write('slug: $slug, ')
           ..write('title: $title, ')
@@ -347,13 +372,14 @@ class Domain extends DataClass implements Insertable<Domain> {
   }
 
   @override
-  int get hashCode => Object.hash(id, subjectId, slug, title, description,
-      sortOrder, isPublished, createdAt, updatedAt, deletedAt);
+  int get hashCode => Object.hash(id, appId, subjectId, slug, title,
+      description, sortOrder, isPublished, createdAt, updatedAt, deletedAt);
   @override
   bool operator ==(Object other) =>
       identical(this, other) ||
       (other is Domain &&
           other.id == this.id &&
+          other.appId == this.appId &&
           other.subjectId == this.subjectId &&
           other.slug == this.slug &&
           other.title == this.title &&
@@ -367,6 +393,7 @@ class Domain extends DataClass implements Insertable<Domain> {
 
 class DomainsCompanion extends UpdateCompanion<Domain> {
   final Value<String> id;
+  final Value<String?> appId;
   final Value<String?> subjectId;
   final Value<String> slug;
   final Value<String> title;
@@ -379,6 +406,7 @@ class DomainsCompanion extends UpdateCompanion<Domain> {
   final Value<int> rowid;
   const DomainsCompanion({
     this.id = const Value.absent(),
+    this.appId = const Value.absent(),
     this.subjectId = const Value.absent(),
     this.slug = const Value.absent(),
     this.title = const Value.absent(),
@@ -392,6 +420,7 @@ class DomainsCompanion extends UpdateCompanion<Domain> {
   });
   DomainsCompanion.insert({
     required String id,
+    this.appId = const Value.absent(),
     this.subjectId = const Value.absent(),
     required String slug,
     required String title,
@@ -409,6 +438,7 @@ class DomainsCompanion extends UpdateCompanion<Domain> {
         updatedAt = Value(updatedAt);
   static Insertable<Domain> custom({
     Expression<String>? id,
+    Expression<String>? appId,
     Expression<String>? subjectId,
     Expression<String>? slug,
     Expression<String>? title,
@@ -422,6 +452,7 @@ class DomainsCompanion extends UpdateCompanion<Domain> {
   }) {
     return RawValuesInsertable({
       if (id != null) 'id': id,
+      if (appId != null) 'app_id': appId,
       if (subjectId != null) 'subject_id': subjectId,
       if (slug != null) 'slug': slug,
       if (title != null) 'title': title,
@@ -437,6 +468,7 @@ class DomainsCompanion extends UpdateCompanion<Domain> {
 
   DomainsCompanion copyWith(
       {Value<String>? id,
+      Value<String?>? appId,
       Value<String?>? subjectId,
       Value<String>? slug,
       Value<String>? title,
@@ -449,6 +481,7 @@ class DomainsCompanion extends UpdateCompanion<Domain> {
       Value<int>? rowid}) {
     return DomainsCompanion(
       id: id ?? this.id,
+      appId: appId ?? this.appId,
       subjectId: subjectId ?? this.subjectId,
       slug: slug ?? this.slug,
       title: title ?? this.title,
@@ -467,6 +500,9 @@ class DomainsCompanion extends UpdateCompanion<Domain> {
     final map = <String, Expression>{};
     if (id.present) {
       map['id'] = Variable<String>(id.value);
+    }
+    if (appId.present) {
+      map['app_id'] = Variable<String>(appId.value);
     }
     if (subjectId.present) {
       map['subject_id'] = Variable<String>(subjectId.value);
@@ -505,6 +541,7 @@ class DomainsCompanion extends UpdateCompanion<Domain> {
   String toString() {
     return (StringBuffer('DomainsCompanion(')
           ..write('id: $id, ')
+          ..write('appId: $appId, ')
           ..write('subjectId: $subjectId, ')
           ..write('slug: $slug, ')
           ..write('title: $title, ')
@@ -530,6 +567,11 @@ class $SkillsTable extends Skills with TableInfo<$SkillsTable, Skill> {
   late final GeneratedColumn<String> id = GeneratedColumn<String>(
       'id', aliasedName, false,
       type: DriftSqlType.string, requiredDuringInsert: true);
+  static const VerificationMeta _appIdMeta = const VerificationMeta('appId');
+  @override
+  late final GeneratedColumn<String> appId = GeneratedColumn<String>(
+      'app_id', aliasedName, true,
+      type: DriftSqlType.string, requiredDuringInsert: false);
   static const VerificationMeta _domainIdMeta =
       const VerificationMeta('domainId');
   @override
@@ -608,6 +650,7 @@ class $SkillsTable extends Skills with TableInfo<$SkillsTable, Skill> {
   @override
   List<GeneratedColumn> get $columns => [
         id,
+        appId,
         domainId,
         slug,
         title,
@@ -633,6 +676,10 @@ class $SkillsTable extends Skills with TableInfo<$SkillsTable, Skill> {
       context.handle(_idMeta, id.isAcceptableOrUnknown(data['id']!, _idMeta));
     } else if (isInserting) {
       context.missing(_idMeta);
+    }
+    if (data.containsKey('app_id')) {
+      context.handle(
+          _appIdMeta, appId.isAcceptableOrUnknown(data['app_id']!, _appIdMeta));
     }
     if (data.containsKey('domain_id')) {
       context.handle(_domainIdMeta,
@@ -701,6 +748,8 @@ class $SkillsTable extends Skills with TableInfo<$SkillsTable, Skill> {
     return Skill(
       id: attachedDatabase.typeMapping
           .read(DriftSqlType.string, data['${effectivePrefix}id'])!,
+      appId: attachedDatabase.typeMapping
+          .read(DriftSqlType.string, data['${effectivePrefix}app_id']),
       domainId: attachedDatabase.typeMapping
           .read(DriftSqlType.string, data['${effectivePrefix}domain_id'])!,
       slug: attachedDatabase.typeMapping
@@ -732,6 +781,7 @@ class $SkillsTable extends Skills with TableInfo<$SkillsTable, Skill> {
 
 class Skill extends DataClass implements Insertable<Skill> {
   final String id;
+  final String? appId;
   final String domainId;
   final String slug;
   final String title;
@@ -744,6 +794,7 @@ class Skill extends DataClass implements Insertable<Skill> {
   final DateTime? deletedAt;
   const Skill(
       {required this.id,
+      this.appId,
       required this.domainId,
       required this.slug,
       required this.title,
@@ -758,6 +809,9 @@ class Skill extends DataClass implements Insertable<Skill> {
   Map<String, Expression> toColumns(bool nullToAbsent) {
     final map = <String, Expression>{};
     map['id'] = Variable<String>(id);
+    if (!nullToAbsent || appId != null) {
+      map['app_id'] = Variable<String>(appId);
+    }
     map['domain_id'] = Variable<String>(domainId);
     map['slug'] = Variable<String>(slug);
     map['title'] = Variable<String>(title);
@@ -778,6 +832,8 @@ class Skill extends DataClass implements Insertable<Skill> {
   SkillsCompanion toCompanion(bool nullToAbsent) {
     return SkillsCompanion(
       id: Value(id),
+      appId:
+          appId == null && nullToAbsent ? const Value.absent() : Value(appId),
       domainId: Value(domainId),
       slug: Value(slug),
       title: Value(title),
@@ -800,6 +856,7 @@ class Skill extends DataClass implements Insertable<Skill> {
     serializer ??= driftRuntimeOptions.defaultSerializer;
     return Skill(
       id: serializer.fromJson<String>(json['id']),
+      appId: serializer.fromJson<String?>(json['appId']),
       domainId: serializer.fromJson<String>(json['domainId']),
       slug: serializer.fromJson<String>(json['slug']),
       title: serializer.fromJson<String>(json['title']),
@@ -817,6 +874,7 @@ class Skill extends DataClass implements Insertable<Skill> {
     serializer ??= driftRuntimeOptions.defaultSerializer;
     return <String, dynamic>{
       'id': serializer.toJson<String>(id),
+      'appId': serializer.toJson<String?>(appId),
       'domainId': serializer.toJson<String>(domainId),
       'slug': serializer.toJson<String>(slug),
       'title': serializer.toJson<String>(title),
@@ -832,6 +890,7 @@ class Skill extends DataClass implements Insertable<Skill> {
 
   Skill copyWith(
           {String? id,
+          Value<String?> appId = const Value.absent(),
           String? domainId,
           String? slug,
           String? title,
@@ -844,6 +903,7 @@ class Skill extends DataClass implements Insertable<Skill> {
           Value<DateTime?> deletedAt = const Value.absent()}) =>
       Skill(
         id: id ?? this.id,
+        appId: appId.present ? appId.value : this.appId,
         domainId: domainId ?? this.domainId,
         slug: slug ?? this.slug,
         title: title ?? this.title,
@@ -858,6 +918,7 @@ class Skill extends DataClass implements Insertable<Skill> {
   Skill copyWithCompanion(SkillsCompanion data) {
     return Skill(
       id: data.id.present ? data.id.value : this.id,
+      appId: data.appId.present ? data.appId.value : this.appId,
       domainId: data.domainId.present ? data.domainId.value : this.domainId,
       slug: data.slug.present ? data.slug.value : this.slug,
       title: data.title.present ? data.title.value : this.title,
@@ -879,6 +940,7 @@ class Skill extends DataClass implements Insertable<Skill> {
   String toString() {
     return (StringBuffer('Skill(')
           ..write('id: $id, ')
+          ..write('appId: $appId, ')
           ..write('domainId: $domainId, ')
           ..write('slug: $slug, ')
           ..write('title: $title, ')
@@ -894,13 +956,14 @@ class Skill extends DataClass implements Insertable<Skill> {
   }
 
   @override
-  int get hashCode => Object.hash(id, domainId, slug, title, description,
+  int get hashCode => Object.hash(id, appId, domainId, slug, title, description,
       difficultyLevel, sortOrder, isPublished, createdAt, updatedAt, deletedAt);
   @override
   bool operator ==(Object other) =>
       identical(this, other) ||
       (other is Skill &&
           other.id == this.id &&
+          other.appId == this.appId &&
           other.domainId == this.domainId &&
           other.slug == this.slug &&
           other.title == this.title &&
@@ -915,6 +978,7 @@ class Skill extends DataClass implements Insertable<Skill> {
 
 class SkillsCompanion extends UpdateCompanion<Skill> {
   final Value<String> id;
+  final Value<String?> appId;
   final Value<String> domainId;
   final Value<String> slug;
   final Value<String> title;
@@ -928,6 +992,7 @@ class SkillsCompanion extends UpdateCompanion<Skill> {
   final Value<int> rowid;
   const SkillsCompanion({
     this.id = const Value.absent(),
+    this.appId = const Value.absent(),
     this.domainId = const Value.absent(),
     this.slug = const Value.absent(),
     this.title = const Value.absent(),
@@ -942,6 +1007,7 @@ class SkillsCompanion extends UpdateCompanion<Skill> {
   });
   SkillsCompanion.insert({
     required String id,
+    this.appId = const Value.absent(),
     required String domainId,
     required String slug,
     required String title,
@@ -961,6 +1027,7 @@ class SkillsCompanion extends UpdateCompanion<Skill> {
         updatedAt = Value(updatedAt);
   static Insertable<Skill> custom({
     Expression<String>? id,
+    Expression<String>? appId,
     Expression<String>? domainId,
     Expression<String>? slug,
     Expression<String>? title,
@@ -975,6 +1042,7 @@ class SkillsCompanion extends UpdateCompanion<Skill> {
   }) {
     return RawValuesInsertable({
       if (id != null) 'id': id,
+      if (appId != null) 'app_id': appId,
       if (domainId != null) 'domain_id': domainId,
       if (slug != null) 'slug': slug,
       if (title != null) 'title': title,
@@ -991,6 +1059,7 @@ class SkillsCompanion extends UpdateCompanion<Skill> {
 
   SkillsCompanion copyWith(
       {Value<String>? id,
+      Value<String?>? appId,
       Value<String>? domainId,
       Value<String>? slug,
       Value<String>? title,
@@ -1004,6 +1073,7 @@ class SkillsCompanion extends UpdateCompanion<Skill> {
       Value<int>? rowid}) {
     return SkillsCompanion(
       id: id ?? this.id,
+      appId: appId ?? this.appId,
       domainId: domainId ?? this.domainId,
       slug: slug ?? this.slug,
       title: title ?? this.title,
@@ -1023,6 +1093,9 @@ class SkillsCompanion extends UpdateCompanion<Skill> {
     final map = <String, Expression>{};
     if (id.present) {
       map['id'] = Variable<String>(id.value);
+    }
+    if (appId.present) {
+      map['app_id'] = Variable<String>(appId.value);
     }
     if (domainId.present) {
       map['domain_id'] = Variable<String>(domainId.value);
@@ -1064,6 +1137,7 @@ class SkillsCompanion extends UpdateCompanion<Skill> {
   String toString() {
     return (StringBuffer('SkillsCompanion(')
           ..write('id: $id, ')
+          ..write('appId: $appId, ')
           ..write('domainId: $domainId, ')
           ..write('slug: $slug, ')
           ..write('title: $title, ')
@@ -1091,6 +1165,11 @@ class $QuestionsTable extends Questions
   late final GeneratedColumn<String> id = GeneratedColumn<String>(
       'id', aliasedName, false,
       type: DriftSqlType.string, requiredDuringInsert: true);
+  static const VerificationMeta _appIdMeta = const VerificationMeta('appId');
+  @override
+  late final GeneratedColumn<String> appId = GeneratedColumn<String>(
+      'app_id', aliasedName, true,
+      type: DriftSqlType.string, requiredDuringInsert: false);
   static const VerificationMeta _skillIdMeta =
       const VerificationMeta('skillId');
   @override
@@ -1167,6 +1246,7 @@ class $QuestionsTable extends Questions
   @override
   List<GeneratedColumn> get $columns => [
         id,
+        appId,
         skillId,
         type,
         content,
@@ -1193,6 +1273,10 @@ class $QuestionsTable extends Questions
       context.handle(_idMeta, id.isAcceptableOrUnknown(data['id']!, _idMeta));
     } else if (isInserting) {
       context.missing(_idMeta);
+    }
+    if (data.containsKey('app_id')) {
+      context.handle(
+          _appIdMeta, appId.isAcceptableOrUnknown(data['app_id']!, _appIdMeta));
     }
     if (data.containsKey('skill_id')) {
       context.handle(_skillIdMeta,
@@ -1267,6 +1351,8 @@ class $QuestionsTable extends Questions
     return Question(
       id: attachedDatabase.typeMapping
           .read(DriftSqlType.string, data['${effectivePrefix}id'])!,
+      appId: attachedDatabase.typeMapping
+          .read(DriftSqlType.string, data['${effectivePrefix}app_id']),
       skillId: attachedDatabase.typeMapping
           .read(DriftSqlType.string, data['${effectivePrefix}skill_id'])!,
       type: attachedDatabase.typeMapping
@@ -1300,6 +1386,7 @@ class $QuestionsTable extends Questions
 
 class Question extends DataClass implements Insertable<Question> {
   final String id;
+  final String? appId;
   final String skillId;
   final String type;
   final String content;
@@ -1313,6 +1400,7 @@ class Question extends DataClass implements Insertable<Question> {
   final DateTime? deletedAt;
   const Question(
       {required this.id,
+      this.appId,
       required this.skillId,
       required this.type,
       required this.content,
@@ -1328,6 +1416,9 @@ class Question extends DataClass implements Insertable<Question> {
   Map<String, Expression> toColumns(bool nullToAbsent) {
     final map = <String, Expression>{};
     map['id'] = Variable<String>(id);
+    if (!nullToAbsent || appId != null) {
+      map['app_id'] = Variable<String>(appId);
+    }
     map['skill_id'] = Variable<String>(skillId);
     map['type'] = Variable<String>(type);
     map['content'] = Variable<String>(content);
@@ -1349,6 +1440,8 @@ class Question extends DataClass implements Insertable<Question> {
   QuestionsCompanion toCompanion(bool nullToAbsent) {
     return QuestionsCompanion(
       id: Value(id),
+      appId:
+          appId == null && nullToAbsent ? const Value.absent() : Value(appId),
       skillId: Value(skillId),
       type: Value(type),
       content: Value(content),
@@ -1372,6 +1465,7 @@ class Question extends DataClass implements Insertable<Question> {
     serializer ??= driftRuntimeOptions.defaultSerializer;
     return Question(
       id: serializer.fromJson<String>(json['id']),
+      appId: serializer.fromJson<String?>(json['appId']),
       skillId: serializer.fromJson<String>(json['skillId']),
       type: serializer.fromJson<String>(json['type']),
       content: serializer.fromJson<String>(json['content']),
@@ -1390,6 +1484,7 @@ class Question extends DataClass implements Insertable<Question> {
     serializer ??= driftRuntimeOptions.defaultSerializer;
     return <String, dynamic>{
       'id': serializer.toJson<String>(id),
+      'appId': serializer.toJson<String?>(appId),
       'skillId': serializer.toJson<String>(skillId),
       'type': serializer.toJson<String>(type),
       'content': serializer.toJson<String>(content),
@@ -1406,6 +1501,7 @@ class Question extends DataClass implements Insertable<Question> {
 
   Question copyWith(
           {String? id,
+          Value<String?> appId = const Value.absent(),
           String? skillId,
           String? type,
           String? content,
@@ -1419,6 +1515,7 @@ class Question extends DataClass implements Insertable<Question> {
           Value<DateTime?> deletedAt = const Value.absent()}) =>
       Question(
         id: id ?? this.id,
+        appId: appId.present ? appId.value : this.appId,
         skillId: skillId ?? this.skillId,
         type: type ?? this.type,
         content: content ?? this.content,
@@ -1434,6 +1531,7 @@ class Question extends DataClass implements Insertable<Question> {
   Question copyWithCompanion(QuestionsCompanion data) {
     return Question(
       id: data.id.present ? data.id.value : this.id,
+      appId: data.appId.present ? data.appId.value : this.appId,
       skillId: data.skillId.present ? data.skillId.value : this.skillId,
       type: data.type.present ? data.type.value : this.type,
       content: data.content.present ? data.content.value : this.content,
@@ -1454,6 +1552,7 @@ class Question extends DataClass implements Insertable<Question> {
   String toString() {
     return (StringBuffer('Question(')
           ..write('id: $id, ')
+          ..write('appId: $appId, ')
           ..write('skillId: $skillId, ')
           ..write('type: $type, ')
           ..write('content: $content, ')
@@ -1470,13 +1569,26 @@ class Question extends DataClass implements Insertable<Question> {
   }
 
   @override
-  int get hashCode => Object.hash(id, skillId, type, content, options, solution,
-      explanation, points, isPublished, createdAt, updatedAt, deletedAt);
+  int get hashCode => Object.hash(
+      id,
+      appId,
+      skillId,
+      type,
+      content,
+      options,
+      solution,
+      explanation,
+      points,
+      isPublished,
+      createdAt,
+      updatedAt,
+      deletedAt);
   @override
   bool operator ==(Object other) =>
       identical(this, other) ||
       (other is Question &&
           other.id == this.id &&
+          other.appId == this.appId &&
           other.skillId == this.skillId &&
           other.type == this.type &&
           other.content == this.content &&
@@ -1492,6 +1604,7 @@ class Question extends DataClass implements Insertable<Question> {
 
 class QuestionsCompanion extends UpdateCompanion<Question> {
   final Value<String> id;
+  final Value<String?> appId;
   final Value<String> skillId;
   final Value<String> type;
   final Value<String> content;
@@ -1506,6 +1619,7 @@ class QuestionsCompanion extends UpdateCompanion<Question> {
   final Value<int> rowid;
   const QuestionsCompanion({
     this.id = const Value.absent(),
+    this.appId = const Value.absent(),
     this.skillId = const Value.absent(),
     this.type = const Value.absent(),
     this.content = const Value.absent(),
@@ -1521,6 +1635,7 @@ class QuestionsCompanion extends UpdateCompanion<Question> {
   });
   QuestionsCompanion.insert({
     required String id,
+    this.appId = const Value.absent(),
     required String skillId,
     required String type,
     required String content,
@@ -1543,6 +1658,7 @@ class QuestionsCompanion extends UpdateCompanion<Question> {
         updatedAt = Value(updatedAt);
   static Insertable<Question> custom({
     Expression<String>? id,
+    Expression<String>? appId,
     Expression<String>? skillId,
     Expression<String>? type,
     Expression<String>? content,
@@ -1558,6 +1674,7 @@ class QuestionsCompanion extends UpdateCompanion<Question> {
   }) {
     return RawValuesInsertable({
       if (id != null) 'id': id,
+      if (appId != null) 'app_id': appId,
       if (skillId != null) 'skill_id': skillId,
       if (type != null) 'type': type,
       if (content != null) 'content': content,
@@ -1575,6 +1692,7 @@ class QuestionsCompanion extends UpdateCompanion<Question> {
 
   QuestionsCompanion copyWith(
       {Value<String>? id,
+      Value<String?>? appId,
       Value<String>? skillId,
       Value<String>? type,
       Value<String>? content,
@@ -1589,6 +1707,7 @@ class QuestionsCompanion extends UpdateCompanion<Question> {
       Value<int>? rowid}) {
     return QuestionsCompanion(
       id: id ?? this.id,
+      appId: appId ?? this.appId,
       skillId: skillId ?? this.skillId,
       type: type ?? this.type,
       content: content ?? this.content,
@@ -1609,6 +1728,9 @@ class QuestionsCompanion extends UpdateCompanion<Question> {
     final map = <String, Expression>{};
     if (id.present) {
       map['id'] = Variable<String>(id.value);
+    }
+    if (appId.present) {
+      map['app_id'] = Variable<String>(appId.value);
     }
     if (skillId.present) {
       map['skill_id'] = Variable<String>(skillId.value);
@@ -1653,6 +1775,7 @@ class QuestionsCompanion extends UpdateCompanion<Question> {
   String toString() {
     return (StringBuffer('QuestionsCompanion(')
           ..write('id: $id, ')
+          ..write('appId: $appId, ')
           ..write('skillId: $skillId, ')
           ..write('type: $type, ')
           ..write('content: $content, ')
@@ -1724,12 +1847,6 @@ class $AttemptsTable extends Attempts with TableInfo<$AttemptsTable, Attempt> {
   late final GeneratedColumn<int> timeSpentMs = GeneratedColumn<int>(
       'time_spent_ms', aliasedName, true,
       type: DriftSqlType.int, requiredDuringInsert: false);
-  static const VerificationMeta _localSignatureMeta =
-      const VerificationMeta('localSignature');
-  @override
-  late final GeneratedColumn<String> localSignature = GeneratedColumn<String>(
-      'local_signature', aliasedName, true,
-      type: DriftSqlType.string, requiredDuringInsert: false);
   static const VerificationMeta _createdAtMeta =
       const VerificationMeta('createdAt');
   @override
@@ -1757,7 +1874,6 @@ class $AttemptsTable extends Attempts with TableInfo<$AttemptsTable, Attempt> {
         isCorrect,
         scoreAwarded,
         timeSpentMs,
-        localSignature,
         createdAt,
         updatedAt,
         deletedAt
@@ -1813,12 +1929,6 @@ class $AttemptsTable extends Attempts with TableInfo<$AttemptsTable, Attempt> {
           timeSpentMs.isAcceptableOrUnknown(
               data['time_spent_ms']!, _timeSpentMsMeta));
     }
-    if (data.containsKey('local_signature')) {
-      context.handle(
-          _localSignatureMeta,
-          localSignature.isAcceptableOrUnknown(
-              data['local_signature']!, _localSignatureMeta));
-    }
     if (data.containsKey('created_at')) {
       context.handle(_createdAtMeta,
           createdAt.isAcceptableOrUnknown(data['created_at']!, _createdAtMeta));
@@ -1858,8 +1968,6 @@ class $AttemptsTable extends Attempts with TableInfo<$AttemptsTable, Attempt> {
           .read(DriftSqlType.int, data['${effectivePrefix}score_awarded'])!,
       timeSpentMs: attachedDatabase.typeMapping
           .read(DriftSqlType.int, data['${effectivePrefix}time_spent_ms']),
-      localSignature: attachedDatabase.typeMapping
-          .read(DriftSqlType.string, data['${effectivePrefix}local_signature']),
       createdAt: attachedDatabase.typeMapping
           .read(DriftSqlType.dateTime, data['${effectivePrefix}created_at'])!,
       updatedAt: attachedDatabase.typeMapping
@@ -1883,7 +1991,6 @@ class Attempt extends DataClass implements Insertable<Attempt> {
   final bool isCorrect;
   final int scoreAwarded;
   final int? timeSpentMs;
-  final String? localSignature;
   final DateTime createdAt;
   final DateTime updatedAt;
   final DateTime? deletedAt;
@@ -1895,7 +2002,6 @@ class Attempt extends DataClass implements Insertable<Attempt> {
       required this.isCorrect,
       required this.scoreAwarded,
       this.timeSpentMs,
-      this.localSignature,
       required this.createdAt,
       required this.updatedAt,
       this.deletedAt});
@@ -1910,9 +2016,6 @@ class Attempt extends DataClass implements Insertable<Attempt> {
     map['score_awarded'] = Variable<int>(scoreAwarded);
     if (!nullToAbsent || timeSpentMs != null) {
       map['time_spent_ms'] = Variable<int>(timeSpentMs);
-    }
-    if (!nullToAbsent || localSignature != null) {
-      map['local_signature'] = Variable<String>(localSignature);
     }
     map['created_at'] = Variable<DateTime>(createdAt);
     map['updated_at'] = Variable<DateTime>(updatedAt);
@@ -1933,9 +2036,6 @@ class Attempt extends DataClass implements Insertable<Attempt> {
       timeSpentMs: timeSpentMs == null && nullToAbsent
           ? const Value.absent()
           : Value(timeSpentMs),
-      localSignature: localSignature == null && nullToAbsent
-          ? const Value.absent()
-          : Value(localSignature),
       createdAt: Value(createdAt),
       updatedAt: Value(updatedAt),
       deletedAt: deletedAt == null && nullToAbsent
@@ -1955,7 +2055,6 @@ class Attempt extends DataClass implements Insertable<Attempt> {
       isCorrect: serializer.fromJson<bool>(json['isCorrect']),
       scoreAwarded: serializer.fromJson<int>(json['scoreAwarded']),
       timeSpentMs: serializer.fromJson<int?>(json['timeSpentMs']),
-      localSignature: serializer.fromJson<String?>(json['localSignature']),
       createdAt: serializer.fromJson<DateTime>(json['createdAt']),
       updatedAt: serializer.fromJson<DateTime>(json['updatedAt']),
       deletedAt: serializer.fromJson<DateTime?>(json['deletedAt']),
@@ -1972,7 +2071,6 @@ class Attempt extends DataClass implements Insertable<Attempt> {
       'isCorrect': serializer.toJson<bool>(isCorrect),
       'scoreAwarded': serializer.toJson<int>(scoreAwarded),
       'timeSpentMs': serializer.toJson<int?>(timeSpentMs),
-      'localSignature': serializer.toJson<String?>(localSignature),
       'createdAt': serializer.toJson<DateTime>(createdAt),
       'updatedAt': serializer.toJson<DateTime>(updatedAt),
       'deletedAt': serializer.toJson<DateTime?>(deletedAt),
@@ -1987,7 +2085,6 @@ class Attempt extends DataClass implements Insertable<Attempt> {
           bool? isCorrect,
           int? scoreAwarded,
           Value<int?> timeSpentMs = const Value.absent(),
-          Value<String?> localSignature = const Value.absent(),
           DateTime? createdAt,
           DateTime? updatedAt,
           Value<DateTime?> deletedAt = const Value.absent()}) =>
@@ -1999,8 +2096,6 @@ class Attempt extends DataClass implements Insertable<Attempt> {
         isCorrect: isCorrect ?? this.isCorrect,
         scoreAwarded: scoreAwarded ?? this.scoreAwarded,
         timeSpentMs: timeSpentMs.present ? timeSpentMs.value : this.timeSpentMs,
-        localSignature:
-            localSignature.present ? localSignature.value : this.localSignature,
         createdAt: createdAt ?? this.createdAt,
         updatedAt: updatedAt ?? this.updatedAt,
         deletedAt: deletedAt.present ? deletedAt.value : this.deletedAt,
@@ -2018,9 +2113,6 @@ class Attempt extends DataClass implements Insertable<Attempt> {
           : this.scoreAwarded,
       timeSpentMs:
           data.timeSpentMs.present ? data.timeSpentMs.value : this.timeSpentMs,
-      localSignature: data.localSignature.present
-          ? data.localSignature.value
-          : this.localSignature,
       createdAt: data.createdAt.present ? data.createdAt.value : this.createdAt,
       updatedAt: data.updatedAt.present ? data.updatedAt.value : this.updatedAt,
       deletedAt: data.deletedAt.present ? data.deletedAt.value : this.deletedAt,
@@ -2037,7 +2129,6 @@ class Attempt extends DataClass implements Insertable<Attempt> {
           ..write('isCorrect: $isCorrect, ')
           ..write('scoreAwarded: $scoreAwarded, ')
           ..write('timeSpentMs: $timeSpentMs, ')
-          ..write('localSignature: $localSignature, ')
           ..write('createdAt: $createdAt, ')
           ..write('updatedAt: $updatedAt, ')
           ..write('deletedAt: $deletedAt')
@@ -2046,18 +2137,8 @@ class Attempt extends DataClass implements Insertable<Attempt> {
   }
 
   @override
-  int get hashCode => Object.hash(
-      id,
-      userId,
-      questionId,
-      response,
-      isCorrect,
-      scoreAwarded,
-      timeSpentMs,
-      localSignature,
-      createdAt,
-      updatedAt,
-      deletedAt);
+  int get hashCode => Object.hash(id, userId, questionId, response, isCorrect,
+      scoreAwarded, timeSpentMs, createdAt, updatedAt, deletedAt);
   @override
   bool operator ==(Object other) =>
       identical(this, other) ||
@@ -2069,7 +2150,6 @@ class Attempt extends DataClass implements Insertable<Attempt> {
           other.isCorrect == this.isCorrect &&
           other.scoreAwarded == this.scoreAwarded &&
           other.timeSpentMs == this.timeSpentMs &&
-          other.localSignature == this.localSignature &&
           other.createdAt == this.createdAt &&
           other.updatedAt == this.updatedAt &&
           other.deletedAt == this.deletedAt);
@@ -2083,7 +2163,6 @@ class AttemptsCompanion extends UpdateCompanion<Attempt> {
   final Value<bool> isCorrect;
   final Value<int> scoreAwarded;
   final Value<int?> timeSpentMs;
-  final Value<String?> localSignature;
   final Value<DateTime> createdAt;
   final Value<DateTime> updatedAt;
   final Value<DateTime?> deletedAt;
@@ -2096,7 +2175,6 @@ class AttemptsCompanion extends UpdateCompanion<Attempt> {
     this.isCorrect = const Value.absent(),
     this.scoreAwarded = const Value.absent(),
     this.timeSpentMs = const Value.absent(),
-    this.localSignature = const Value.absent(),
     this.createdAt = const Value.absent(),
     this.updatedAt = const Value.absent(),
     this.deletedAt = const Value.absent(),
@@ -2110,7 +2188,6 @@ class AttemptsCompanion extends UpdateCompanion<Attempt> {
     this.isCorrect = const Value.absent(),
     this.scoreAwarded = const Value.absent(),
     this.timeSpentMs = const Value.absent(),
-    this.localSignature = const Value.absent(),
     required DateTime createdAt,
     required DateTime updatedAt,
     this.deletedAt = const Value.absent(),
@@ -2129,7 +2206,6 @@ class AttemptsCompanion extends UpdateCompanion<Attempt> {
     Expression<bool>? isCorrect,
     Expression<int>? scoreAwarded,
     Expression<int>? timeSpentMs,
-    Expression<String>? localSignature,
     Expression<DateTime>? createdAt,
     Expression<DateTime>? updatedAt,
     Expression<DateTime>? deletedAt,
@@ -2143,7 +2219,6 @@ class AttemptsCompanion extends UpdateCompanion<Attempt> {
       if (isCorrect != null) 'is_correct': isCorrect,
       if (scoreAwarded != null) 'score_awarded': scoreAwarded,
       if (timeSpentMs != null) 'time_spent_ms': timeSpentMs,
-      if (localSignature != null) 'local_signature': localSignature,
       if (createdAt != null) 'created_at': createdAt,
       if (updatedAt != null) 'updated_at': updatedAt,
       if (deletedAt != null) 'deleted_at': deletedAt,
@@ -2159,7 +2234,6 @@ class AttemptsCompanion extends UpdateCompanion<Attempt> {
       Value<bool>? isCorrect,
       Value<int>? scoreAwarded,
       Value<int?>? timeSpentMs,
-      Value<String?>? localSignature,
       Value<DateTime>? createdAt,
       Value<DateTime>? updatedAt,
       Value<DateTime?>? deletedAt,
@@ -2172,7 +2246,6 @@ class AttemptsCompanion extends UpdateCompanion<Attempt> {
       isCorrect: isCorrect ?? this.isCorrect,
       scoreAwarded: scoreAwarded ?? this.scoreAwarded,
       timeSpentMs: timeSpentMs ?? this.timeSpentMs,
-      localSignature: localSignature ?? this.localSignature,
       createdAt: createdAt ?? this.createdAt,
       updatedAt: updatedAt ?? this.updatedAt,
       deletedAt: deletedAt ?? this.deletedAt,
@@ -2204,9 +2277,6 @@ class AttemptsCompanion extends UpdateCompanion<Attempt> {
     if (timeSpentMs.present) {
       map['time_spent_ms'] = Variable<int>(timeSpentMs.value);
     }
-    if (localSignature.present) {
-      map['local_signature'] = Variable<String>(localSignature.value);
-    }
     if (createdAt.present) {
       map['created_at'] = Variable<DateTime>(createdAt.value);
     }
@@ -2232,7 +2302,6 @@ class AttemptsCompanion extends UpdateCompanion<Attempt> {
           ..write('isCorrect: $isCorrect, ')
           ..write('scoreAwarded: $scoreAwarded, ')
           ..write('timeSpentMs: $timeSpentMs, ')
-          ..write('localSignature: $localSignature, ')
           ..write('createdAt: $createdAt, ')
           ..write('updatedAt: $updatedAt, ')
           ..write('deletedAt: $deletedAt, ')
@@ -3011,6 +3080,10 @@ class $SkillProgressTable extends SkillProgress
   @override
   Set<GeneratedColumn> get $primaryKey => {id};
   @override
+  List<Set<GeneratedColumn>> get uniqueKeys => [
+        {userId, skillId},
+      ];
+  @override
   SkillProgressData map(Map<String, dynamic> data, {String? tablePrefix}) {
     final effectivePrefix = tablePrefix != null ? '$tablePrefix.' : '';
     return SkillProgressData(
@@ -3505,6 +3578,13 @@ class $OutboxTable extends Outbox with TableInfo<$OutboxTable, OutboxEntry> {
       type: DriftSqlType.int,
       requiredDuringInsert: false,
       defaultValue: const Constant(0));
+  static const VerificationMeta _statusMeta = const VerificationMeta('status');
+  @override
+  late final GeneratedColumn<String> status = GeneratedColumn<String>(
+      'status', aliasedName, false,
+      type: DriftSqlType.string,
+      requiredDuringInsert: false,
+      defaultValue: const Constant('pending'));
   static const VerificationMeta _createdAtMeta =
       const VerificationMeta('createdAt');
   @override
@@ -3513,7 +3593,7 @@ class $OutboxTable extends Outbox with TableInfo<$OutboxTable, OutboxEntry> {
       type: DriftSqlType.dateTime, requiredDuringInsert: true);
   @override
   List<GeneratedColumn> get $columns =>
-      [id, table, action, recordId, payload, retryCount, createdAt];
+      [id, table, action, recordId, payload, retryCount, status, createdAt];
   @override
   String get aliasedName => _alias ?? actualTableName;
   @override
@@ -3559,6 +3639,10 @@ class $OutboxTable extends Outbox with TableInfo<$OutboxTable, OutboxEntry> {
           retryCount.isAcceptableOrUnknown(
               data['retry_count']!, _retryCountMeta));
     }
+    if (data.containsKey('status')) {
+      context.handle(_statusMeta,
+          status.isAcceptableOrUnknown(data['status']!, _statusMeta));
+    }
     if (data.containsKey('created_at')) {
       context.handle(_createdAtMeta,
           createdAt.isAcceptableOrUnknown(data['created_at']!, _createdAtMeta));
@@ -3586,6 +3670,8 @@ class $OutboxTable extends Outbox with TableInfo<$OutboxTable, OutboxEntry> {
           .read(DriftSqlType.string, data['${effectivePrefix}payload'])!,
       retryCount: attachedDatabase.typeMapping
           .read(DriftSqlType.int, data['${effectivePrefix}retry_count'])!,
+      status: attachedDatabase.typeMapping
+          .read(DriftSqlType.string, data['${effectivePrefix}status'])!,
       createdAt: attachedDatabase.typeMapping
           .read(DriftSqlType.dateTime, data['${effectivePrefix}created_at'])!,
     );
@@ -3604,6 +3690,7 @@ class OutboxEntry extends DataClass implements Insertable<OutboxEntry> {
   final String recordId;
   final String payload;
   final int retryCount;
+  final String status;
   final DateTime createdAt;
   const OutboxEntry(
       {required this.id,
@@ -3612,6 +3699,7 @@ class OutboxEntry extends DataClass implements Insertable<OutboxEntry> {
       required this.recordId,
       required this.payload,
       required this.retryCount,
+      required this.status,
       required this.createdAt});
   @override
   Map<String, Expression> toColumns(bool nullToAbsent) {
@@ -3622,6 +3710,7 @@ class OutboxEntry extends DataClass implements Insertable<OutboxEntry> {
     map['record_id'] = Variable<String>(recordId);
     map['payload'] = Variable<String>(payload);
     map['retry_count'] = Variable<int>(retryCount);
+    map['status'] = Variable<String>(status);
     map['created_at'] = Variable<DateTime>(createdAt);
     return map;
   }
@@ -3634,6 +3723,7 @@ class OutboxEntry extends DataClass implements Insertable<OutboxEntry> {
       recordId: Value(recordId),
       payload: Value(payload),
       retryCount: Value(retryCount),
+      status: Value(status),
       createdAt: Value(createdAt),
     );
   }
@@ -3648,6 +3738,7 @@ class OutboxEntry extends DataClass implements Insertable<OutboxEntry> {
       recordId: serializer.fromJson<String>(json['recordId']),
       payload: serializer.fromJson<String>(json['payload']),
       retryCount: serializer.fromJson<int>(json['retryCount']),
+      status: serializer.fromJson<String>(json['status']),
       createdAt: serializer.fromJson<DateTime>(json['createdAt']),
     );
   }
@@ -3661,6 +3752,7 @@ class OutboxEntry extends DataClass implements Insertable<OutboxEntry> {
       'recordId': serializer.toJson<String>(recordId),
       'payload': serializer.toJson<String>(payload),
       'retryCount': serializer.toJson<int>(retryCount),
+      'status': serializer.toJson<String>(status),
       'createdAt': serializer.toJson<DateTime>(createdAt),
     };
   }
@@ -3672,6 +3764,7 @@ class OutboxEntry extends DataClass implements Insertable<OutboxEntry> {
           String? recordId,
           String? payload,
           int? retryCount,
+          String? status,
           DateTime? createdAt}) =>
       OutboxEntry(
         id: id ?? this.id,
@@ -3680,6 +3773,7 @@ class OutboxEntry extends DataClass implements Insertable<OutboxEntry> {
         recordId: recordId ?? this.recordId,
         payload: payload ?? this.payload,
         retryCount: retryCount ?? this.retryCount,
+        status: status ?? this.status,
         createdAt: createdAt ?? this.createdAt,
       );
   OutboxEntry copyWithCompanion(OutboxCompanion data) {
@@ -3691,6 +3785,7 @@ class OutboxEntry extends DataClass implements Insertable<OutboxEntry> {
       payload: data.payload.present ? data.payload.value : this.payload,
       retryCount:
           data.retryCount.present ? data.retryCount.value : this.retryCount,
+      status: data.status.present ? data.status.value : this.status,
       createdAt: data.createdAt.present ? data.createdAt.value : this.createdAt,
     );
   }
@@ -3704,14 +3799,15 @@ class OutboxEntry extends DataClass implements Insertable<OutboxEntry> {
           ..write('recordId: $recordId, ')
           ..write('payload: $payload, ')
           ..write('retryCount: $retryCount, ')
+          ..write('status: $status, ')
           ..write('createdAt: $createdAt')
           ..write(')'))
         .toString();
   }
 
   @override
-  int get hashCode =>
-      Object.hash(id, table, action, recordId, payload, retryCount, createdAt);
+  int get hashCode => Object.hash(
+      id, table, action, recordId, payload, retryCount, status, createdAt);
   @override
   bool operator ==(Object other) =>
       identical(this, other) ||
@@ -3722,6 +3818,7 @@ class OutboxEntry extends DataClass implements Insertable<OutboxEntry> {
           other.recordId == this.recordId &&
           other.payload == this.payload &&
           other.retryCount == this.retryCount &&
+          other.status == this.status &&
           other.createdAt == this.createdAt);
 }
 
@@ -3732,6 +3829,7 @@ class OutboxCompanion extends UpdateCompanion<OutboxEntry> {
   final Value<String> recordId;
   final Value<String> payload;
   final Value<int> retryCount;
+  final Value<String> status;
   final Value<DateTime> createdAt;
   final Value<int> rowid;
   const OutboxCompanion({
@@ -3741,6 +3839,7 @@ class OutboxCompanion extends UpdateCompanion<OutboxEntry> {
     this.recordId = const Value.absent(),
     this.payload = const Value.absent(),
     this.retryCount = const Value.absent(),
+    this.status = const Value.absent(),
     this.createdAt = const Value.absent(),
     this.rowid = const Value.absent(),
   });
@@ -3751,6 +3850,7 @@ class OutboxCompanion extends UpdateCompanion<OutboxEntry> {
     required String recordId,
     required String payload,
     this.retryCount = const Value.absent(),
+    this.status = const Value.absent(),
     required DateTime createdAt,
     this.rowid = const Value.absent(),
   })  : id = Value(id),
@@ -3766,6 +3866,7 @@ class OutboxCompanion extends UpdateCompanion<OutboxEntry> {
     Expression<String>? recordId,
     Expression<String>? payload,
     Expression<int>? retryCount,
+    Expression<String>? status,
     Expression<DateTime>? createdAt,
     Expression<int>? rowid,
   }) {
@@ -3776,6 +3877,7 @@ class OutboxCompanion extends UpdateCompanion<OutboxEntry> {
       if (recordId != null) 'record_id': recordId,
       if (payload != null) 'payload': payload,
       if (retryCount != null) 'retry_count': retryCount,
+      if (status != null) 'status': status,
       if (createdAt != null) 'created_at': createdAt,
       if (rowid != null) 'rowid': rowid,
     });
@@ -3788,6 +3890,7 @@ class OutboxCompanion extends UpdateCompanion<OutboxEntry> {
       Value<String>? recordId,
       Value<String>? payload,
       Value<int>? retryCount,
+      Value<String>? status,
       Value<DateTime>? createdAt,
       Value<int>? rowid}) {
     return OutboxCompanion(
@@ -3797,6 +3900,7 @@ class OutboxCompanion extends UpdateCompanion<OutboxEntry> {
       recordId: recordId ?? this.recordId,
       payload: payload ?? this.payload,
       retryCount: retryCount ?? this.retryCount,
+      status: status ?? this.status,
       createdAt: createdAt ?? this.createdAt,
       rowid: rowid ?? this.rowid,
     );
@@ -3823,6 +3927,9 @@ class OutboxCompanion extends UpdateCompanion<OutboxEntry> {
     if (retryCount.present) {
       map['retry_count'] = Variable<int>(retryCount.value);
     }
+    if (status.present) {
+      map['status'] = Variable<String>(status.value);
+    }
     if (createdAt.present) {
       map['created_at'] = Variable<DateTime>(createdAt.value);
     }
@@ -3841,6 +3948,7 @@ class OutboxCompanion extends UpdateCompanion<OutboxEntry> {
           ..write('recordId: $recordId, ')
           ..write('payload: $payload, ')
           ..write('retryCount: $retryCount, ')
+          ..write('status: $status, ')
           ..write('createdAt: $createdAt, ')
           ..write('rowid: $rowid')
           ..write(')'))
@@ -4382,6 +4490,7 @@ abstract class _$AppDatabase extends GeneratedDatabase {
 
 typedef $$DomainsTableCreateCompanionBuilder = DomainsCompanion Function({
   required String id,
+  Value<String?> appId,
   Value<String?> subjectId,
   required String slug,
   required String title,
@@ -4395,6 +4504,7 @@ typedef $$DomainsTableCreateCompanionBuilder = DomainsCompanion Function({
 });
 typedef $$DomainsTableUpdateCompanionBuilder = DomainsCompanion Function({
   Value<String> id,
+  Value<String?> appId,
   Value<String?> subjectId,
   Value<String> slug,
   Value<String> title,
@@ -4437,6 +4547,9 @@ class $$DomainsTableFilterComposer
   });
   ColumnFilters<String> get id => $composableBuilder(
       column: $table.id, builder: (column) => ColumnFilters(column));
+
+  ColumnFilters<String> get appId => $composableBuilder(
+      column: $table.appId, builder: (column) => ColumnFilters(column));
 
   ColumnFilters<String> get subjectId => $composableBuilder(
       column: $table.subjectId, builder: (column) => ColumnFilters(column));
@@ -4499,6 +4612,9 @@ class $$DomainsTableOrderingComposer
   ColumnOrderings<String> get id => $composableBuilder(
       column: $table.id, builder: (column) => ColumnOrderings(column));
 
+  ColumnOrderings<String> get appId => $composableBuilder(
+      column: $table.appId, builder: (column) => ColumnOrderings(column));
+
   ColumnOrderings<String> get subjectId => $composableBuilder(
       column: $table.subjectId, builder: (column) => ColumnOrderings(column));
 
@@ -4538,6 +4654,9 @@ class $$DomainsTableAnnotationComposer
   });
   GeneratedColumn<String> get id =>
       $composableBuilder(column: $table.id, builder: (column) => column);
+
+  GeneratedColumn<String> get appId =>
+      $composableBuilder(column: $table.appId, builder: (column) => column);
 
   GeneratedColumn<String> get subjectId =>
       $composableBuilder(column: $table.subjectId, builder: (column) => column);
@@ -4612,6 +4731,7 @@ class $$DomainsTableTableManager extends RootTableManager<
               $$DomainsTableAnnotationComposer($db: db, $table: table),
           updateCompanionCallback: ({
             Value<String> id = const Value.absent(),
+            Value<String?> appId = const Value.absent(),
             Value<String?> subjectId = const Value.absent(),
             Value<String> slug = const Value.absent(),
             Value<String> title = const Value.absent(),
@@ -4625,6 +4745,7 @@ class $$DomainsTableTableManager extends RootTableManager<
           }) =>
               DomainsCompanion(
             id: id,
+            appId: appId,
             subjectId: subjectId,
             slug: slug,
             title: title,
@@ -4638,6 +4759,7 @@ class $$DomainsTableTableManager extends RootTableManager<
           ),
           createCompanionCallback: ({
             required String id,
+            Value<String?> appId = const Value.absent(),
             Value<String?> subjectId = const Value.absent(),
             required String slug,
             required String title,
@@ -4651,6 +4773,7 @@ class $$DomainsTableTableManager extends RootTableManager<
           }) =>
               DomainsCompanion.insert(
             id: id,
+            appId: appId,
             subjectId: subjectId,
             slug: slug,
             title: title,
@@ -4705,6 +4828,7 @@ typedef $$DomainsTableProcessedTableManager = ProcessedTableManager<
     PrefetchHooks Function({bool skillsRefs})>;
 typedef $$SkillsTableCreateCompanionBuilder = SkillsCompanion Function({
   required String id,
+  Value<String?> appId,
   required String domainId,
   required String slug,
   required String title,
@@ -4719,6 +4843,7 @@ typedef $$SkillsTableCreateCompanionBuilder = SkillsCompanion Function({
 });
 typedef $$SkillsTableUpdateCompanionBuilder = SkillsCompanion Function({
   Value<String> id,
+  Value<String?> appId,
   Value<String> domainId,
   Value<String> slug,
   Value<String> title,
@@ -4805,6 +4930,9 @@ class $$SkillsTableFilterComposer
   });
   ColumnFilters<String> get id => $composableBuilder(
       column: $table.id, builder: (column) => ColumnFilters(column));
+
+  ColumnFilters<String> get appId => $composableBuilder(
+      column: $table.appId, builder: (column) => ColumnFilters(column));
 
   ColumnFilters<String> get slug => $composableBuilder(
       column: $table.slug, builder: (column) => ColumnFilters(column));
@@ -4930,6 +5058,9 @@ class $$SkillsTableOrderingComposer
   ColumnOrderings<String> get id => $composableBuilder(
       column: $table.id, builder: (column) => ColumnOrderings(column));
 
+  ColumnOrderings<String> get appId => $composableBuilder(
+      column: $table.appId, builder: (column) => ColumnOrderings(column));
+
   ColumnOrderings<String> get slug => $composableBuilder(
       column: $table.slug, builder: (column) => ColumnOrderings(column));
 
@@ -4990,6 +5121,9 @@ class $$SkillsTableAnnotationComposer
   });
   GeneratedColumn<String> get id =>
       $composableBuilder(column: $table.id, builder: (column) => column);
+
+  GeneratedColumn<String> get appId =>
+      $composableBuilder(column: $table.appId, builder: (column) => column);
 
   GeneratedColumn<String> get slug =>
       $composableBuilder(column: $table.slug, builder: (column) => column);
@@ -5130,6 +5264,7 @@ class $$SkillsTableTableManager extends RootTableManager<
               $$SkillsTableAnnotationComposer($db: db, $table: table),
           updateCompanionCallback: ({
             Value<String> id = const Value.absent(),
+            Value<String?> appId = const Value.absent(),
             Value<String> domainId = const Value.absent(),
             Value<String> slug = const Value.absent(),
             Value<String> title = const Value.absent(),
@@ -5144,6 +5279,7 @@ class $$SkillsTableTableManager extends RootTableManager<
           }) =>
               SkillsCompanion(
             id: id,
+            appId: appId,
             domainId: domainId,
             slug: slug,
             title: title,
@@ -5158,6 +5294,7 @@ class $$SkillsTableTableManager extends RootTableManager<
           ),
           createCompanionCallback: ({
             required String id,
+            Value<String?> appId = const Value.absent(),
             required String domainId,
             required String slug,
             required String title,
@@ -5172,6 +5309,7 @@ class $$SkillsTableTableManager extends RootTableManager<
           }) =>
               SkillsCompanion.insert(
             id: id,
+            appId: appId,
             domainId: domainId,
             slug: slug,
             title: title,
@@ -5288,6 +5426,7 @@ typedef $$SkillsTableProcessedTableManager = ProcessedTableManager<
         bool skillProgressRefs})>;
 typedef $$QuestionsTableCreateCompanionBuilder = QuestionsCompanion Function({
   required String id,
+  Value<String?> appId,
   required String skillId,
   required String type,
   required String content,
@@ -5303,6 +5442,7 @@ typedef $$QuestionsTableCreateCompanionBuilder = QuestionsCompanion Function({
 });
 typedef $$QuestionsTableUpdateCompanionBuilder = QuestionsCompanion Function({
   Value<String> id,
+  Value<String?> appId,
   Value<String> skillId,
   Value<String> type,
   Value<String> content,
@@ -5362,6 +5502,9 @@ class $$QuestionsTableFilterComposer
   });
   ColumnFilters<String> get id => $composableBuilder(
       column: $table.id, builder: (column) => ColumnFilters(column));
+
+  ColumnFilters<String> get appId => $composableBuilder(
+      column: $table.appId, builder: (column) => ColumnFilters(column));
 
   ColumnFilters<String> get type => $composableBuilder(
       column: $table.type, builder: (column) => ColumnFilters(column));
@@ -5447,6 +5590,9 @@ class $$QuestionsTableOrderingComposer
   ColumnOrderings<String> get id => $composableBuilder(
       column: $table.id, builder: (column) => ColumnOrderings(column));
 
+  ColumnOrderings<String> get appId => $composableBuilder(
+      column: $table.appId, builder: (column) => ColumnOrderings(column));
+
   ColumnOrderings<String> get type => $composableBuilder(
       column: $table.type, builder: (column) => ColumnOrderings(column));
 
@@ -5509,6 +5655,9 @@ class $$QuestionsTableAnnotationComposer
   });
   GeneratedColumn<String> get id =>
       $composableBuilder(column: $table.id, builder: (column) => column);
+
+  GeneratedColumn<String> get appId =>
+      $composableBuilder(column: $table.appId, builder: (column) => column);
 
   GeneratedColumn<String> get type =>
       $composableBuilder(column: $table.type, builder: (column) => column);
@@ -5606,6 +5755,7 @@ class $$QuestionsTableTableManager extends RootTableManager<
               $$QuestionsTableAnnotationComposer($db: db, $table: table),
           updateCompanionCallback: ({
             Value<String> id = const Value.absent(),
+            Value<String?> appId = const Value.absent(),
             Value<String> skillId = const Value.absent(),
             Value<String> type = const Value.absent(),
             Value<String> content = const Value.absent(),
@@ -5621,6 +5771,7 @@ class $$QuestionsTableTableManager extends RootTableManager<
           }) =>
               QuestionsCompanion(
             id: id,
+            appId: appId,
             skillId: skillId,
             type: type,
             content: content,
@@ -5636,6 +5787,7 @@ class $$QuestionsTableTableManager extends RootTableManager<
           ),
           createCompanionCallback: ({
             required String id,
+            Value<String?> appId = const Value.absent(),
             required String skillId,
             required String type,
             required String content,
@@ -5651,6 +5803,7 @@ class $$QuestionsTableTableManager extends RootTableManager<
           }) =>
               QuestionsCompanion.insert(
             id: id,
+            appId: appId,
             skillId: skillId,
             type: type,
             content: content,
@@ -5742,7 +5895,6 @@ typedef $$AttemptsTableCreateCompanionBuilder = AttemptsCompanion Function({
   Value<bool> isCorrect,
   Value<int> scoreAwarded,
   Value<int?> timeSpentMs,
-  Value<String?> localSignature,
   required DateTime createdAt,
   required DateTime updatedAt,
   Value<DateTime?> deletedAt,
@@ -5756,7 +5908,6 @@ typedef $$AttemptsTableUpdateCompanionBuilder = AttemptsCompanion Function({
   Value<bool> isCorrect,
   Value<int> scoreAwarded,
   Value<int?> timeSpentMs,
-  Value<String?> localSignature,
   Value<DateTime> createdAt,
   Value<DateTime> updatedAt,
   Value<DateTime?> deletedAt,
@@ -5809,10 +5960,6 @@ class $$AttemptsTableFilterComposer
 
   ColumnFilters<int> get timeSpentMs => $composableBuilder(
       column: $table.timeSpentMs, builder: (column) => ColumnFilters(column));
-
-  ColumnFilters<String> get localSignature => $composableBuilder(
-      column: $table.localSignature,
-      builder: (column) => ColumnFilters(column));
 
   ColumnFilters<DateTime> get createdAt => $composableBuilder(
       column: $table.createdAt, builder: (column) => ColumnFilters(column));
@@ -5872,10 +6019,6 @@ class $$AttemptsTableOrderingComposer
   ColumnOrderings<int> get timeSpentMs => $composableBuilder(
       column: $table.timeSpentMs, builder: (column) => ColumnOrderings(column));
 
-  ColumnOrderings<String> get localSignature => $composableBuilder(
-      column: $table.localSignature,
-      builder: (column) => ColumnOrderings(column));
-
   ColumnOrderings<DateTime> get createdAt => $composableBuilder(
       column: $table.createdAt, builder: (column) => ColumnOrderings(column));
 
@@ -5932,9 +6075,6 @@ class $$AttemptsTableAnnotationComposer
 
   GeneratedColumn<int> get timeSpentMs => $composableBuilder(
       column: $table.timeSpentMs, builder: (column) => column);
-
-  GeneratedColumn<String> get localSignature => $composableBuilder(
-      column: $table.localSignature, builder: (column) => column);
 
   GeneratedColumn<DateTime> get createdAt =>
       $composableBuilder(column: $table.createdAt, builder: (column) => column);
@@ -5996,7 +6136,6 @@ class $$AttemptsTableTableManager extends RootTableManager<
             Value<bool> isCorrect = const Value.absent(),
             Value<int> scoreAwarded = const Value.absent(),
             Value<int?> timeSpentMs = const Value.absent(),
-            Value<String?> localSignature = const Value.absent(),
             Value<DateTime> createdAt = const Value.absent(),
             Value<DateTime> updatedAt = const Value.absent(),
             Value<DateTime?> deletedAt = const Value.absent(),
@@ -6010,7 +6149,6 @@ class $$AttemptsTableTableManager extends RootTableManager<
             isCorrect: isCorrect,
             scoreAwarded: scoreAwarded,
             timeSpentMs: timeSpentMs,
-            localSignature: localSignature,
             createdAt: createdAt,
             updatedAt: updatedAt,
             deletedAt: deletedAt,
@@ -6024,7 +6162,6 @@ class $$AttemptsTableTableManager extends RootTableManager<
             Value<bool> isCorrect = const Value.absent(),
             Value<int> scoreAwarded = const Value.absent(),
             Value<int?> timeSpentMs = const Value.absent(),
-            Value<String?> localSignature = const Value.absent(),
             required DateTime createdAt,
             required DateTime updatedAt,
             Value<DateTime?> deletedAt = const Value.absent(),
@@ -6038,7 +6175,6 @@ class $$AttemptsTableTableManager extends RootTableManager<
             isCorrect: isCorrect,
             scoreAwarded: scoreAwarded,
             timeSpentMs: timeSpentMs,
-            localSignature: localSignature,
             createdAt: createdAt,
             updatedAt: updatedAt,
             deletedAt: deletedAt,
@@ -6871,6 +7007,7 @@ typedef $$OutboxTableCreateCompanionBuilder = OutboxCompanion Function({
   required String recordId,
   required String payload,
   Value<int> retryCount,
+  Value<String> status,
   required DateTime createdAt,
   Value<int> rowid,
 });
@@ -6881,6 +7018,7 @@ typedef $$OutboxTableUpdateCompanionBuilder = OutboxCompanion Function({
   Value<String> recordId,
   Value<String> payload,
   Value<int> retryCount,
+  Value<String> status,
   Value<DateTime> createdAt,
   Value<int> rowid,
 });
@@ -6911,6 +7049,9 @@ class $$OutboxTableFilterComposer
 
   ColumnFilters<int> get retryCount => $composableBuilder(
       column: $table.retryCount, builder: (column) => ColumnFilters(column));
+
+  ColumnFilters<String> get status => $composableBuilder(
+      column: $table.status, builder: (column) => ColumnFilters(column));
 
   ColumnFilters<DateTime> get createdAt => $composableBuilder(
       column: $table.createdAt, builder: (column) => ColumnFilters(column));
@@ -6943,6 +7084,9 @@ class $$OutboxTableOrderingComposer
   ColumnOrderings<int> get retryCount => $composableBuilder(
       column: $table.retryCount, builder: (column) => ColumnOrderings(column));
 
+  ColumnOrderings<String> get status => $composableBuilder(
+      column: $table.status, builder: (column) => ColumnOrderings(column));
+
   ColumnOrderings<DateTime> get createdAt => $composableBuilder(
       column: $table.createdAt, builder: (column) => ColumnOrderings(column));
 }
@@ -6973,6 +7117,9 @@ class $$OutboxTableAnnotationComposer
 
   GeneratedColumn<int> get retryCount => $composableBuilder(
       column: $table.retryCount, builder: (column) => column);
+
+  GeneratedColumn<String> get status =>
+      $composableBuilder(column: $table.status, builder: (column) => column);
 
   GeneratedColumn<DateTime> get createdAt =>
       $composableBuilder(column: $table.createdAt, builder: (column) => column);
@@ -7007,6 +7154,7 @@ class $$OutboxTableTableManager extends RootTableManager<
             Value<String> recordId = const Value.absent(),
             Value<String> payload = const Value.absent(),
             Value<int> retryCount = const Value.absent(),
+            Value<String> status = const Value.absent(),
             Value<DateTime> createdAt = const Value.absent(),
             Value<int> rowid = const Value.absent(),
           }) =>
@@ -7017,6 +7165,7 @@ class $$OutboxTableTableManager extends RootTableManager<
             recordId: recordId,
             payload: payload,
             retryCount: retryCount,
+            status: status,
             createdAt: createdAt,
             rowid: rowid,
           ),
@@ -7027,6 +7176,7 @@ class $$OutboxTableTableManager extends RootTableManager<
             required String recordId,
             required String payload,
             Value<int> retryCount = const Value.absent(),
+            Value<String> status = const Value.absent(),
             required DateTime createdAt,
             Value<int> rowid = const Value.absent(),
           }) =>
@@ -7037,6 +7187,7 @@ class $$OutboxTableTableManager extends RootTableManager<
             recordId: recordId,
             payload: payload,
             retryCount: retryCount,
+            status: status,
             createdAt: createdAt,
             rowid: rowid,
           ),

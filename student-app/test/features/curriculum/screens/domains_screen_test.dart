@@ -12,10 +12,15 @@ import 'package:student_app/src/features/progress/repositories/skill_progress_re
 import 'package:student_app/src/features/curriculum/repositories/skill_repository.dart';
 
 class MockDomainRepository extends Mock implements DomainRepository {}
-class MockSkillProgressRepository extends Mock implements SkillProgressRepository {}
+
+class MockSkillProgressRepository extends Mock
+    implements SkillProgressRepository {}
+
 class MockSkillRepository extends Mock implements SkillRepository {}
 
-class MockSyncService extends StateNotifier<SyncState> with Mock implements SyncService {
+class MockSyncService extends StateNotifier<SyncState>
+    with Mock
+    implements SyncService {
   MockSyncService() : super(SyncState.idle());
 }
 
@@ -35,21 +40,23 @@ void main() {
         .thenAnswer((_) async => 50);
     when(() => mockSkillProgressRepository.getPointsForDomain(any()))
         .thenAnswer((_) async => 100);
-        
+
     when(() => mockSyncService.sync()).thenAnswer((_) async {});
-    
+
     // Default stub for SkillsScreen loading
     when(() => mockSkillRepository.watchByDomain(any()))
-          .thenAnswer((_) => const Stream.empty());
+        .thenAnswer((_) => const Stream.empty());
   });
 
   Widget createWidgetUnderTest({Map<String, WidgetBuilder>? routes}) {
     return ProviderScope(
       overrides: [
         domainRepositoryProvider.overrideWithValue(mockDomainRepository),
-        skillProgressRepositoryProvider.overrideWithValue(mockSkillProgressRepository),
+        skillProgressRepositoryProvider
+            .overrideWithValue(mockSkillProgressRepository),
         skillRepositoryProvider.overrideWithValue(mockSkillRepository),
-        connectivityServiceProvider.overrideWith((ref) => Stream.value(ConnectivityStatus.online)),
+        connectivityServiceProvider
+            .overrideWith((ref) => Stream.value(ConnectivityStatus.online)),
         syncServiceProvider.overrideWith((ref) => mockSyncService),
       ],
       child: MaterialApp(
@@ -60,22 +67,24 @@ void main() {
   }
 
   group('DomainsScreen Widget Tests', () {
-    testWidgets('displays loading indicator when loading', (WidgetTester tester) async {
-       // Use a controller to keep the stream active and in 'waiting' state
-       final controller = StreamController<List<model.Domain>>();
-       addTearDown(() => controller.close());
-       
-       when(() => mockDomainRepository.watchAllPublished())
+    testWidgets('displays loading indicator when loading',
+        (WidgetTester tester) async {
+      // Use a controller to keep the stream active and in 'waiting' state
+      final controller = StreamController<List<model.Domain>>();
+      addTearDown(() => controller.close());
+
+      when(() => mockDomainRepository.watchAllPublished())
           .thenAnswer((_) => controller.stream);
 
       await tester.pumpWidget(createWidgetUnderTest());
-      await tester.pump(); 
+      await tester.pump();
       // Do not pumpAndSettle here as it would wait for stream to close or emit
 
       expect(find.byType(CircularProgressIndicator), findsOneWidget);
     });
 
-    testWidgets('displays domains list when data is loaded', (WidgetTester tester) async {
+    testWidgets('displays domains list when data is loaded',
+        (WidgetTester tester) async {
       final mockDomains = [
         model.Domain(
           id: 'test-1',
@@ -109,7 +118,8 @@ void main() {
       expect(find.text('Geometry'), findsOneWidget);
     });
 
-    testWidgets('displays empty state when no domains', (WidgetTester tester) async {
+    testWidgets('displays empty state when no domains',
+        (WidgetTester tester) async {
       when(() => mockDomainRepository.watchAllPublished())
           .thenAnswer((_) => Stream.value([]));
 
@@ -119,7 +129,8 @@ void main() {
       expect(find.text('No subjects available yet'), findsOneWidget);
     });
 
-    testWidgets('navigates to skills screen when domain is tapped', (WidgetTester tester) async {
+    testWidgets('navigates to skills screen when domain is tapped',
+        (WidgetTester tester) async {
       final mockDomains = [
         model.Domain(
           id: 'test-1',
@@ -149,7 +160,8 @@ void main() {
       await tester.pumpAndSettle();
     });
 
-    testWidgets('displays error message when loading fails', (WidgetTester tester) async {
+    testWidgets('displays error message when loading fails',
+        (WidgetTester tester) async {
       when(() => mockDomainRepository.watchAllPublished())
           .thenAnswer((_) => Stream.error(Exception('Error loading domains')));
 

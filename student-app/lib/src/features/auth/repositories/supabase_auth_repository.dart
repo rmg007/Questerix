@@ -24,16 +24,22 @@ class SupabaseAuthRepository implements AuthRepository {
   }
 
   @override
-  Future<void> signInAnonymously() async {
-    await _client.auth.signInAnonymously();
+  Future<void> signInAnonymously({required String appId}) async {
+    // CRITICAL: Pass app_id to stamp user with correct tenant
+    await _client.auth.signInAnonymously(
+      data: {'app_id': appId},
+    );
   }
 
   @override
-  Future<void> signInWithEmail({required String email}) async {
+  Future<void> signInWithEmail(
+      {required String email, required String appId}) async {
     // Note: This sends a magic link.
-    // Ideally we would want otp logic here or password logic depending on reqs.
-    // For now, implementing magic link as it's "email only" friendly.
-    await _client.auth.signInWithOtp(email: email);
+    // CRITICAL: Pass app_id to stamp user with correct tenant
+    await _client.auth.signInWithOtp(
+      email: email,
+      data: {'app_id': appId},
+    );
   }
 
   @override

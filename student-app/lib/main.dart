@@ -22,7 +22,7 @@ void main() async {
   );
 
   final container = ProviderContainer();
-  
+
   // Initialize App Context (Multi-tenancy)
   try {
     await container.read(appConfigServiceProvider).load();
@@ -37,7 +37,10 @@ void main() async {
     errorTracker.captureException(
       details.exception,
       stackTrace: details.stack,
-      extra: {'library': details.library, 'context': details.context?.toString()},
+      extra: {
+        'library': details.library,
+        'context': details.context?.toString()
+      },
     );
   };
 

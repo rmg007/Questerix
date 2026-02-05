@@ -37,7 +37,7 @@ class ErrorTracker {
   }) async {
     try {
       final client = Supabase.instance.client;
-      
+
       final response = await client.rpc('log_error', params: {
         'p_platform': _platform,
         'p_error_type': exception.runtimeType.toString(),

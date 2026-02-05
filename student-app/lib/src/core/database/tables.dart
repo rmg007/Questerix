@@ -3,6 +3,8 @@ import 'package:drift/drift.dart';
 /// Domains table - Top level subjects (e.g., "Mathematics", "Physics")
 class Domains extends Table {
   TextColumn get id => text()();
+  // FIX M7: appId for multi-tenant isolation (nullable locally, required on server)
+  TextColumn get appId => text().nullable()();
   TextColumn get subjectId => text().nullable()();
   TextColumn get slug => text().withLength(min: 1, max: 100)();
   TextColumn get title => text().withLength(min: 1, max: 200)();
@@ -20,6 +22,8 @@ class Domains extends Table {
 /// Skills table - Specific topics within a domain (e.g., "Algebra I")
 class Skills extends Table {
   TextColumn get id => text()();
+  // FIX M7: appId for multi-tenant isolation (nullable locally, required on server)
+  TextColumn get appId => text().nullable()();
   TextColumn get domainId => text().references(Domains, #id)();
   TextColumn get slug => text().withLength(min: 1, max: 100)();
   TextColumn get title => text().withLength(min: 1, max: 200)();
@@ -38,6 +42,8 @@ class Skills extends Table {
 /// Questions table - Quiz content with flexible answer structures
 class Questions extends Table {
   TextColumn get id => text()();
+  // FIX M7: appId for multi-tenant isolation (nullable locally, required on server)
+  TextColumn get appId => text().nullable()();
   TextColumn get skillId => text().references(Skills, #id)();
   TextColumn get type => text()(); // question_type enum
   TextColumn get content => text()();
@@ -63,7 +69,7 @@ class Attempts extends Table {
   BoolColumn get isCorrect => boolean().withDefault(const Constant(false))();
   IntColumn get scoreAwarded => integer().withDefault(const Constant(0))();
   IntColumn get timeSpentMs => integer().nullable()();
-  TextColumn get localSignature => text().nullable()(); // HMAC for SQlite integrity
+  // T2 FIX: Removed localSignature - was security theater (client signs, client verifies = pointless)
   DateTimeColumn get createdAt => dateTime()();
   DateTimeColumn get updatedAt => dateTime()();
   DateTimeColumn get deletedAt => dateTime().nullable()();
@@ -110,6 +116,12 @@ class SkillProgress extends Table {
 
   @override
   Set<Column> get primaryKey => {id};
+
+  // FIX D3: Unique constraint to prevent ghost records
+  @override
+  List<Set<Column>> get uniqueKeys => [
+        {userId, skillId}
+      ];
 }
 
 /// Outbox table - Pending operations queue for offline sync
@@ -121,6 +133,8 @@ class Outbox extends Table {
   TextColumn get recordId => text()();
   TextColumn get payload => text()(); // JSON string
   IntColumn get retryCount => integer().withDefault(const Constant(0))();
+  // FIX D1: Status for Dead Letter Queue - 'pending', 'failed'
+  TextColumn get status => text().withDefault(const Constant('pending'))();
   DateTimeColumn get createdAt => dateTime()();
 
   @override

@@ -27,9 +27,8 @@ class AuthService {
       if (response.user == null) {
         throw Exception('Failed to sign in');
       }
-      
+
       await _securityService.logLogin(response.user!.id);
-      
     } catch (e) {
       await _securityService.logFailedLogin(email, e.toString());
       rethrow;
@@ -54,13 +53,12 @@ class AuthService {
       if (response.user == null) {
         throw Exception('Failed to create account');
       }
-      
+
       await _securityService.log(
         eventType: 'register',
         severity: 'info',
         metadata: {'email': email, 'userId': response.user!.id},
       );
-      
     } catch (e) {
       await _securityService.log(
         eventType: 'failed_register',

@@ -62,7 +62,9 @@ abstract class Breakpoints {
 
 /// Widget that rebuilds based on screen size
 class ResponsiveBuilder extends StatelessWidget {
-  final Widget Function(BuildContext context, bool isMobile, bool isTablet, bool isDesktop) builder;
+  final Widget Function(
+          BuildContext context, bool isMobile, bool isTablet, bool isDesktop)
+      builder;
 
   const ResponsiveBuilder({super.key, required this.builder});
 

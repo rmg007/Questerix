@@ -1,5 +1,6 @@
 import { serve } from 'https://deno.land/std@0.168.0/http/server.ts';
 import { GoogleGenerativeAI } from 'npm:@google/generative-ai@0.1.3';
+import { createClient } from 'https://esm.sh/@supabase/supabase-js@2';
 
 const corsHeaders = {
   'Access-Control-Allow-Origin': '*',
@@ -22,6 +23,54 @@ serve(async (req) => {
   }
 
   try {
+    // ========================================
+    // FIX S2: AUTHENTICATION CHECK
+    // ========================================
+    const authHeader = req.headers.get('Authorization');
+    if (!authHeader) {
+      return new Response(
+        JSON.stringify({ error: 'Missing authorization header' }),
+        { headers: { ...corsHeaders, 'Content-Type': 'application/json' }, status: 401 }
+      );
+    }
+
+    const supabaseUrl = Deno.env.get('SUPABASE_URL')!;
+    const supabaseServiceKey = Deno.env.get('SUPABASE_SERVICE_ROLE_KEY')!;
+    const supabase = createClient(supabaseUrl, supabaseServiceKey);
+
+    // Verify the user's JWT
+    const token = authHeader.replace('Bearer ', '');
+    const { data: { user }, error: authError } = await supabase.auth.getUser(token);
+    
+    if (authError || !user) {
+      return new Response(
+        JSON.stringify({ error: 'Invalid or expired token' }),
+        { headers: { ...corsHeaders, 'Content-Type': 'application/json' }, status: 401 }
+      );
+    }
+
+    // Get user's app_id for tenant isolation
+    const { data: profile, error: profileError } = await supabase
+      .from('profiles')
+      .select('app_id, is_admin')
+      .eq('id', user.id)
+      .single();
+
+    if (profileError || !profile?.app_id) {
+      return new Response(
+        JSON.stringify({ error: 'User profile not found or missing tenant' }),
+        { headers: { ...corsHeaders, 'Content-Type': 'application/json' }, status: 403 }
+      );
+    }
+
+    // Only admins can validate content
+    if (!profile.is_admin) {
+      return new Response(
+        JSON.stringify({ error: 'Only administrators can validate content' }),
+        { headers: { ...corsHeaders, 'Content-Type': 'application/json' }, status: 403 }
+      );
+    }
+
     const { questions, source_text, rules = [] }: ValidationRequest = await req.json();
 
     if (!questions || !Array.isArray(questions)) {
@@ -45,6 +94,24 @@ serve(async (req) => {
     const validationText = response.text();
     const duration = Date.now() - startTime;
 
+    // FIX T5: Use actual usage metadata from Gemini API
+    const usageMetadata = response.usageMetadata;
+    const actualTokenCount = usageMetadata?.totalTokenCount ?? 
+      Math.ceil((prompt.length + validationText.length) / 4);
+
+    // ========================================
+    // FIX S3: CONSUME TENANT TOKENS
+    // ========================================
+    const { error: quotaError } = await supabase.rpc('consume_tenant_tokens', {
+      p_app_id: profile.app_id,
+      p_tokens_used: actualTokenCount,
+      p_operation: 'validate_content'
+    });
+
+    if (quotaError) {
+      console.error('Quota enforcement error:', quotaError);
+    }
+
     // Parse JSON response
     const jsonMatch = validationText.match(/\{[\s\S]*\}/);
     if (!jsonMatch) {
@@ -59,6 +126,9 @@ serve(async (req) => {
         metadata: {
           model: 'gemini-1.5-pro',
           validation_time_ms: duration,
+          token_count: actualTokenCount,
+          prompt_tokens: usageMetadata?.promptTokenCount,
+          completion_tokens: usageMetadata?.candidatesTokenCount,
         },
       }),
       {

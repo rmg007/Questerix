@@ -34,5 +34,6 @@ abstract class Question with _$Question {
     DateTime? deletedAt,
   }) = _Question;
 
-  factory Question.fromJson(Map<String, dynamic> json) => _$QuestionFromJson(json);
+  factory Question.fromJson(Map<String, dynamic> json) =>
+      _$QuestionFromJson(json);
 }

@@ -115,31 +115,38 @@ class SettingsScreen extends ConsumerWidget {
                       ? null
                       : () async {
                           if (codeController.text.length < 6) {
-                            setState(() => errorText = 'Code must be 6 characters');
+                            setState(
+                                () => errorText = 'Code must be 6 characters');
                             return;
                           }
                           isLoading.value = true;
                           setState(() => errorText = null);
-                          
+
                           try {
-                             final result = await Supabase.instance.client.rpc('join_group_by_code', params: {'code': codeController.text});
-                             
-                             if (result['success'] == true) {
-                               if (context.mounted) {
-                                 Navigator.pop(context);
-                                 ScaffoldMessenger.of(context).showSnackBar(
-                                   const SnackBar(content: Text('Successfully joined class!'), backgroundColor: Colors.green),
-                                 );
-                               }
-                             } else {
-                               if (context.mounted) {
-                                 setState(() => errorText = result['error'] ?? 'Failed to join');
-                               }
-                             }
+                            final result = await Supabase.instance.client.rpc(
+                                'join_group_by_code',
+                                params: {'code': codeController.text});
+
+                            if (result['success'] == true) {
+                              if (context.mounted) {
+                                Navigator.pop(context);
+                                ScaffoldMessenger.of(context).showSnackBar(
+                                  const SnackBar(
+                                      content:
+                                          Text('Successfully joined class!'),
+                                      backgroundColor: Colors.green),
+                                );
+                              }
+                            } else {
+                              if (context.mounted) {
+                                setState(() => errorText =
+                                    result['error'] ?? 'Failed to join');
+                              }
+                            }
                           } catch (e) {
-                             if (context.mounted) {
-                               setState(() => errorText = 'Error: $e');
-                             }
+                            if (context.mounted) {
+                              setState(() => errorText = 'Error: $e');
+                            }
                           } finally {
                             isLoading.value = false;
                           }

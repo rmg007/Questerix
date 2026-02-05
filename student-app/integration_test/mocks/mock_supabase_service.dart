@@ -2,7 +2,7 @@ import 'package:flutter/foundation.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 
 /// Mock Supabase Service for Integration Tests
-/// 
+///
 /// Provides a mock Supabase client that can be used in tests
 /// without making real network requests.
 class MockSupabaseService {
@@ -29,7 +29,8 @@ class MockSupabaseService {
   /// Get the mock Supabase client
   SupabaseClient getClient() {
     if (!_isInitialized) {
-      throw StateError('MockSupabaseService not initialized. Call initialize() first.');
+      throw StateError(
+          'MockSupabaseService not initialized. Call initialize() first.');
     }
     return _client!;
   }
@@ -68,7 +69,8 @@ class MockSupabaseService {
   }
 
   /// Mock data update
-  Future<void> mockUpdate(String table, Map<String, dynamic> data, String id) async {
+  Future<void> mockUpdate(
+      String table, Map<String, dynamic> data, String id) async {
     // TODO: Implement mock update
     throw UnimplementedError('Mock update not yet implemented');
   }

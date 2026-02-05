@@ -70,17 +70,19 @@ class MainShell extends ConsumerWidget {
               minWidth: 72,
               minExtendedWidth: 200,
               backgroundColor: Theme.of(context).scaffoldBackgroundColor,
-              destinations: destinations.map((d) => NavigationRailDestination(
-                icon: Badge(
-                  isLabelVisible: d.badge != null,
-                  child: Icon(d.icon),
-                ),
-                selectedIcon: Badge(
-                  isLabelVisible: d.badge != null,
-                  child: Icon(d.selectedIcon),
-                ),
-                label: Text(d.label),
-              )).toList(),
+              destinations: destinations
+                  .map((d) => NavigationRailDestination(
+                        icon: Badge(
+                          isLabelVisible: d.badge != null,
+                          child: Icon(d.icon),
+                        ),
+                        selectedIcon: Badge(
+                          isLabelVisible: d.badge != null,
+                          child: Icon(d.selectedIcon),
+                        ),
+                        label: Text(d.label),
+                      ))
+                  .toList(),
             ),
             // Divider
             const VerticalDivider(thickness: 1, width: 1),
@@ -120,33 +122,35 @@ class MainShell extends ConsumerWidget {
         child: BottomNavigationBar(
           currentIndex: currentTab,
           onTap: (index) => ref.read(currentTabProvider.notifier).state = index,
-          items: destinations.map((d) => BottomNavigationBarItem(
-            icon: Stack(
-              clipBehavior: Clip.none,
-              children: [
-                Icon(d.icon),
-                if (d.badge != null)
-                  Positioned(
-                    right: -4,
-                    top: -4,
-                    child: d.badge!,
-                  ),
-              ],
-            ),
-            activeIcon: Stack(
-              clipBehavior: Clip.none,
-              children: [
-                Icon(d.selectedIcon),
-                if (d.badge != null)
-                  Positioned(
-                    right: -4,
-                    top: -4,
-                    child: d.badge!,
-                  ),
-              ],
-            ),
-            label: d.label,
-          )).toList(),
+          items: destinations
+              .map((d) => BottomNavigationBarItem(
+                    icon: Stack(
+                      clipBehavior: Clip.none,
+                      children: [
+                        Icon(d.icon),
+                        if (d.badge != null)
+                          Positioned(
+                            right: -4,
+                            top: -4,
+                            child: d.badge!,
+                          ),
+                      ],
+                    ),
+                    activeIcon: Stack(
+                      clipBehavior: Clip.none,
+                      children: [
+                        Icon(d.selectedIcon),
+                        if (d.badge != null)
+                          Positioned(
+                            right: -4,
+                            top: -4,
+                            child: d.badge!,
+                          ),
+                      ],
+                    ),
+                    label: d.label,
+                  ))
+              .toList(),
         ),
       ),
     );

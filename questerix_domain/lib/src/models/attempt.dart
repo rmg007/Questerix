@@ -19,5 +19,6 @@ abstract class Attempt with _$Attempt {
     DateTime? deletedAt,
   }) = _Attempt;
 
-  factory Attempt.fromJson(Map<String, dynamic> json) => _$AttemptFromJson(json);
+  factory Attempt.fromJson(Map<String, dynamic> json) =>
+      _$AttemptFromJson(json);
 }

@@ -74,7 +74,8 @@ void main() {
       expect(find.byIcon(Icons.check), findsOneWidget);
     });
 
-    testWidgets('disabled when isAnswered is true', (WidgetTester tester) async {
+    testWidgets('disabled when isAnswered is true',
+        (WidgetTester tester) async {
       bool callbackCalled = false;
 
       await tester.pumpWidget(
@@ -228,41 +229,43 @@ void main() {
   });
 
   group('McqMultiWidget Tests', () {
-     final options = [
+    final options = [
       {'id': 'opt1', 'text': 'Option 1'},
       {'id': 'opt2', 'text': 'Option 2'},
     ];
 
     testWidgets('allows multiple selections', (WidgetTester tester) async {
-       Map<String, dynamic>? lastResult;
-       
-       await tester.pumpWidget(
+      Map<String, dynamic>? lastResult;
+
+      await tester.pumpWidget(
         MaterialApp(
           home: Scaffold(
             body: McqMultiWidget(
               options: options,
-              selectedAnswer: const {'selected_ids': ['opt1']},
+              selectedAnswer: const {
+                'selected_ids': ['opt1']
+              },
               onAnswerChanged: (val) => lastResult = val,
               isAnswered: false,
             ),
           ),
         ),
       );
-      
+
       // Tap Option 2. Should result in ['opt1', 'opt2']
       await tester.tap(find.text('Option 2'));
       await tester.pump();
-      
+
       expect(lastResult!['selected_ids'], containsAll(['opt1', 'opt2']));
-      
+
       // Tap Option 1 (deselect). Should result in ['opt2'] (from previous state perspective if we updated)
       // HOWEVER, the widget is stateless regarding 'selectedAnswer' prop - it relies on parent to update it.
       // But the callback logic calculates new list based on prop.
       // Since we haven't updated the prop in this test frame, tapping Option 1 should remove it from the initially passed ['opt1']
-      
+
       await tester.tap(find.text('Option 1'));
       await tester.pump();
-      
+
       // Logic: currentIds (['opt1']) remove 'opt1' -> []
       expect(lastResult!['selected_ids'], isEmpty);
     });

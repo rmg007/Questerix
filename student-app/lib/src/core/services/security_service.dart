@@ -24,7 +24,7 @@ class SecurityService {
         'p_app_id': appId,
         'p_location': null,
       });
-      
+
       if (kDebugMode) {
         debugPrint('🔒 Security Event Logged: $eventType ($severity)');
       }

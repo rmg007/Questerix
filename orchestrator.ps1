@@ -100,37 +100,44 @@ function Invoke-PhaseValidation {
     }
     Write-Success "All required tools available"
     
-    # Check secrets file
+    # FIX O1: Check environment variables FIRST (for CI/CD), then fall back to .secrets file
     $secretsPath = Join-Path $ScriptDir '.secrets'
-    if (-not (Test-Path $secretsPath)) {
-        Write-Err ".secrets file not found. Copy .secrets.template to .secrets and fill in values."
+    
+    # Check if running in CI/CD (environment variables already set)
+    $hasEnvSecrets = $env:CLOUDFLARE_API_TOKEN -and $env:CLOUDFLARE_API_TOKEN -ne 'REPLACE_ME'
+    
+    if ($hasEnvSecrets) {
+        Write-Success "Running in CI/CD mode - using environment variables"
+    } elseif (Test-Path $secretsPath) {
+        # Local development - load from .secrets file
+        # Verify .secrets is in .gitignore
+        $gitignorePath = Join-Path $ScriptDir '.gitignore'
+        if (Test-Path $gitignorePath) {
+            $gitignoreContent = Get-Content $gitignorePath -Raw
+            if ($gitignoreContent -notmatch '\.secrets') {
+                Write-Err ".secrets is NOT in .gitignore! This is a security risk. Aborting."
+                exit 1
+            }
+        }
+        Write-Success ".secrets file found and is in .gitignore"
+        
+        # Load secrets into environment
+        Get-Content $secretsPath | ForEach-Object {
+            if ($_ -match '^([A-Z_]+)=(.*)$') {
+                $key = $Matches[1]
+                $value = $Matches[2]
+                if ($value -and $value.Trim()) {
+                    Set-Item -Path "Env:$key" -Value $value.Trim()
+                }
+            }
+        }
+    } else {
+        Write-Err "No secrets available. Either set CLOUDFLARE_API_TOKEN env var or create .secrets file."
         exit 1
     }
     
-    # Verify .secrets is in .gitignore
-    $gitignorePath = Join-Path $ScriptDir '.gitignore'
-    if (Test-Path $gitignorePath) {
-        $gitignoreContent = Get-Content $gitignorePath -Raw
-        if ($gitignoreContent -notmatch '\.secrets') {
-            Write-Err ".secrets is NOT in .gitignore! This is a security risk. Aborting."
-            exit 1
-        }
-    }
-    Write-Success ".secrets file found and is in .gitignore"
-    
-    # Load secrets into environment
-    Get-Content $secretsPath | ForEach-Object {
-        if ($_ -match '^([A-Z_]+)=(.*)$') {
-            $key = $Matches[1]
-            $value = $Matches[2]
-            if ($value -and $value.Trim()) {
-                Set-Item -Path "Env:$key" -Value $value.Trim()
-            }
-        }
-    }
-    
     if (-not $env:CLOUDFLARE_API_TOKEN -or $env:CLOUDFLARE_API_TOKEN -eq 'REPLACE_ME') {
-        Write-Warn "CLOUDFLARE_API_TOKEN not set in .secrets. Deployment will rely on local Wrangler login."
+        Write-Warn "CLOUDFLARE_API_TOKEN not set. Deployment will rely on local Wrangler login."
     } else {
         Write-Success "Cloudflare credentials loaded"
     }

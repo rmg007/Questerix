@@ -18,7 +18,7 @@ class SessionRepository {
   Future<void> signInAnonymously() async {
     final appConfig = _ref.read(appConfigProvider);
     final data = <String, dynamic>{};
-    
+
     if (appConfig != null) {
       data['app_id'] = appConfig.appId;
     }

@@ -8,24 +8,23 @@ import 'package:student_app/src/core/database/providers.dart';
 import 'package:student_app/src/core/supabase/providers.dart';
 import 'package:uuid/uuid.dart';
 
-import 'package:student_app/src/features/security/app_signature_service.dart';
+// T2 FIX: Removed AppSignatureService - was security theater (circular integrity)
+// Client-side signatures can't protect against client-side tampering
 
 /// Provider for attempt repository
 final attemptRepositoryProvider = Provider<AttemptRepository>((ref) {
   final database = ref.watch(databaseProvider);
   final userId = ref.watch(currentUserIdProvider);
-  final signatureService = ref.watch(appSignatureServiceProvider);
-  return AttemptRepository(database, userId, signatureService);
+  return AttemptRepository(database, userId);
 });
 
 /// Repository for attempts (offline-first with outbox pattern)
 class AttemptRepository {
   final AppDatabase _database;
   final String? _userId;
-  final AppSignatureService _signatureService;
   final _uuid = const Uuid();
 
-  AttemptRepository(this._database, this._userId, this._signatureService);
+  AttemptRepository(this._database, this._userId);
 
   /// Submit an attempt (writes to local DB and outbox)
   Future<String> submitAttempt({
@@ -44,14 +43,7 @@ class AttemptRepository {
     final now = DateTime.now();
     final responseJson = jsonEncode(response);
 
-    // Ironclad: Sign the attempt for integrity verification
-    final signature = _signatureService.signAttempt(
-      questionId: questionId,
-      responseJson: responseJson,
-      isCorrect: isCorrect,
-      timestampMs: now.millisecondsSinceEpoch,
-    );
-
+    // T2 FIX: Removed client-side signature - server should do integrity checks
     final attempt = AttemptsCompanion(
       id: Value(attemptId),
       userId: Value(userId),
@@ -60,7 +52,6 @@ class AttemptRepository {
       isCorrect: Value(isCorrect),
       scoreAwarded: Value(scoreAwarded),
       timeSpentMs: Value(timeSpentMs),
-      localSignature: Value(signature),
       createdAt: Value(now),
       updatedAt: Value(now),
     );
@@ -86,9 +77,6 @@ class AttemptRepository {
                 'time_spent_ms': timeSpentMs,
                 'created_at': now.toIso8601String(),
                 'updated_at': now.toIso8601String(),
-                // Note: We don't sync the signature to server currently, 
-                // but could adding it here if server needed verification.
-                // For now, it stays local-only check.
               })),
               retryCount: const Value(0),
               createdAt: Value(now),

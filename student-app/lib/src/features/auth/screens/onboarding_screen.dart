@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:student_app/src/core/config/app_config_service.dart';
 import 'package:student_app/src/core/theme/app_theme.dart';
 import '../providers/auth_providers.dart';
 
@@ -302,7 +303,13 @@ class _ParentApprovalStepState extends ConsumerState<_ParentApprovalStep> {
       // NOTE: This actually creates a user with this email for now.
       // In a real parent flow, we might want to flag this user as "parent pending" in metadata
       // or simply treat this as the parent creating an account for clarity.
-      await ref.read(authRepositoryProvider).signInWithEmail(email: email);
+      // FIX M2: Get appId from app context for multi-tenant isolation
+      final appContext = ref.read(appConfigProvider);
+      final appId = appContext?.appId ?? '';
+
+      await ref
+          .read(authRepositoryProvider)
+          .signInWithEmail(email: email, appId: appId);
 
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(const SnackBar(
@@ -454,7 +461,13 @@ class _StudentSignupStepState extends ConsumerState<_StudentSignupStep> {
     setState(() => _isLoading = true);
     try {
       final email = _emailController.text;
-      await ref.read(authRepositoryProvider).signInWithEmail(email: email);
+      // FIX M2: Get appId from app context for multi-tenant isolation
+      final appContext = ref.read(appConfigProvider);
+      final appId = appContext?.appId ?? '';
+
+      await ref
+          .read(authRepositoryProvider)
+          .signInWithEmail(email: email, appId: appId);
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(const SnackBar(
             content: Text('Email sent! Check your inbox to login.')));
@@ -571,7 +584,8 @@ class _StudentSignupStepState extends ConsumerState<_StudentSignupStep> {
                   height: 24,
                   child: Checkbox(
                     value: _agreedToTerms,
-                    onChanged: (val) => setState(() => _agreedToTerms = val ?? false),
+                    onChanged: (val) =>
+                        setState(() => _agreedToTerms = val ?? false),
                   ),
                 ),
                 const SizedBox(width: 8),

@@ -1,6 +1,6 @@
+import 'package:flutter/material.dart'; // For ValueKey, Offset, Duration, etc.
 import 'package:flutter_test/flutter_test.dart';
 import 'package:integration_test/integration_test.dart';
-import 'package:student_app/main.dart' as app;
 import 'package:student_app/src/core/database/database.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 
@@ -8,7 +8,7 @@ import 'mocks/mock_supabase_service.dart';
 import 'mocks/mock_database_provider.dart';
 
 /// Integration Test Setup and Configuration
-/// 
+///
 /// This file provides setup utilities for integration tests including:
 /// - Mock Supabase initialization
 /// - Mock Drift database initialization
@@ -38,13 +38,15 @@ void main() {
       await mockSupabase.cleanup();
     });
 
-    testWidgets('Test environment initializes correctly', (WidgetTester tester) async {
+    testWidgets('Test environment initializes correctly',
+        (WidgetTester tester) async {
       // Verify mocks are initialized
       expect(mockSupabase.isInitialized, isTrue);
       expect(mockDatabase.isInitialized, isTrue);
     });
 
-    testWidgets('Can retrieve mock Supabase client', (WidgetTester tester) async {
+    testWidgets('Can retrieve mock Supabase client',
+        (WidgetTester tester) async {
       final client = mockSupabase.getClient();
       expect(client, isNotNull);
       expect(client, isA<SupabaseClient>());

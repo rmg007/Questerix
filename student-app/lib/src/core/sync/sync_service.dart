@@ -1,5 +1,6 @@
 import 'dart:convert';
 import 'package:drift/drift.dart';
+import 'package:flutter/foundation.dart'; // For debugPrint
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 import 'package:student_app/src/core/database/database.dart';
@@ -82,8 +83,17 @@ class SyncService extends StateNotifier<SyncState> {
   }
 
   /// Push: Upload pending changes from outbox to Supabase
+  /// FIX D4: Guard against concurrent push operations
   Future<void> push() async {
+    // Prevent concurrent push - check if already syncing
+    if (state.isSyncing) {
+      debugPrint('SYNC: Push skipped - already syncing');
+      return;
+    }
+
     final outboxItems = await (_database.select(_database.outbox)
+          ..where((o) =>
+              o.status.equals('pending')) // Only pending items, not failed
           ..orderBy([(o) => OrderingTerm.asc(o.createdAt)]))
         .get();
 
@@ -150,19 +160,24 @@ class SyncService extends StateNotifier<SyncState> {
             .go();
       } catch (e) {
         // Update retry count
+        final newRetryCount = item.retryCount + 1;
+
         await (_database.update(_database.outbox)
               ..where((o) => o.id.equals(item.id)))
             .write(
           OutboxCompanion(
-            retryCount: Value(item.retryCount + 1),
+            retryCount: Value(newRetryCount),
+            // FIX D1: Mark as 'failed' instead of deleting - Dead Letter Queue
+            status: Value(newRetryCount > 5 ? 'failed' : 'pending'),
           ),
         );
 
-        // Skip items with too many retries
-        if (item.retryCount > 5) {
-          await (_database.delete(_database.outbox)
-                ..where((o) => o.id.equals(item.id)))
-              .go();
+        // Log failed items for debugging (but NEVER delete user data)
+        if (newRetryCount > 5) {
+          debugPrint(
+              'SYNC: Item ${item.id} moved to Dead Letter Queue after $newRetryCount retries');
+          // Don't rethrow for dead-lettered items - continue processing others
+          continue;
         }
 
         rethrow;

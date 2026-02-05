@@ -3,11 +3,7 @@ import 'package:freezed_annotation/freezed_annotation.dart';
 part 'user.freezed.dart';
 part 'user.g.dart';
 
-enum UserAgeGroup {
-  under13,
-  over13,
-  unknown,
-}
+enum UserAgeGroup { under13, over13, unknown }
 
 @freezed
 abstract class User with _$User {

@@ -38,6 +38,13 @@ jobs:
           path: './student-app/coverage/lcov.info'
           min_coverage: 60
 
+      - name: Upload coverage to Codacy
+        uses: codacy/codacy-coverage-reporter-action@v1
+        with:
+          project-token: ${{ secrets.CODACY_PROJECT_TOKEN }}
+          coverage-reports: ./student-app/coverage/lcov.info
+
+
   admin:
     runs-on: ubuntu-latest
     steps:
@@ -51,8 +58,18 @@ jobs:
         run: cd admin-panel && npm ci
       - name: Lint
         run: cd admin-panel && npm run lint
+      - name: Test
+        run: cd admin-panel && npm run test -- --coverage
+
       - name: Build
         run: cd admin-panel && npm run build
+      
+      - name: Upload coverage to Codacy
+        uses: codacy/codacy-coverage-reporter-action@v1
+        with:
+          project-token: ${{ secrets.CODACY_PROJECT_TOKEN }}
+          coverage-reports: ./admin-panel/coverage/lcov.info
+
       
       - name: Accessibility Audit (Pa11y)
         run: |

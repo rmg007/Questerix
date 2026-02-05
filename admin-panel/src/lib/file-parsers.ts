@@ -1,7 +1,7 @@
 // React imports removed as they are not used in this utility file
-// @ts-ignore
+// @ts-expect-error
 import * as pdfjsLib from "pdfjs-dist/build/pdf";
-// @ts-ignore
+// @ts-expect-error
 import mammoth from "mammoth";
 
 // We need to set up the worker for PDF.js

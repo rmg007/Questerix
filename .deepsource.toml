@@ -1,5 +1,19 @@
 version = 1
 
+test_patterns = [
+  "student-app/test/**",
+  "questerix_domain/test/**"
+]
+
+exclude_patterns = [
+  "**/node_modules/**",
+  "**/build/**",
+  "**/.dart_tool/**",
+  "**/dist/**",
+  "**/*.min.js",
+  "supabase/migrations/**"
+]
+
 [[analyzers]]
 name = "python"
 enabled = true
@@ -27,10 +41,3 @@ enabled = true
 [[analyzers]]
 name = "dart-analyze"
 type = "community"
-
-[exclude_patterns]
-- "**/node_modules/**"
-- "**/build/**"
-- "**/.dart_tool/**"
-- "**/dist/**"
-- "**/*.min.js"

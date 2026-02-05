@@ -2,6 +2,12 @@
 """
 Local DevOps pipeline runner for Questerix project.
 Executes commands from JSON manifest files without user interaction.
+
+USAGE:
+  python ops_runner.py <tasks.json>     # Execute a specific manifest
+  python ops_runner.py --watch [dir]    # Watch directory for tasks.json files
+
+The AI agent writes tasks.json, this script executes them automatically.
 """
 
 import json
@@ -19,7 +25,7 @@ except ImportError:
     print("Warning: watchdog not installed. Watch mode will not work.")
     print("Install with: pip install watchdog")
     Observer = None
-    FileSystemEventHandler = None
+    FileSystemEventHandler = object  # Fallback for class inheritance
 
 
 def execute_manifest(manifest_path: str) -> bool:
@@ -60,28 +66,26 @@ def execute_manifest(manifest_path: str) -> bool:
             print(f"Warning: Task {idx} missing 'command' field, skipping")
             continue
         
-        print(f"[{idx}/{len(manifest)}] {description}")
+        print(f"\n[{idx}/{len(manifest)}] {description}")
         print(f"  Executing: {command}")
         if cwd:
             print(f"  Working directory: {cwd}")
         
         try:
-            # Execute command without user interaction
-            # check=True raises CalledProcessError on non-zero exit
             result = subprocess.run(
                 command,
                 shell=True,
                 cwd=cwd if cwd else None,
                 check=True,
-                capture_output=False,  # Show output in real-time
+                capture_output=False,
                 text=True
             )
-            print(f"  ✓ Completed successfully\n")
+            print(f"  ✓ Completed successfully")
         except subprocess.CalledProcessError as e:
-            print(f"  ✗ Failed with exit code {e.returncode}\n")
+            print(f"  ✗ Failed with exit code {e.returncode}")
             success = False
         except Exception as e:
-            print(f"  ✗ Error executing command: {e}\n")
+            print(f"  ✗ Error executing command: {e}")
             success = False
     
     return success
@@ -92,7 +96,7 @@ class TaskFileHandler(FileSystemEventHandler):
     
     def __init__(self, watch_dir: Path):
         self.watch_dir = watch_dir
-        self.processed_files = set()
+        self.processed_files = {}  # Track file path -> last modified time
     
     def on_created(self, event):
         """Handle file creation events."""
@@ -101,8 +105,7 @@ class TaskFileHandler(FileSystemEventHandler):
         
         file_path = Path(event.src_path)
         if file_path.name == 'tasks.json':
-            # Small delay to ensure file is fully written
-            time.sleep(0.5)
+            time.sleep(0.5)  # Ensure file is fully written
             self.process_file(file_path)
     
     def on_modified(self, event):
@@ -112,31 +115,36 @@ class TaskFileHandler(FileSystemEventHandler):
         
         file_path = Path(event.src_path)
         if file_path.name == 'tasks.json':
-            # Small delay to ensure file is fully written
             time.sleep(0.5)
             self.process_file(file_path)
     
     def process_file(self, file_path: Path):
-        """Process a tasks.json file if not already processed."""
-        # Use absolute path as key to avoid duplicates
+        """Process a tasks.json file if it's new or modified."""
         abs_path = file_path.resolve()
         
-        if abs_path in self.processed_files:
+        try:
+            current_mtime = abs_path.stat().st_mtime
+        except FileNotFoundError:
             return
         
+        # Skip if already processed with same modification time
+        if abs_path in self.processed_files:
+            if self.processed_files[abs_path] == current_mtime:
+                return
+        
         print(f"\n{'='*60}")
-        print(f"Detected new tasks.json: {abs_path}")
-        print(f"{'='*60}\n")
+        print(f"🚀 Detected tasks.json: {abs_path}")
+        print(f"{'='*60}")
         
         success = execute_manifest(str(abs_path))
         
         if success:
-            print(f"\n✓ Manifest executed successfully: {abs_path}")
+            print(f"\n✅ All tasks completed successfully")
         else:
-            print(f"\n✗ Manifest execution failed: {abs_path}")
+            print(f"\n❌ Some tasks failed")
         
-        # Mark as processed
-        self.processed_files.add(abs_path)
+        # Mark as processed with current modification time
+        self.processed_files[abs_path] = current_mtime
         print(f"{'='*60}\n")
 
 
@@ -162,8 +170,8 @@ def watch_mode(watch_dir: str = '.'):
         print(f"Error: Watch path is not a directory: {watch_path}")
         sys.exit(1)
     
-    print(f"Watching directory: {watch_path}")
-    print("Waiting for tasks.json files... (Press Ctrl+C to stop)\n")
+    print(f"👁️  Watching directory: {watch_path}")
+    print("⏳ Waiting for tasks.json files... (Press Ctrl+C to stop)\n")
     
     event_handler = TaskFileHandler(watch_path)
     observer = Observer()
@@ -174,7 +182,7 @@ def watch_mode(watch_dir: str = '.'):
         while True:
             time.sleep(1)
     except KeyboardInterrupt:
-        print("\n\nStopping watcher...")
+        print("\n\n🛑 Stopping watcher...")
         observer.stop()
     
     observer.join()

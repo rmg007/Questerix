@@ -10,8 +10,8 @@
     "cwd": null
   },
   {
-    "description": "Run tests",
-    "command": "cd admin-panel && npm test",
-    "cwd": null
+    "description": "Run Flutter analyze",
+    "command": "flutter analyze",
+    "cwd": "C:/Users/mhali/OneDrive/Desktop/Important Projects/Questerix/student-app"
   }
 ]

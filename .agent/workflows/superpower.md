@@ -2,23 +2,34 @@
 description: AI generates tasks.json, ops_runner.py executes them automatically
 ---
 
-# Superpower Mode Workflow
+# ⚡ Superpower Mode
 
-This workflow enables **fully autonomous execution** by having the AI agent write task manifests that are automatically executed by a background watcher.
+**Problem**: AI agents require manual approval for every command, forcing you to stay at the laptop clicking "Run".
 
-## Prerequisites
+**Solution**: A file-watching task runner that auto-executes commands the AI writes.
 
-1. **Install watchdog**:
-   ```bash
-   pip install watchdog
-   ```
+---
 
-2. **Start the watcher** (in a separate terminal):
-   ```bash
-   python ops_runner.py --watch .
-   ```
+## Quick Start
 
-## How It Works
+### 1. Start the Watcher
+**Double-click** `START_WATCHER.bat` in the project root, OR run:
+```powershell
+python ops_runner.py --watch .
+```
+
+### 2. Tell the AI What to Do
+Instead of "run X", say "**generate tasks.json** to do X":
+```
+"Generate tasks.json to lint the admin panel and run tests"
+```
+
+### 3. Watch It Execute
+The watcher auto-detects `tasks.json` and runs every command immediately.
+
+---
+
+## Architecture
 
 ```
 ┌─────────────────┐     writes      ┌──────────────┐     watches     ┌──────────────┐
@@ -30,54 +41,97 @@ This workflow enables **fully autonomous execution** by having the AI agent writ
                                                     auto-executes
 ```
 
-1. User starts `ops_runner.py --watch .` in a terminal
-2. User tells the AI agent what to do
-3. AI agent writes `tasks.json` with the commands
-4. ops_runner.py detects the file and executes all commands automatically
-5. No manual approval needed!
+---
+
+## Files
+
+| File | Purpose |
+|------|---------|
+| `ops_runner.py` | Python watcher that monitors for `tasks.json` and executes commands |
+| `START_WATCHER.bat` | Double-click launcher for Windows |
+| `tasks.json` | The manifest file AI writes with commands to execute |
+| `tasks.json.example` | Template showing the manifest format |
+
+---
 
 ## Task Manifest Format
 
 ```json
 [
   {
-    "description": "Human-readable description",
+    "description": "Human-readable description of the task",
     "command": "the shell command to run",
-    "cwd": "optional working directory (null = current)"
+    "cwd": "C:/absolute/path/to/working/directory"
+  },
+  {
+    "description": "Another task",
+    "command": "npm run build",
+    "cwd": null
   }
 ]
 ```
 
-## Example Prompts to AI
+| Field | Required | Description |
+|-------|----------|-------------|
+| `description` | Yes | Human-readable task name |
+| `command` | Yes | Shell command to execute |
+| `cwd` | No | Working directory (null = project root) |
 
-Instead of asking the AI to "run" commands, ask it to "generate tasks.json":
+---
 
-### Example 1: Linting and Building
+## Example Prompts
+
+| Goal | Prompt |
+|------|--------|
+| Lint & Test | "Generate tasks.json to lint admin-panel and run tests" |
+| Build & Deploy | "Generate tasks.json to build student-app for web and deploy" |
+| Database Ops | "Generate tasks.json to regenerate Supabase types" |
+| Full CI | "Generate tasks.json for a complete CI run: lint, typecheck, test" |
+
+---
+
+## Command Reference
+
+### Start Watch Mode
+```powershell
+python ops_runner.py --watch .
 ```
-"Generate tasks.json to lint the admin panel, check TypeScript compilation, and run tests."
+Watches current directory recursively for `tasks.json` files.
+
+### Execute Single Manifest
+```powershell
+python ops_runner.py tasks.json
+```
+Runs a specific manifest file once.
+
+### Watch Specific Directory
+```powershell
+python ops_runner.py --watch ./admin-panel
 ```
 
-### Example 2: Deployment
-```
-"Generate tasks.json to build the student app for web and deploy to Cloudflare."
-```
-
-### Example 3: Database Operations
-```
-"Generate tasks.json to regenerate Supabase types and run the sync-registry script."
-```
-
-## AI Agent Instructions
-
-When asked to "generate tasks.json" or use "superpower mode":
-
-1. Write the `tasks.json` file to the project root
-2. Include clear descriptions for each task
-3. Use absolute paths for `cwd` when needed
-4. Order tasks by dependency (earlier tasks run first)
+---
 
 ## Safety Notes
 
-- The watcher only executes `tasks.json` files (not arbitrary code)
-- Commands are run with the privileges of the terminal user
-- Review which directories you watch for security
+- Only `tasks.json` files trigger execution (not arbitrary code)
+- Commands run with your terminal's privileges
+- Review which directories you watch
+- The watcher prints all commands before executing
+
+---
+
+## Troubleshooting
+
+| Issue | Solution |
+|-------|----------|
+| "watchdog not installed" | Run `pip install watchdog` |
+| Tasks not executing | Ensure watcher is running and watching the right directory |
+| Commands fail | Check `cwd` paths are absolute and exist |
+
+---
+
+## Dependencies
+
+```bash
+pip install watchdog
+```

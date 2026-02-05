@@ -1,0 +1,12 @@
+[
+  {
+    "description": "Check admin-panel linting",
+    "command": "npm run lint",
+    "cwd": "C:/Users/mhali/OneDrive/Desktop/Important Projects/Questerix/admin-panel"
+  },
+  {
+    "description": "Verify TypeScript compilation",
+    "command": "npx tsc --noEmit 2>&1 | Select-Object -First 20",
+    "cwd": "C:/Users/mhali/OneDrive/Desktop/Important Projects/Questerix/admin-panel"
+  }
+]

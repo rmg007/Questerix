@@ -6,6 +6,7 @@
   "type": "module",
   "scripts": {
     "index": "tsx indexer.ts",
+    "index-issues": "tsx index-issues.ts",
     "query": "tsx query-docs.ts",
     "test": "tsx indexer.ts --dry-run"
   },

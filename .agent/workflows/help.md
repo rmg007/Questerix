@@ -1,59 +1,70 @@
 # 🛠️ Questerix Workflow Guide
 
-The Questerix project uses a consolidated **Unified Lifecycle** to ensure high-velocity, high-quality autonomous development.
+## ⚡ SUPERPOWER MODE (Start Here!)
+
+Commands not auto-running? Use the workaround:
+
+1. **Start watcher**: Double-click `START_WATCHER.bat`
+2. **Use `/sp <action>`**: I output JSON
+3. **Paste into `tasks.json`**: Watcher runs it
+
+| Quick Command | Does |
+|---------------|------|
+| `/sp lint` | Lint all |
+| `/sp test` | Run tests |
+| `/sp ci` | Full CI |
+| `/sp analyze` | Flutter analyze |
+| `/sp push` | Git push |
 
 ---
 
-## 🚀 Primary Command
+## 🚀 Primary Workflows
+
+| Workflow | When to Use |
+|----------|-------------|
+| `/process` | Start new feature/task (99% of work) |
+| `/certify` | Verify completed work |
+| `/resume` | Continue after break (same agent) |
+| `/continue` | Switch to different AI agent |
+| `/autopilot` | Full autonomous mode |
+| `/blocked` | Report blockers |
+| `/audit` | Security vulnerability scan |
+| `/sp` | Quick commands via watcher |
+
+---
+
+## 📖 Workflow Details
 
 ### `/process` - Unified Development Lifecycle
-**Use this for 99% of tasks.** It guides you through:
-1.  **Planning** (Interactive Strategy, No Coding)
-2.  **Implementation** (Recursive Fix Loop)
-3.  **Testing** (Automation QA Loop)
-4.  **Finalization** (Learning, Docs, Git Push)
-5.  **Deployment** (Optional User-Triggered Release)
-
----
-
-## 🛠️ Utility Workflows
+1. Planning (interactive, no code)
+2. Database (migrations, RLS)
+3. Implementation (recursive fix loop)
+4. Verification (tests, security)
+5. Finalization (docs, git push)
+6. Release (optional deploy)
 
 ### `/certify` - Independent Quality Audit
-Run this AFTER `/process` completes to verify everything with fresh eyes. Acts as an independent inspector that re-checks database, code quality, security, tests, performance, and UX. Produces a certification report.
-
-### `/continue` - Agent Handoff
-Use when switching AI agents mid-task. Loads TASK_STATE.json, validates current state, and resumes from the correct phase autonomously.
+Run AFTER `/process` to verify with fresh eyes. Checks database, code quality, security, tests, performance, UX.
 
 ### `/resume` - Session Resumption
-Use when starting a new session (same agent). Detects uncommitted work, session files, and git status to continue where you left off.
+Detects TASK_STATE.json, uncommitted work, and resumes from correct phase.
+
+### `/continue` - Agent Handoff
+For switching AI agents mid-task. Validates state and resumes.
 
 ### `/autopilot` - Full Autonomous Execution
-Enables the AI to run commands and solve complex multi-step problems without constant prompting.
+Enables all commands to auto-run (if IDE configured).
 
-### `/blocked` - Blockers & Partial Progress
-Use this to report what is stopping you and what has been achieved so far.
+### `/blocked` - Report Blockers
+Document what's stopping progress and partial achievements.
 
-### `/help` - Show this guide
-List available workflows and their purposes.
-
----
-
-## 🎯 Workflow Selection Guide
-
-| Scenario | Use This Workflow |
-|----------|-------------------|
-| Starting a new feature/task | `/process` |
-| Switching to a different AI agent mid-task | `/continue` |
-| Resuming after sleep/restart (same agent) | `/resume` |
-| Verifying completed work (final check) | `/certify` |
-| Stuck on a blocker | `/blocked` |
-| General autonomous mode | `/autopilot` |
+### `/audit` - Security Vulnerability Scan
+Systematic codebase scan using vulnerability taxonomy.
 
 ---
 
-## 📜 Execution Philosophy
+## 💡 Tips
 
-- **Plan First**: We never write code until we agree on the "Perfect Plan."
-- **Evidence Contract**: Every implementation must provide proof of correctness.
-- **Lean Docs**: Documentation must be reproducible and concise.
-- **Recursive Fix**: We find and fix our own hallucinations before the User does.
+- All workflows support superpower fallback
+- When commands needed, I output JSON for `/sp` style paste
+- Start watcher once, keep it running in background

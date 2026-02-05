@@ -6,6 +6,8 @@ description: Continue work from previous session (same agent)
 
 # /resume - Session Resumption
 
+> **⚡ Superpower Fallback**: If commands need approval, use `/sp` - I output JSON, you paste into `tasks.json`, watcher runs it.
+
 **Purpose**: Pick up where the last session left off (same agent, new session).
 
 **When to Use**: After sleep, restart, or disconnection. Use `/continue` instead if switching to a different AI agent.

@@ -6,6 +6,8 @@ description: Systematic architectural vulnerability audit
 
 # 🔍 /audit - Architectural Vulnerability Audit
 
+> **⚡ Superpower Fallback**: If commands need approval, use `/sp` - I output JSON, you paste into `tasks.json`, watcher runs it.
+
 **Purpose**: Proactively scan the entire codebase for known architectural vulnerability patterns and discover new ones.
 
 **When to Use**: 

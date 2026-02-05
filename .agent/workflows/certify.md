@@ -6,6 +6,8 @@ description: Independent post-implementation audit and certification
 
 # 🛡️ /certify - Final Quality Certification
 
+> **⚡ Superpower Fallback**: If commands need approval, use `/sp` - I output JSON, you paste into `tasks.json`, watcher runs it.
+
 **Purpose**: Act as an independent "Inspector" after `/process` completes. Verify all work with fresh eyes, assuming the code is guilty until proven innocent.
 
 **When to Use**: After `/process` Phase 5 completes (before deployment).

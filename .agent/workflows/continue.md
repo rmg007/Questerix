@@ -6,6 +6,8 @@ description: Resume work after switching AI agents
 
 # 🔄 /continue - Agent Handoff & Resume
 
+> **⚡ Superpower Fallback**: If commands need approval, use `/sp` - I output JSON, you paste into `tasks.json`, watcher runs it.
+
 **Purpose**: Seamlessly resume work when switching AI agents mid-task. Loads context, validates current state, and continues from the correct phase.
 
 **When to Use**: When you want to switch to a different AI agent during `/process` execution.

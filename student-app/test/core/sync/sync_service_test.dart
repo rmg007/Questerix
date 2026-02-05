@@ -12,6 +12,7 @@ class MockPostgrestBuilder extends Mock implements PostgrestBuilder {}
 
 void main() {
   late AppDatabase database;
+  // ignore: unused_local_variable - kept for future integration tests
   late MockSupabaseClient mockSupabase;
 
   setUp(() async {
@@ -120,7 +121,7 @@ void main() {
       const itemId = 'outbox-6';
       await database.into(database.outbox).insert(
         OutboxCompanion(
-          id: Value(itemId),
+          id: const Value(itemId),
           table: const Value('attempts'),
           action: const Value('INSERT'),
           recordId: const Value('attempt-1'),
@@ -152,7 +153,7 @@ void main() {
       const itemId = 'outbox-7';
       await database.into(database.outbox).insert(
         OutboxCompanion(
-          id: Value(itemId),
+          id: const Value(itemId),
           table: const Value('attempts'),
           action: const Value('INSERT'),
           recordId: const Value('attempt-1'),
@@ -253,7 +254,7 @@ void main() {
       const itemId = 'outbox-10';
       await database.into(database.outbox).insert(
         OutboxCompanion(
-          id: Value(itemId),
+          id: const Value(itemId),
           table: const Value('attempts'),
           action: const Value('INSERT'),
           recordId: const Value('attempt-1'),
@@ -309,7 +310,7 @@ void main() {
 
   group('Payload Validation', () {
     test('Handles valid JSON payloads', () async {
-      final payload = '{"id": "test-1", "data": "value"}';
+      const payload = '{"id": "test-1", "data": "value"}';
       
       await database.into(database.outbox).insert(
         OutboxCompanion(
@@ -317,7 +318,7 @@ void main() {
           table: const Value('attempts'),
           action: const Value('INSERT'),
           recordId: const Value('test-1'),
-          payload: Value(payload),
+          payload: const Value(payload),
           createdAt: Value(DateTime.now()),
         ),
       );

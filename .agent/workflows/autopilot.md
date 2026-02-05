@@ -14,6 +14,26 @@ No command requires user approval when this workflow is active.
 
 ---
 
+## 🔧 Superpower Fallback (If IDE Still Asks for Approval)
+
+If the IDE ignores `SafeToAutoRun: true`, use the **Superpower Mode** workaround:
+
+1. **Start watcher**: Double-click `START_WATCHER.bat`
+2. **Agent outputs JSON** instead of running commands
+3. **User pastes into `tasks.json`**
+4. **Watcher auto-executes**
+
+When in fallback mode, output commands as:
+```json
+[
+  {"description": "Task", "command": "cmd", "cwd": "C:/path"}
+]
+```
+
+See `/superpower` or `/sp` for quick commands.
+
+---
+
 ## ⚠️ REQUIRED IDE SETUP (One-Time Configuration)
 
 **IMPORTANT**: For autonomous execution to work, you MUST configure Antigravity IDE:
@@ -49,6 +69,7 @@ After enabling Turbo mode:
 `*`
 
 This single pattern matches ALL possible commands. The agent MUST auto-run everything.
+
 
 ---
 

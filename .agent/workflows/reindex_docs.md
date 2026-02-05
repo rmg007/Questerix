@@ -2,7 +2,11 @@
 description: Manually trigger documentation reindexing for Project Oracle
 ---
 
+// turbo-all
+
 # /reindex_docs - Manual Documentation Reindex
+
+> **⚡ Superpower Fallback**: If commands need approval, use `/sp` - I output JSON, you paste into `tasks.json`, watcher runs it.
 
 This workflow manually triggers the Project Oracle documentation indexer to rebuild the vector search index.
 

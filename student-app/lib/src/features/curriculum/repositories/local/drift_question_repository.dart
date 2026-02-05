@@ -63,10 +63,8 @@ class DriftQuestionRepository implements QuestionRepository {
 
   /// Batch delete questions (for tombstone sync)
   Future<void> batchDelete(List<String> ids) async {
-    await _database.batch((batch) {
-      for (final id in ids) {
-        batch.delete(_database.questions, (q) => q.id.equals(id));
-      }
-    });
+    await (_database.delete(_database.questions)
+          ..where((q) => q.id.isIn(ids)))
+        .go();
   }
 }

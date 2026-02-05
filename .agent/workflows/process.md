@@ -6,6 +6,8 @@ description: Unified Questerix Development Lifecycle
 
 # 🚀 /process - The Unified Questerix Lifecycle
 
+> **⚡ Superpower Fallback**: If commands need approval, use `/sp` - I output JSON, you paste into `tasks.json`, watcher runs it.
+
 This workflow governs the entire development cycle.
 **Core Principle**: **"Document As You Go."**
 - **Bug Fixed?** → Update `docs/LEARNING_LOG.md` immediately.

@@ -101,7 +101,7 @@ class SyncService extends StateNotifier<SyncState> {
     if (outboxItems.isEmpty) return;
 
     // Group items by Table and Action
-    final groups = <String, List<OutboxData>>{};
+    final groups = <String, List<OutboxEntry>>{};
     for (final item in outboxItems) {
       final key = '${item.table}:${item.action}';
       groups.putIfAbsent(key, () => []).add(item);
@@ -171,8 +171,8 @@ class SyncService extends StateNotifier<SyncState> {
               await _supabase.from(tableName).upsert(payloads);
             }
           } else if (action == 'DELETE') {
-            final ids = batch.map((item) => item.recordId).toList();
-            await _supabase.from(tableName).delete().in('id', ids);
+            final ids = batch.map((item) => item.recordId).whereType<String>().toList();
+            await _supabase.from(tableName).delete().inFilter('id', ids);
           }
 
           // Remove batch from outbox on success

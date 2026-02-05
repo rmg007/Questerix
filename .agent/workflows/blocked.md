@@ -2,7 +2,11 @@
 description: Report blockers and partial progress
 ---
 
+// turbo-all
+
 # /blocked - Report Blocker
+
+> **⚡ Superpower Fallback**: If commands need approval, use `/sp` - I output JSON, you paste into `tasks.json`, watcher runs it.
 
 **Purpose**: Report when work cannot continue and document partial progress.
 

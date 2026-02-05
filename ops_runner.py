@@ -18,6 +18,11 @@ import time
 from pathlib import Path
 from typing import List, Dict, Any
 
+# Fix Windows console encoding for Unicode
+if sys.platform == 'win32':
+    sys.stdout.reconfigure(encoding='utf-8', errors='replace')
+    sys.stderr.reconfigure(encoding='utf-8', errors='replace')
+
 try:
     from watchdog.observers import Observer
     from watchdog.events import FileSystemEventHandler

@@ -31,6 +31,7 @@ export function UserManagementPage() {
   useEffect(() => {
     fetchUsers();
     getCurrentUser();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
   const getCurrentUser = async () => {

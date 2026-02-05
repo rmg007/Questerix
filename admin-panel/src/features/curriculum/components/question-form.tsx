@@ -227,7 +227,7 @@ export function QuestionForm({ initialData }: QuestionFormProps) {
 
       if (initialData) {
         await updateQuestion.mutateAsync({
-           id: initialData.id,
+           question_id: initialData.question_id,
            ...submissionData
         } as any);
       } else {
@@ -739,7 +739,7 @@ export function QuestionForm({ initialData }: QuestionFormProps) {
                                     </FormControl>
                                     <SelectContent>
                                         {skills?.map((skill) => (
-                                            <SelectItem key={skill.id} value={skill.id}>
+                                            <SelectItem key={skill.skill_id} value={skill.skill_id}>
                                                 {skill.title}
                                             </SelectItem>
                                         ))}

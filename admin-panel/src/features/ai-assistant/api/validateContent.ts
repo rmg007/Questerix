@@ -3,11 +3,19 @@ import { supabase } from '@/lib/supabase';
 export interface ValidationRule {
   name: string;
   rule_type: string;
-  params: any;
+  params: Record<string, unknown>;
+}
+
+export interface QuestionData {
+  id?: number;
+  question?: string;
+  options?: unknown[];
+  correct_answer?: unknown;
+  [key: string]: unknown;
 }
 
 export interface ValidationRequest {
-  questions: any[];
+  questions: QuestionData[];
   source_text: string;
   rules?: ValidationRule[];
 }
@@ -32,12 +40,12 @@ export interface ValidationResponse {
 export async function validateContent(
   request: ValidationRequest
 ): Promise<ValidationResponse> {
-  const { data, error } = await supabase.functions.invoke('validate-content', {
+  const { data, error } = await supabase.functions.invoke<ValidationResponse>('validate-content', {
     body: request,
   });
 
   if (error) throw error;
   if (!data) throw new Error('No data returned from validation Edge Function');
 
-  return data as ValidationResponse;
+  return data;
 }

@@ -13,31 +13,34 @@ interface Assignment {
   id: string
   type: string
   scope: string | null
-  deadline: string | null
+  due_date: string | null
   status: string | null
-  skill_id: string
+  target_id: string
 }
 
 interface Member {
+  id: string
   group_id: string
-  user_id: string
+  user_id: string | null
   nickname: string | null
-  created_at: string
+  joined_at: string | null
+  anonymous_device_id: string | null
   profiles: {
-    email: string | null
+    id: string
+    email: string
     full_name: string | null
   } | null
 }
 
 interface Skill {
   skill_id: string
-  name: string
+  title: string
 }
 
 interface ProgressEntry {
   user_id: string
   skill_id: string
-  mastery_score: number
+  mastery_level: number | null
 }
 
 export function GroupDetailPage() {
@@ -142,7 +145,7 @@ export function GroupDetailPage() {
   // Fetch skill details for assignments
   const assignmentSkillIds = assignments
     ?.filter((a: Assignment) => a.type === 'skill_mastery')
-    .map((a: Assignment) => a.skill_id) || []
+    .map((a: Assignment) => a.target_id) || []
 
   const { data: assignmentSkills } = useQuery({
     queryKey: ['skills-details', assignmentSkillIds],
@@ -150,7 +153,7 @@ export function GroupDetailPage() {
       if (assignmentSkillIds.length === 0) return []
       const { data, error } = await supabase
         .from('skills')
-        .select('skill_id, name')
+        .select('skill_id, title')
         .in('skill_id', assignmentSkillIds)
       if (error) throw error
       return data
@@ -159,7 +162,7 @@ export function GroupDetailPage() {
   })
 
   // Fetch progress for members
-  const memberIds = members?.map((m: Member) => m.user_id) || []
+  const memberIds = members?.map((m: Member) => m.user_id).filter((id): id is string => id !== null) || []
   const { data: progress } = useQuery({
     queryKey: ['group-progress', id, memberIds],
     queryFn: async () => {
@@ -248,12 +251,12 @@ export function GroupDetailPage() {
   const getStatus = (memberId: string, skillId: string) => {
     const entry = progress?.find((p: ProgressEntry) => p.user_id === memberId && p.skill_id === skillId)
     // Assuming entry.mastery_score is 0-100.
-    if (!entry) return 'not_started'
-    if (entry.mastery_score >= 100) return 'mastered'
+    if (!entry || entry.mastery_level === null) return 'not_started'
+    if (entry.mastery_level >= 100) return 'mastered'
     return 'in_progress'
   }
 
-  const getSkillTitle = (skillId: string) => assignmentSkills?.find((s: Skill) => s.skill_id === skillId)?.name || 'Skill'
+  const getSkillTitle = (skillId: string) => assignmentSkills?.find((s: Skill) => s.skill_id === skillId)?.title || 'Skill'
 
   const memberCount = members?.length || 0
 
@@ -336,9 +339,9 @@ export function GroupDetailPage() {
               </div>
               <div className={cn(
                 "text-2xl font-bold",
-                group.allow_anonymous_join ? "text-green-600" : "text-slate-400"
+                group.allow_anonymous ? "text-green-600" : "text-slate-400"
               )}>
-                {group.allow_anonymous_join ? 'Enabled' : 'Disabled'}
+                {group.allow_anonymous ? 'Enabled' : 'Disabled'}
               </div>
             </div>
           </div>
@@ -388,14 +391,14 @@ export function GroupDetailPage() {
                                 placeholder="Enter nickname"
                                 autoFocus
                                 onKeyDown={(e) => {
-                                  if (e.key === 'Enter') handleSaveNickname(member.user_id)
+                                  if (e.key === 'Enter' && member.user_id) handleSaveNickname(member.user_id)
                                   if (e.key === 'Escape') cancelEditing()
                                 }}
                               />
                               <Button 
                                 size="sm" 
-                                onClick={() => handleSaveNickname(member.user_id)}
-                                disabled={updateNicknameMutation.isPending}
+                                onClick={() => member.user_id && handleSaveNickname(member.user_id)}
+                                disabled={updateNicknameMutation.isPending || !member.user_id}
                               >
                                 Save
                               </Button>
@@ -421,7 +424,7 @@ export function GroupDetailPage() {
                                 <p className="text-sm text-slate-500">{member.profiles.email}</p>
                               )}
                               <p className="text-xs text-slate-400">
-                                Joined {new Date(member.created_at).toLocaleDateString()}
+                                Joined {member.joined_at ? new Date(member.joined_at).toLocaleDateString() : 'Unknown'}
                               </p>
                             </>
                           )}
@@ -434,7 +437,7 @@ export function GroupDetailPage() {
                           <Button
                             size="sm"
                             variant="ghost"
-                            onClick={() => startEditingNickname(member.user_id, member.nickname || '')}
+                            onClick={() => member.user_id && startEditingNickname(member.user_id, member.nickname || '')}
                             className="opacity-0 group-hover:opacity-100 transition-opacity text-slate-500 hover:text-slate-700"
                           >
                             <Edit3 className="h-4 w-4" />
@@ -443,7 +446,7 @@ export function GroupDetailPage() {
                             size="sm"
                             variant="ghost"
                             onClick={() => {
-                              if (confirm('Are you sure you want to remove this member?')) {
+                              if (confirm('Are you sure you want to remove this member?') && member.user_id) {
                                 removeMemberMutation.mutate(member.user_id)
                               }
                             }}
@@ -503,8 +506,8 @@ export function GroupDetailPage() {
                         <h3 className="font-semibold text-slate-900 capitalize">{assignment.type.replace('_', ' ')}</h3>
                         <p className="text-sm text-slate-500 flex items-center gap-2">
                           <span className="capitalize px-1.5 py-0.5 rounded bg-slate-200 text-slate-700 text-xs">{assignment.scope}</span>
-                          {assignment.deadline && (
-                             <span>Due: {new Date(assignment.deadline).toLocaleDateString()}</span>
+                          {assignment.due_date && (
+                             <span>Due: {new Date(assignment.due_date).toLocaleDateString()}</span>
                           )}
                         </p>
                       </div>
@@ -556,12 +559,12 @@ export function GroupDetailPage() {
                     </TableHeader>
                     <TableBody>
                       {members.map((member: Member) => (
-                        <TableRow key={member.user_id}>
+                        <TableRow key={member.id}>
                           <TableCell className="font-medium">
                              {member.nickname || member.profiles?.full_name || member.profiles?.email || 'Anonymous'}
                           </TableCell>
                           {assignmentSkillIds.map((skillId: string) => {
-                             const status = getStatus(member.user_id, skillId)
+                             const status = member.user_id ? getStatus(member.user_id, skillId) : 'not_started'
                              return (
                                <TableCell key={skillId} className="text-center">
                                  {status === 'mastered' ? (

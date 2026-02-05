@@ -38,10 +38,10 @@ const DEFAULT_PAGE_SIZE = 10
 
 interface Domain {
   domain_id: string
-  name: string
+  title: string
   slug: string
-  sort_order: number
-  status?: string
+  sort_order: number | null
+  status: 'draft' | 'published' | 'live' | null
 }
 
 interface SortableRowProps {
@@ -61,7 +61,7 @@ function SortableRow({ domain, isSelected, onSelect, onDelete, renderStatusBadge
     transform,
     transition,
     isDragging,
-  } = useSortable({ id: domain.id, disabled: isDragDisabled })
+  } = useSortable({ id: domain.domain_id, disabled: isDragDisabled })
 
   const style = {
     transform: CSS.Transform.toString(transform),
@@ -92,17 +92,17 @@ function SortableRow({ domain, isSelected, onSelect, onDelete, renderStatusBadge
         )}
       </td>
       <td className="px-4 py-4">
-        <button onClick={() => onSelect(domain.id)} className="text-gray-400 hover:text-gray-600">
+        <button onClick={() => onSelect(domain.domain_id)} className="text-gray-400 hover:text-gray-600">
           {isSelected ? <CheckSquare className="h-5 w-5 text-purple-600" /> : <Square className="h-5 w-5" />}
         </button>
       </td>
       <td className="px-6 py-4">
         <span className="inline-flex items-center justify-center w-8 h-8 rounded-lg bg-purple-100 text-purple-700 font-semibold text-sm">
-          {domain.sort_order}
+          {domain.sort_order ?? 0}
         </span>
       </td>
       <td className="px-6 py-4">
-        <span className="font-medium text-gray-900">{domain.name}</span>
+        <span className="font-medium text-gray-900">{domain.title}</span>
       </td>
       <td className="px-6 py-4">
         <code className="px-2 py-1 bg-gray-100 rounded text-sm text-gray-600">{domain.slug}</code>
@@ -113,13 +113,13 @@ function SortableRow({ domain, isSelected, onSelect, onDelete, renderStatusBadge
       <td className="px-6 py-4 text-right">
         <div className="flex items-center justify-end gap-2">
           <Link
-            to={`/domains/${domain.id}/edit`}
+            to={`/domains/${domain.domain_id}/edit`}
             className="px-3 py-1 bg-blue-100 text-blue-700 rounded-full text-sm font-medium hover:bg-blue-200 transition-colors"
           >
             Edit
           </Link>
           <button
-            onClick={() => onDelete(domain.id)}
+            onClick={() => onDelete(domain.domain_id)}
             className="px-3 py-1 bg-red-100 text-red-700 rounded-full text-sm font-medium hover:bg-red-200 transition-colors"
           >
             Delete
@@ -138,7 +138,7 @@ function SortableCard({ domain, isSelected, onSelect, onDelete, renderStatusBadg
     transform,
     transition,
     isDragging,
-  } = useSortable({ id: domain.id, disabled: isDragDisabled })
+  } = useSortable({ id: domain.domain_id, disabled: isDragDisabled })
 
   const style = {
     transform: CSS.Transform.toString(transform),
@@ -171,7 +171,7 @@ function SortableCard({ domain, isSelected, onSelect, onDelete, renderStatusBadg
           </div>
         )}
         <button
-          onClick={() => onSelect(domain.id)}
+          onClick={() => onSelect(domain.domain_id)}
           className="p-2 text-gray-400 hover:text-gray-600 flex-shrink-0"
         >
           {isSelected ? <CheckSquare className="h-5 w-5 text-purple-600" /> : <Square className="h-5 w-5" />}
@@ -179,9 +179,9 @@ function SortableCard({ domain, isSelected, onSelect, onDelete, renderStatusBadg
         <div className="flex-1 min-w-0">
           <div className="flex items-center gap-2 mb-1">
             <span className="inline-flex items-center justify-center w-7 h-7 rounded-lg bg-purple-100 text-purple-700 font-semibold text-xs flex-shrink-0">
-              {domain.sort_order}
+              {domain.sort_order ?? 0}
             </span>
-            <h3 className="font-medium text-gray-900 truncate">{domain.name}</h3>
+            <h3 className="font-medium text-gray-900 truncate">{domain.title}</h3>
           </div>
           <code className="px-2 py-0.5 bg-gray-100 rounded text-xs text-gray-600">{domain.slug}</code>
         </div>
@@ -191,13 +191,13 @@ function SortableCard({ domain, isSelected, onSelect, onDelete, renderStatusBadg
       </div>
       <div className="flex items-center justify-end gap-2 pt-2 border-t border-gray-100">
         <Link
-          to={`/domains/${domain.id}/edit`}
+          to={`/domains/${domain.domain_id}/edit`}
           className="px-4 py-2 bg-blue-100 text-blue-700 rounded-full text-sm font-medium hover:bg-blue-200 transition-colors"
         >
           Edit
         </Link>
         <button
-          onClick={() => onDelete(domain.id)}
+          onClick={() => onDelete(domain.domain_id)}
           className="px-4 py-2 bg-red-100 text-red-700 rounded-full text-sm font-medium hover:bg-red-200 transition-colors"
         >
           Delete
@@ -231,7 +231,7 @@ export function DomainList() {
   const bulkUpdateStatus = useBulkUpdateDomainsStatus()
   const updateDomainOrder = useUpdateDomainOrder()
   const { toast } = useToast()
-  
+
   const showToast = (title: string, type: 'success' | 'error' = 'success') => {
     toast({
       title,
@@ -269,7 +269,7 @@ export function DomainList() {
     setPage(1)
   }, [statusFilter])
 
-  const domains = paginatedData?.data ?? []
+  const domains = useMemo(() => paginatedData?.data ?? [], [paginatedData])
   const totalCount = paginatedData?.totalCount ?? 0
   const totalPages = paginatedData?.totalPages ?? 1
 
@@ -286,7 +286,7 @@ export function DomainList() {
 
       if (oldIndex !== -1 && newIndex !== -1) {
         const reorderedDomains = arrayMove(domains, oldIndex, newIndex)
-        
+
         const updates = reorderedDomains.map((domain, index) => ({
           domain_id: domain.domain_id,
           sort_order: index + 1 + (page - 1) * pageSize,
@@ -649,9 +649,9 @@ export function DomainList() {
                   ) : (
                     domains.map((domain) => (
                       <SortableRow
-                        key={domain.id}
+                        key={domain.domain_id}
                         domain={domain}
-                        isSelected={selectedIds.has(domain.id)}
+                        isSelected={selectedIds.has(domain.domain_id)}
                         onSelect={handleSelectOne}
                         onDelete={handleDelete}
                         renderStatusBadge={renderStatusBadge}
@@ -699,9 +699,9 @@ export function DomainList() {
                 <div className="space-y-3">
                   {domains.map((domain) => (
                     <SortableCard
-                      key={domain.id}
+                      key={domain.domain_id}
                       domain={domain}
-                      isSelected={selectedIds.has(domain.id)}
+                      isSelected={selectedIds.has(domain.domain_id)}
                       onSelect={handleSelectOne}
                       onDelete={handleDelete}
                       renderStatusBadge={renderStatusBadge}

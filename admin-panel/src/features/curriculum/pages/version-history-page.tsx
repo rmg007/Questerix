@@ -1,7 +1,11 @@
-/* eslint-disable @typescript-eslint/no-explicit-any */
 import { useQuery } from '@tanstack/react-query';
 import { supabase } from '@/lib/supabase';
+import { Database } from '@/lib/database.types';
+import { useApp } from '@/hooks/use-app';
 import { History, Calendar, Package, Download } from 'lucide-react';
+
+type CurriculumSnapshot = Database['public']['Tables']['curriculum_snapshots']['Row'];
+type CurriculumMeta = Database['public']['Tables']['curriculum_meta']['Row'];
 
 interface PublishHistory {
   version: number;
@@ -23,9 +27,13 @@ function formatDate(dateString: string): string {
 }
 
 export function VersionHistoryPage() {
+  const { currentApp } = useApp();
+
   const { data: history, isLoading } = useQuery({
-    queryKey: ['publish-history'],
+    queryKey: ['publish-history', currentApp?.app_id],
     queryFn: async (): Promise<PublishHistory[]> => {
+      if (!currentApp?.app_id) return [];
+
       const { data, error } = await supabase
         .from('curriculum_snapshots')
         .select('version, published_at, domains_count, skills_count, questions_count')
@@ -36,22 +44,35 @@ export function VersionHistoryPage() {
         console.warn('No publish history table found or error:', error);
         return [];
       }
-      return (data as any[]) || [];
+      return (data as CurriculumSnapshot[]).map(snapshot => ({
+        version: snapshot.version,
+        published_at: snapshot.published_at,
+        domains_count: snapshot.domains_count,
+        skills_count: snapshot.skills_count,
+        questions_count: snapshot.questions_count,
+      })) || [];
     },
+    enabled: Boolean(currentApp?.app_id),
   });
 
   const { data: currentMeta } = useQuery({
-    queryKey: ['curriculum-meta'],
-    queryFn: async () => {
+    queryKey: ['curriculum-meta', currentApp?.app_id],
+    queryFn: async (): Promise<CurriculumMeta | null> => {
+      if (!currentApp?.app_id) return null;
+
       const { data, error } = await supabase
         .from('curriculum_meta')
         .select('version, last_published_at')
-        .eq('id', 'singleton')
-        .single();
+        .eq('app_id', currentApp.app_id)
+        .maybeSingle();
 
-      if (error) throw error;
-      return data;
+      if (error && error.code !== 'PGRST116') {
+        console.warn('Error fetching curriculum meta:', error);
+        return null;
+      }
+      return data as CurriculumMeta | null;
     },
+    enabled: Boolean(currentApp?.app_id),
   });
 
   const handleExport = async (version: number) => {
@@ -100,10 +121,10 @@ export function VersionHistoryPage() {
           <div>
             <h3 className="text-lg font-semibold text-white">Current Version</h3>
             <p className="text-purple-100">
-              v{(currentMeta as any)?.version ?? 0}
-              {(currentMeta as any)?.last_published_at && (
+              v{currentMeta?.version ?? 0}
+              {currentMeta?.last_published_at && (
                 <span className="ml-2 text-sm">
-                  (Published {formatDate((currentMeta as any).last_published_at)})
+                  (Published {formatDate(currentMeta.last_published_at)})
                 </span>
               )}
             </p>

@@ -18,7 +18,7 @@ export async function captureException(
 ): Promise<string | null> {
   try {
     const errorObj = error instanceof Error ? error : new Error(String(error));
-    
+
     const { data, error: rpcError } = await supabase.rpc('log_error' as never, {
       p_platform: 'web',
       p_error_type: errorObj.name || 'Error',
@@ -66,6 +66,7 @@ export async function captureMessage(
  * Sets user context for future error reports.
  * This is a no-op in our system since we use auth.uid() server-side.
  */
+// eslint-disable-next-line @typescript-eslint/no-unused-vars
 export function setUser(_userId: string, _email?: string): void {
   // User context is automatically captured via Supabase auth
   // This function exists for API compatibility
@@ -85,7 +86,7 @@ export function initErrorTracking(): void {
   // Capture uncaught errors
   window.addEventListener('error', (event) => {
     captureException(event.error || event.message, {
-      extra: { 
+      extra: {
         type: 'uncaught',
         filename: event.filename,
         lineno: event.lineno,

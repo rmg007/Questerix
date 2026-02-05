@@ -132,7 +132,7 @@ export function usePublishCurriculum() {
       
       // FIX M4: Pass app_id to RPC
       // Note: Type cast needed until database.types.ts is regenerated
-      const { data, error } = await (supabase as unknown as { rpc: (n: string, p: any) => Promise<{ data: any; error: any }> }).rpc('publish_curriculum', {
+      const { data, error } = await supabase.rpc('publish_curriculum', {
         p_app_id: currentApp.app_id
       });
       if (error) throw error;

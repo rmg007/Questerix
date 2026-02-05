@@ -16,19 +16,20 @@ export function LandingsPage() {
 
   const [editingLanding, setEditingLanding] = useState<LandingPage | null>(null);
   const [formData, setFormData] = useState({
-    meta_title: '',
-    meta_description: '',
     hero_headline: '',
-    hero_subheadline: ''
+
+    hero_subtext: '',
+    meta_title: '',
+    meta_description: ''
   });
 
   const handleEdit = (landing: LandingPage) => {
     setEditingLanding(landing);
     setFormData({
-      meta_title: landing.meta_title,
-      meta_description: landing.meta_description,
-      hero_headline: landing.hero_headline,
-      hero_subheadline: landing.hero_subheadline
+      hero_headline: landing.hero_headline || '',
+      hero_subtext: landing.hero_subtext || '',
+      meta_title: landing.meta_title || '',
+      meta_description: landing.meta_description || ''
     });
   };
 
@@ -59,7 +60,30 @@ export function LandingsPage() {
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
           <Card>
             <CardHeader>
-              <CardTitle>SEO Metadata</CardTitle>
+              <CardTitle>Hero Section</CardTitle>
+            </CardHeader>
+            <CardContent className="space-y-4">
+              <div className="space-y-2">
+                <Label>Hero Headline</Label>
+                <Input 
+                  value={formData.hero_headline} 
+                  onChange={(e) => setFormData({ ...formData, hero_headline: e.target.value })} 
+                />
+              </div>
+              <div className="space-y-2">
+                <Label>Hero Subtext</Label>
+                <Textarea 
+                  rows={4}
+                  value={formData.hero_subtext} 
+                  onChange={(e) => setFormData({ ...formData, hero_subtext: e.target.value })} 
+                />
+              </div>
+            </CardContent>
+          </Card>
+
+          <Card>
+            <CardHeader>
+              <CardTitle>SEO Settings</CardTitle>
             </CardHeader>
             <CardContent className="space-y-4">
               <div className="space-y-2">
@@ -75,29 +99,6 @@ export function LandingsPage() {
                   rows={4}
                   value={formData.meta_description} 
                   onChange={(e) => setFormData({ ...formData, meta_description: e.target.value })} 
-                />
-              </div>
-            </CardContent>
-          </Card>
-
-          <Card>
-            <CardHeader>
-              <CardTitle>Hero Section</CardTitle>
-            </CardHeader>
-            <CardContent className="space-y-4">
-              <div className="space-y-2">
-                <Label>Hero Headline</Label>
-                <Input 
-                  value={formData.hero_headline} 
-                  onChange={(e) => setFormData({ ...formData, hero_headline: e.target.value })} 
-                />
-              </div>
-              <div className="space-y-2">
-                <Label>Hero Subheadline</Label>
-                <Textarea 
-                  rows={4}
-                  value={formData.hero_subheadline} 
-                  onChange={(e) => setFormData({ ...formData, hero_subheadline: e.target.value })} 
                 />
               </div>
             </CardContent>
@@ -134,7 +135,7 @@ export function LandingsPage() {
               <TableRow>
                 <TableHead>Application</TableHead>
                 <TableHead>Subdomain</TableHead>
-                <TableHead>Meta Title</TableHead>
+                <TableHead>Headline</TableHead>
                 <TableHead className="text-right">Actions</TableHead>
               </TableRow>
             </TableHeader>
@@ -147,7 +148,7 @@ export function LandingsPage() {
                 <TableRow key={l.landing_page_id}>
                   <TableCell className="font-medium">{l.apps?.display_name}</TableCell>
                   <TableCell className="font-mono text-xs">{l.apps?.subdomain}.questerix.com</TableCell>
-                  <TableCell className="max-w-md truncate">{l.meta_title}</TableCell>
+                  <TableCell className="max-w-md truncate">{l.hero_headline || 'No headline'}</TableCell>
                   <TableCell className="text-right">
                     <Button variant="ghost" size="icon" onClick={() => handleEdit(l)}>
                       <Pencil className="w-4 h-4" />

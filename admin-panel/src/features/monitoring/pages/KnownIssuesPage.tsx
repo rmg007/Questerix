@@ -1,11 +1,11 @@
 import { useState } from 'react';
-import { 
-  AlertCircle, 
-  CheckCircle2, 
-  Clock, 
-  ExternalLink, 
-  Plus, 
-  Search, 
+import {
+  AlertCircle,
+  CheckCircle2,
+  Clock,
+  ExternalLink,
+  Plus,
+  Search,
   Filter,
   Shield,
   LifeBuoy
@@ -15,25 +15,26 @@ import { Card, CardHeader, CardTitle, CardContent, CardDescription } from '@/com
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Badge } from '@/components/ui/badge';
-import { 
-  Table, 
-  TableBody, 
-  TableCell, 
-  TableHead, 
-  TableHeader, 
-  TableRow 
+import {
+  Table,
+  TableBody,
+  TableCell,
+  TableHead,
+  TableHeader,
+  TableRow
 } from '@/components/ui/table';
 
 export function KnownIssuesPage() {
   const { data: issues, isLoading } = useKnownIssues();
   const [searchTerm, setSearchTerm] = useState('');
 
-  const filteredIssues = issues?.filter(issue => 
+  const filteredIssues = issues?.filter(issue =>
     issue.title.toLowerCase().includes(searchTerm.toLowerCase()) ||
-    issue.description.toLowerCase().includes(searchTerm.toLowerCase())
+    (issue.description?.toLowerCase() ?? '').includes(searchTerm.toLowerCase())
   );
 
-  const getStatusBadge = (status: string) => {
+  const getStatusBadge = (status: string | null) => {
+    if (!status) return <Badge variant="outline">Unknown</Badge>;
     switch (status) {
       case 'open':
         return <Badge variant="destructive" className="flex items-center gap-1"><AlertCircle className="w-3 h-3" /> Open</Badge>;
@@ -46,7 +47,8 @@ export function KnownIssuesPage() {
     }
   };
 
-  const getSeverityColor = (severity: string) => {
+  const getSeverityColor = (severity: string | null) => {
+    if (!severity) return 'text-gray-600';
     switch (severity) {
       case 'critical': return 'text-red-600 font-bold';
       case 'high': return 'text-orange-600 font-semibold';
@@ -86,7 +88,7 @@ export function KnownIssuesPage() {
             </div>
           </CardContent>
         </Card>
-        
+
         <Card className="bg-amber-50/50 border-amber-100">
           <CardContent className="pt-6">
             <div className="flex items-center gap-4">
@@ -130,8 +132,8 @@ export function KnownIssuesPage() {
             <div className="flex items-center gap-2 max-w-sm w-full">
               <div className="relative w-full">
                 <Search className="absolute left-2 top-2.5 h-4 w-4 text-muted-foreground" />
-                <Input 
-                  placeholder="Search issues..." 
+                <Input
+                  placeholder="Search issues..."
                   className="pl-8"
                   value={searchTerm}
                   onChange={(e) => setSearchTerm(e.target.value)}
@@ -171,16 +173,16 @@ export function KnownIssuesPage() {
                   <TableRow key={issue.id} className="group cursor-pointer hover:bg-indigo-50/20">
                     <TableCell>
                       <div className="font-medium group-hover:text-indigo-600 transition-colors">{issue.title}</div>
-                      <div className="text-xs text-muted-foreground line-clamp-1">{issue.description}</div>
+                      <div className="text-xs text-muted-foreground line-clamp-1">{issue.description || 'No description'}</div>
                     </TableCell>
                     <TableCell>{getStatusBadge(issue.status)}</TableCell>
                     <TableCell>
                       <span className={`text-xs uppercase tracking-wider ${getSeverityColor(issue.severity)}`}>
-                        {issue.severity}
+                        {issue.severity || 'Unknown'}
                       </span>
                     </TableCell>
                     <TableCell className="text-sm text-muted-foreground">
-                      {new Date(issue.created_at).toLocaleDateString()}
+                      {issue.created_at ? new Date(issue.created_at).toLocaleDateString() : 'N/A'}
                     </TableCell>
                     <TableCell className="text-right">
                       <div className="flex items-center justify-end gap-2">
@@ -207,8 +209,8 @@ export function KnownIssuesPage() {
       <div className="p-6 rounded-xl bg-slate-900 text-slate-100 flex items-center justify-between shadow-xl">
         <div className="flex items-center gap-6">
           <div className="h-12 w-12 rounded-full bg-slate-800 flex items-center justify-center border border-slate-700">
-             <img src="/sentry-logo.png" alt="" className="h-6 w-6 opacity-80" onError={(e) => (e.currentTarget.style.display = 'none')} />
-             <AlertCircle className="h-6 w-6 text-slate-400" />
+            <img src="/sentry-logo.png" alt="" className="h-6 w-6 opacity-80" onError={(e) => (e.currentTarget.style.display = 'none')} />
+            <AlertCircle className="h-6 w-6 text-slate-400" />
           </div>
           <div>
             <h4 className="font-semibold">Sentry Integration Active</h4>

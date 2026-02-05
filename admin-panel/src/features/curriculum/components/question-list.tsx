@@ -67,7 +67,7 @@ interface Question {
     points: number;
     sort_order: number;
     status?: string;
-    skills?: { name: string; domains: { name: string } | null } | null;
+    skills?: { title: string; domains: { title: string } | null } | null;
 }
 
 interface SortableRowProps {
@@ -133,7 +133,7 @@ function SortableRow({ question, isSelected, onSelect, onDelete, onDuplicate, re
                 </span>
             </td>
             <td className="px-6 py-4">
-                <span className="text-gray-700">{question.skills?.name}</span>
+                <span className="text-gray-700">{question.skills?.title}</span>
             </td>
             <td className="px-6 py-4">
                 <span className="inline-flex items-center justify-center w-8 h-8 rounded-lg bg-orange-100 text-orange-700 font-semibold text-sm">
@@ -238,9 +238,9 @@ function SortableCard({ question, isSelected, onSelect, onDelete, onDuplicate, r
                 <span className="px-2 py-1 bg-blue-100 text-blue-700 rounded-full text-xs font-medium capitalize">
                     {question.type}
                 </span>
-                {question.skills?.name && (
+                {question.skills?.title && (
                     <span className="text-gray-600 text-xs">
-                        Skill: <span className="font-medium">{question.skills.name}</span>
+                        Skill: <span className="font-medium">{question.skills.title}</span>
                     </span>
                 )}
                 <span className="inline-flex items-center gap-1 text-gray-600">

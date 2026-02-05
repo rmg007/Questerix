@@ -20,6 +20,7 @@ export const GovernancePage: React.FC = () => {
 
   useEffect(() => {
     fetchQuotas();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
   const fetchQuotas = async () => {
@@ -27,6 +28,7 @@ export const GovernancePage: React.FC = () => {
     try {
       // Joined query to get app names and quotas
       // Note: tenant_quotas table types will be available after regenerating database.types.ts
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
       const { data, error } = await (supabase as any)
         .from('tenant_quotas')
         .select(`
@@ -42,6 +44,7 @@ export const GovernancePage: React.FC = () => {
 
       if (error) throw error;
 
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
       const formattedData = data.map((q: any) => ({
         app_id: q.app_id,
         display_name: q.apps.display_name,

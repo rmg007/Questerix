@@ -21,9 +21,10 @@ export function SubjectsPage() {
   const [formData, setFormData] = useState({
     name: '',
     slug: '',
-    color_hex: '#3B82F6',
+
+    description: '',
+    color_hex: '',
     display_order: 1,
-    status: 'active'
   });
 
   const handleOpenDialog = (subject?: Subject) => {
@@ -32,18 +33,20 @@ export function SubjectsPage() {
       setFormData({
         name: subject.name,
         slug: subject.slug,
-        color_hex: subject.color_hex || '#3B82F6',
-        display_order: subject.display_order,
-        status: subject.status
+
+        description: subject.description || '',
+        color_hex: subject.color_hex || '',
+        display_order: subject.display_order ?? 1,
       });
     } else {
       setEditingSubject(null);
       setFormData({
         name: '',
         slug: '',
-        color_hex: '#3B82F6',
+
+        description: '',
+        color_hex: '',
         display_order: (subjects?.length ?? 0) + 1,
-        status: 'active'
       });
     }
     setIsDialogOpen(true);
@@ -98,12 +101,11 @@ export function SubjectsPage() {
         <CardContent>
           <Table>
             <TableHeader>
-              <TableRow>
+               <TableRow>
                 <TableHead>Name</TableHead>
                 <TableHead>Slug</TableHead>
-                <TableHead>Color</TableHead>
+                <TableHead>Icon</TableHead>
                 <TableHead>Order</TableHead>
-                <TableHead>Status</TableHead>
                 <TableHead className="text-right">Actions</TableHead>
               </TableRow>
             </TableHeader>
@@ -117,19 +119,9 @@ export function SubjectsPage() {
                   <TableCell className="font-medium">{s.name}</TableCell>
                   <TableCell className="font-mono text-xs">{s.slug}</TableCell>
                   <TableCell>
-                    <div className="flex items-center gap-2">
-                      <div className="w-4 h-4 rounded-full shadow-sm border border-white/10" style={{ backgroundColor: s.color_hex || '#ccc' }} />
-                      <span className="text-xs uppercase">{s.color_hex}</span>
-                    </div>
+                    <span className="text-xs">{s.icon_name || 'No icon'}</span>
                   </TableCell>
-                  <TableCell>{s.display_order}</TableCell>
-                  <TableCell>
-                    <span className={`px-2 py-0.5 rounded-full text-[10px] uppercase font-bold tracking-wider ${
-                      s.status === 'active' ? 'bg-green-500/10 text-green-500 border border-green-500/20' : 'bg-gray-500/10 text-gray-500 border border-gray-500/20'
-                    }`}>
-                      {s.status}
-                    </span>
-                  </TableCell>
+                  <TableCell>{s.display_order ?? 0}</TableCell>
                   <TableCell className="text-right">
                     <div className="flex justify-end gap-2">
                       <Button variant="ghost" size="icon" onClick={() => handleOpenDialog(s)}>
@@ -175,23 +167,24 @@ export function SubjectsPage() {
                 />
               </div>
             </div>
+            <div className="space-y-2">
+                <Label htmlFor="color">Color (Hex)</Label>
+                <Input 
+                  id="color" 
+                  value={formData.color_hex} 
+                  onChange={(e) => setFormData({ ...formData, color_hex: e.target.value })} 
+                  placeholder="#000000"
+                />
+            </div>
             <div className="grid grid-cols-2 gap-4">
               <div className="space-y-2">
-                <Label htmlFor="color">Theme Color</Label>
-                <div className="flex gap-2">
-                    <Input 
-                        id="color" 
-                        type="color"
-                        className="w-12 p-1"
-                        value={formData.color_hex} 
-                        onChange={(e) => setFormData({ ...formData, color_hex: e.target.value })} 
-                    />
-                    <Input 
-                        value={formData.color_hex} 
-                        onChange={(e) => setFormData({ ...formData, color_hex: e.target.value })} 
-                        placeholder="#000000"
-                    />
-                </div>
+                <Label htmlFor="description">Description</Label>
+                <Input 
+                  id="description" 
+                  value={formData.description} 
+                  onChange={(e) => setFormData({ ...formData, description: e.target.value })} 
+                  placeholder="Brief description"
+                />
               </div>
               <div className="space-y-2">
                 <Label htmlFor="order">Display Order</Label>

@@ -32,7 +32,7 @@ export function DomainForm() {
   const { data: domains } = useDomains()
   
   const isEditing = Boolean(id)
-  const existingDomain = domains?.find(d => d.id === id)
+  const existingDomain = domains?.find(d => d.domain_id === id)
 
   const {
     register,
@@ -56,7 +56,7 @@ export function DomainForm() {
         title: existingDomain.title,
         slug: existingDomain.slug,
         description: existingDomain.description || '',
-        sort_order: existingDomain.sort_order,
+        sort_order: existingDomain.sort_order ?? 0,
         status: (existingDomain.status as 'draft' | 'live') || 'draft',
       })
     }
@@ -65,7 +65,7 @@ export function DomainForm() {
   const onSubmit = async (data: DomainFormData) => {
     try {
       if (isEditing && id) {
-        await updateDomain.mutateAsync({ id, ...data })
+        await updateDomain.mutateAsync({ domain_id: id, ...data })
       } else {
         await createDomain.mutateAsync(data)
       }

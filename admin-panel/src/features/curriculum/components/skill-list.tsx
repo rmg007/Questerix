@@ -41,13 +41,13 @@ const DEFAULT_PAGE_SIZE = 10;
 
 interface Skill {
     skill_id: string;
-    name: string;
+    title: string;
     slug: string;
     sort_order: number;
     status?: string;
     difficulty_level?: number;
     domain_id?: string;
-    domains?: { name: string } | null;
+    domains?: { title: string } | null;
 }
 
 interface SortableRowProps {
@@ -106,13 +106,13 @@ function SortableRow({ skill, isSelected, onSelect, onDelete, onDuplicate, rende
             </td>
             <td className="px-6 py-4">
                 <div>
-                    <span className="font-medium text-gray-900">{skill.name}</span>
+                    <span className="font-medium text-gray-900">{skill.title}</span>
                     <p className="text-sm text-gray-500">{skill.slug}</p>
                 </div>
             </td>
             <td className="px-6 py-4">
                 <span className="px-3 py-1 bg-purple-100 text-purple-700 rounded-full text-sm font-medium">
-                    {skill.domains?.name}
+                    {skill.domains?.title}
                 </span>
             </td>
             <td className="px-6 py-4">
@@ -208,7 +208,7 @@ function SortableCard({ skill, isSelected, onSelect, onDelete, onDuplicate, rend
                     {isSelected ? <CheckSquare className="h-5 w-5 text-purple-600" /> : <Square className="h-5 w-5" />}
                 </button>
                 <div className="flex-1 min-w-0">
-                    <h3 className="font-medium text-gray-900 truncate">{skill.name}</h3>
+                    <h3 className="font-medium text-gray-900 truncate">{skill.title}</h3>
                     <p className="text-sm text-gray-500 truncate">{skill.slug}</p>
                 </div>
                 <div className="flex-shrink-0">
@@ -216,9 +216,9 @@ function SortableCard({ skill, isSelected, onSelect, onDelete, onDuplicate, rend
                 </div>
             </div>
             <div className="flex flex-wrap items-center gap-2 text-sm">
-                {skill.domains?.name && (
+                {skill.domains?.title && (
                     <span className="px-2 py-1 bg-purple-100 text-purple-700 rounded-full text-xs font-medium">
-                        {skill.domains.name}
+                        {skill.domains.title}
                     </span>
                 )}
                 <span className="inline-flex items-center gap-1 text-gray-600">
@@ -323,7 +323,7 @@ export function SkillList() {
         setPage(1);
     }, [selectedDomainId, statusFilter]);
 
-    const skills = paginatedData?.data ?? [];
+    const skills = useMemo(() => paginatedData?.data ?? [], [paginatedData]);
     const totalCount = paginatedData?.totalCount ?? 0;
     const totalPages = paginatedData?.totalPages ?? 1;
 
@@ -564,7 +564,7 @@ export function SkillList() {
                             >
                                 <option value="all">All Domains</option>
                                 {domains?.map(domain => (
-                                    <option key={domain.domain_id} value={domain.domain_id}>{domain.name}</option>
+                                    <option key={domain.domain_id} value={domain.domain_id}>{domain.title}</option>
                                 ))}
                             </select>
                         </div>

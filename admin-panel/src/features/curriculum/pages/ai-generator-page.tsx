@@ -42,7 +42,7 @@ export function AIGeneratorPage() {
     const handleConfigSubmit = () => {
         // Build initial prompt instruction based on config
         const selectedSkill = skills?.find((s) => s.skill_id === config.skillId);
-        const skillName = selectedSkill ? selectedSkill.name : "General Math";
+        const skillName = selectedSkill ? selectedSkill.title : "General Math";
         
         const initialPrompt = `Analyze the provided context material.
 Focus heavily on the topic: "${skillName}".
@@ -60,7 +60,7 @@ Ensure questions are clear, concise, and suitable for the curriculum.`;
             context: fileContent,
             count: config.count,
             difficulty: config.difficulty,
-            skillTitle: selectedSkill?.name || 'Math',
+            skillTitle: selectedSkill?.title || 'Math',
             promptInstruction: promptInstruction,
             questionType: config.type
         });
@@ -85,16 +85,16 @@ Ensure questions are clear, concise, and suitable for the curriculum.`;
             options: q.options ? JSON.stringify(q.options) : '',
             correct_answer: q.correct_answer,
             // Important: We need to output the Skill Title so Bulk Import can map it
-            skill_title: skills?.find((s) => s.skill_id === config.skillId)?.name || '',
+            skill_title: skills?.find((s) => s.skill_id === config.skillId)?.title || '',
             status: 'draft'
         }));
 
-        const headers = ['content', 'type', 'points', 'explanation', 'options', 'correct_answer', 'skill_title', 'status'];
+        const headers = ['content', 'type', 'points', 'explanation', 'options', 'correct_answer', 'skill_title', 'status'] as const;
         const csvContent = [
             headers.join(','),
             ...csvRows.map(row => 
                 headers.map(header => {
-                    const val = (row as any)[header];
+                    const val = row[header];
                     // Escape CSV values
                     return `"${String(val).replace(/"/g, '""')}"`;
                 }).join(',')
@@ -196,7 +196,7 @@ Ensure questions are clear, concise, and suitable for the curriculum.`;
                                     </SelectTrigger>
                                     <SelectContent>
                                         {skills?.map((s) => (
-                                            <SelectItem key={s.skill_id} value={s.skill_id}>{s.name}</SelectItem>
+                                            <SelectItem key={s.skill_id} value={s.skill_id}>{s.title}</SelectItem>
                                         ))}
                                     </SelectContent>
                                 </Select>

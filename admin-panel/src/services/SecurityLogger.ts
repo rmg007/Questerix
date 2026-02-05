@@ -16,7 +16,7 @@ class SecurityLoggerService {
    */
   async log(data: SecurityEventData): Promise<void> {
     try {
-      // @ts-ignore
+      // @ts-expect-error - RPC call types are dynamic
       const { error } = await supabase.rpc('log_security_event', {
         p_event_type: data.eventType,
         p_severity: data.severity,

@@ -1,0 +1,17 @@
+[
+  {
+    "description": "Run linter on admin panel",
+    "command": "cd admin-panel && npm run lint",
+    "cwd": null
+  },
+  {
+    "description": "Check TypeScript compilation",
+    "command": "cd admin-panel && npx tsc --noEmit",
+    "cwd": null
+  },
+  {
+    "description": "Run tests",
+    "command": "cd admin-panel && npm test",
+    "cwd": null
+  }
+]

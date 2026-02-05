@@ -38,7 +38,7 @@ export function AppsPage() {
         subject_id: app.subject_id,
         display_name: app.display_name,
         subdomain: app.subdomain,
-        grade_level: app.grade_level,
+        grade_level: app.grade_level || '',
         grade_number: app.grade_number || 0,
         is_active: app.is_active
       });

@@ -114,6 +114,8 @@ export type Database = {
           features: Json | null
           hero_headline: string | null
           hero_subtext: string | null
+          meta_title: string | null
+          meta_description: string | null
           is_published: boolean | null
           landing_page_id: string
           updated_at: string
@@ -125,6 +127,8 @@ export type Database = {
           features?: Json | null
           hero_headline?: string | null
           hero_subtext?: string | null
+          meta_title?: string | null
+          meta_description?: string | null
           is_published?: boolean | null
           landing_page_id?: string
           updated_at?: string
@@ -136,6 +140,8 @@ export type Database = {
           features?: Json | null
           hero_headline?: string | null
           hero_subtext?: string | null
+          meta_title?: string | null
+          meta_description?: string | null
           is_published?: boolean | null
           landing_page_id?: string
           updated_at?: string
@@ -360,6 +366,40 @@ export type Database = {
           },
         ]
       }
+      curriculum_snapshots: {
+        Row: {
+          id: string
+          version: number
+          content: Json
+          domains_count: number
+          skills_count: number
+          questions_count: number
+          published_at: string
+          created_at: string
+        }
+        Insert: {
+          id?: string
+          version: number
+          content: Json
+          domains_count?: number
+          skills_count?: number
+          questions_count?: number
+          published_at?: string
+          created_at?: string
+        }
+        Update: {
+          id?: string
+          version?: number
+          content?: Json
+          domains_count?: number
+          skills_count?: number
+          questions_count?: number
+          published_at?: string
+          created_at?: string
+        }
+        Relationships: []
+      }
+
       domains: {
         Row: {
           app_id: string
@@ -646,9 +686,11 @@ export type Database = {
           explanation: string | null
           metadata: Json | null
           options: Json | null
+          points: number
           question_id: string
           content: string
           skill_id: string
+          solution: Json | null
           sort_order: number | null
           status: Database["public"]["Enums"]["curriculum_status"] | null
           type: Database["public"]["Enums"]["question_type"]
@@ -767,6 +809,7 @@ export type Database = {
           created_at: string
           deleted_at: string | null
           description: string | null
+          difficulty_level: number | null
           domain_id: string | null
           title: string
           skill_id: string
@@ -909,6 +952,7 @@ export type Database = {
           name: string
           slug: string
           subject_id: string
+          color_hex: string | null
           updated_at: string
         }
         Insert: {
@@ -919,6 +963,7 @@ export type Database = {
           name: string
           slug: string
           subject_id?: string
+          color_hex?: string | null
           updated_at?: string
         }
         Update: {
@@ -929,6 +974,7 @@ export type Database = {
           name?: string
           slug?: string
           subject_id?: string
+          color_hex?: string | null
           updated_at?: string
         }
         Relationships: []
@@ -954,6 +1000,12 @@ export type Database = {
           p_location: string | null
         }
         Returns: boolean
+      }
+      publish_curriculum: {
+        Args: {
+          p_app_id: string
+        }
+        Returns: Json
       }
     }
     Enums: {

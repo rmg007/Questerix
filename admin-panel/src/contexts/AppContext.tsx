@@ -1,7 +1,9 @@
-import { ReactNode, useState, useEffect } from 'react';
+import { ReactNode, useState, useEffect, useContext } from 'react';
 import { supabase } from '@/lib/supabase';
 import { App } from '@/features/platform/hooks/use-apps';
 import { AppContext } from './AppContextDefinition';
+// eslint-disable-next-line react-refresh/only-export-components
+export const useAppContext = () => useContext(AppContext);
 
 const STORAGE_KEY = 'questerix_admin_current_app_id';
 
@@ -17,16 +19,16 @@ export function AppProvider({ children }: { children: ReactNode }) {
         .from('apps')
         .select('*')
         .order('display_name');
-      
+
       if (error) throw error;
-      
+
       if (data && data.length > 0) {
         setApps(data);
-        
+
         // Try to restore from localStorage
         const savedAppId = localStorage.getItem(STORAGE_KEY);
         const savedApp = data.find(a => a.app_id === savedAppId);
-        
+
         if (savedApp) {
           setCurrentApp(savedApp);
         } else {
@@ -52,10 +54,10 @@ export function AppProvider({ children }: { children: ReactNode }) {
   };
 
   return (
-    <AppContext.Provider value={{ 
-      currentApp, 
-      setCurrentApp: handleSetCurrentApp, 
-      apps, 
+    <AppContext.Provider value={{
+      currentApp,
+      setCurrentApp: handleSetCurrentApp,
+      apps,
       isLoading,
       refreshApps: loadApps
     }}>
@@ -64,4 +66,6 @@ export function AppProvider({ children }: { children: ReactNode }) {
   );
 }
 
-// useApp hook moved to @/hooks/use-app.ts
+// Re-export useApp hook for compatibility
+// eslint-disable-next-line react-refresh/only-export-components
+export { useApp } from '@/hooks/use-app';

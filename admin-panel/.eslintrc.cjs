@@ -13,7 +13,18 @@ module.exports = {
     'no-implicit-coercion': 'error',
     'react-refresh/only-export-components': [
       'warn',
-      { allowConstantExport: true },
+      {
+        allowConstantExport: true,
+        allowExportNames: ['useFormField'], // Allow hook exports in UI components
+      },
     ],
   },
+  overrides: [
+    {
+      files: ['src/components/ui/**/*.tsx'],
+      rules: {
+        'react-refresh/only-export-components': 'off', // UI component libraries commonly export hooks with components
+      },
+    },
+  ],
 }

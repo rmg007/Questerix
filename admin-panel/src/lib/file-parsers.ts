@@ -1,7 +1,5 @@
-// React imports removed as they are not used in this utility file
-// @ts-ignore
+// @ts-expect-error - No types available for pdfjs-dist build
 import * as pdfjsLib from "pdfjs-dist/build/pdf";
-// @ts-ignore
 import mammoth from "mammoth";
 
 // We need to set up the worker for PDF.js
@@ -50,7 +48,10 @@ async function parsePdf(file: File): Promise<string> {
     for (let i = 1; i <= pdf.numPages; i++) {
         const page = await pdf.getPage(i);
         const textContent = await page.getTextContent();
-        const pageText = textContent.items.map((item: any) => item.str).join(' ');
+        interface TextItem {
+            str: string;
+        }
+        const pageText = (textContent.items as TextItem[]).map((item) => item.str).join(' ');
         fullText += `\n--- Page ${i} ---\n${pageText}`;
     }
 

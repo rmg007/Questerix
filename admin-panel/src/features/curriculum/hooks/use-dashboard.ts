@@ -1,7 +1,9 @@
-/* eslint-disable @typescript-eslint/no-explicit-any */
 import { useQuery } from '@tanstack/react-query';
 import { supabase } from '@/lib/supabase';
-import { useApp } from '@/contexts/AppContext';
+import { useApp } from '@/hooks/use-app';
+import { Database } from '@/lib/database.types';
+
+type CurriculumMeta = Database['public']['Tables']['curriculum_meta']['Row'];
 
 interface DashboardStats {
   totalDomains: number;
@@ -90,8 +92,8 @@ export function useDashboardStats() {
         draftDomains: draftDomainsResult.count ?? 0,
         draftSkills: draftSkillsResult.count ?? 0,
         draftQuestions: draftQuestionsResult.count ?? 0,
-        currentVersion: (metaResult.data as any)?.version ?? 0,
-        lastPublishedAt: (metaResult.data as any)?.last_published_at ?? null,
+        currentVersion: (metaResult.data as CurriculumMeta | null)?.version ?? 0,
+        lastPublishedAt: (metaResult.data as CurriculumMeta | null)?.last_published_at ?? null,
         readyToPublish: publishedCount,
       };
     },
@@ -111,21 +113,21 @@ export function useRecentActivity() {
       const [domainsResult, skillsResult, questionsResult] = await Promise.all([
         supabase
           .from('domains')
-          .select('id, title, created_at, updated_at')
+          .select('domain_id, title, created_at, updated_at')
           .eq('app_id', currentApp.app_id)
           .is('deleted_at', null)
           .order('updated_at', { ascending: false })
           .limit(4),
         supabase
           .from('skills')
-          .select('id, title, created_at, updated_at')
+          .select('skill_id, title, created_at, updated_at')
           .eq('app_id', currentApp.app_id)
           .is('deleted_at', null)
           .order('updated_at', { ascending: false })
           .limit(4),
         supabase
           .from('questions')
-          .select('id, content, created_at, updated_at')
+          .select('question_id, content, created_at, updated_at')
           .eq('app_id', currentApp.app_id)
           .is('deleted_at', null)
           .order('updated_at', { ascending: false })
@@ -138,10 +140,10 @@ export function useRecentActivity() {
 
       const activities: RecentActivity[] = [];
 
-      (domainsResult.data as any[])?.forEach((d: any) => {
+      (domainsResult.data)?.forEach((d) => {
         const isNew = d.created_at === d.updated_at;
         activities.push({
-          id: d.id,
+          id: d.domain_id,
           type: 'domain',
           title: d.title,
           action: isNew ? 'created' : 'updated',
@@ -149,10 +151,10 @@ export function useRecentActivity() {
         });
       });
 
-      (skillsResult.data as any[])?.forEach((s: any) => {
+      (skillsResult.data)?.forEach((s) => {
         const isNew = s.created_at === s.updated_at;
         activities.push({
-          id: s.id,
+          id: s.skill_id,
           type: 'skill',
           title: s.title,
           action: isNew ? 'created' : 'updated',
@@ -160,10 +162,10 @@ export function useRecentActivity() {
         });
       });
 
-      (questionsResult.data as any[])?.forEach((q: any) => {
+      (questionsResult.data)?.forEach((q) => {
         const isNew = q.created_at === q.updated_at;
         activities.push({
-          id: q.id,
+          id: q.question_id,
           type: 'question',
           title: q.content.substring(0, 50) + (q.content.length > 50 ? '...' : ''),
           action: isNew ? 'created' : 'updated',

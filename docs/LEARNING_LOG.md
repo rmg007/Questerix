@@ -498,3 +498,78 @@ This rule disallows shorthand type conversions that can be confusing:
 | `landing-pages` | 2 | `@typescript-eslint/no-empty-object-type` |
 
 These require manual code changes to resolve.
+
+---
+
+## 2026-02-05: Proactive Security Audit System Implementation
+
+### Session Context
+- **Objective**: Establish a proactive security audit system that prevents vulnerabilities rather than just detecting them.
+- **Scope**: Workflow integration, vulnerability taxonomy maintenance, external AI agent onboarding.
+
+---
+
+### Key Learnings
+
+#### 1. Security-by-Design vs. Security-by-Audit
+**Key Insight**: The most effective security comes from integrating threat modeling into the planning phase, not just auditing after implementation.
+- **Pattern**: Check vulnerability "Introduction Triggers" BEFORE writing code, not after.
+- **Implementation**: Added Step 3 (Threat Modeling) to `/process` Phase 1.
+- **Benefit**: Developers know which VUL-XXX patterns to watch for before they start coding.
+
+#### 2. External AI Agent Context Problem
+**What Happened**: External AI tools (Gemini, DeepSource) were flagging false positives because they didn't understand:
+- Questerix's RLS-first security model
+- The offline-first write pattern (SyncService, not direct Supabase)
+- Multi-tenant isolation requirements
+
+**Solution**: Created three context resources:
+- `SECURITY.md` (root) - Quick orientation for external reviewers
+- `external_agent_interface.md` - Sector-specific "fatal errors" to look for
+- `vulnerability_taxonomy.md` - Known patterns with detection methods
+
+#### 3. Vulnerability Taxonomy as Executable Documentation
+**Best Practice**: Each vulnerability pattern entry includes:
+- **Triggers**: What code changes introduce this risk?
+- **Prevention**: What to do during implementation?
+- **Detection**: Grep/search commands to verify (executable!)
+- **Regression Test**: Path to automated test
+
+**Key Insight**: Detection methods must be *copy-pasteable* commands, not vague descriptions.
+
+#### 4. Workflow Integration Points
+**Where Security Checks Now Live**:
+
+| Workflow | Phase | Check |
+|----------|-------|-------|
+| `/process` | Phase 1 (Planning) | Threat modeling - match triggers to changes |
+| `/process` | Phase 4 (Verification) | Run detection methods for changed files |
+| `/certify` | Phase 3 (Security Audit) | Full vulnerability taxonomy audit |
+| `/audit` | All Phases | Systematic full-codebase scan |
+
+**Key Insight**: Security checks at different granularities serve different purposes:
+- Planning → Prevention (proactive)
+- Verification → Catch during dev (early detection)
+- Certify → Independent audit (red team mindset)
+- Audit → Periodic full scan (maintain posture)
+
+---
+
+### Files Modified/Created
+
+| File | Action | Purpose |
+|------|--------|---------|
+| `.agent/workflows/audit.md` | Created | New `/audit` workflow (6 phases) |
+| `.agent/workflows/process.md` | Modified | Added threat modeling + vulnerability check |
+| `.agent/workflows/certify.md` | Modified | Added vulnerability taxonomy audit |
+| `SECURITY.md` | Created | Root-level security context for external agents |
+
+---
+
+### Recommendations for Future Work
+
+1. **Create Regression Tests**: Add actual test files for each VUL-XXX pattern's regression test path.
+2. **Monthly Audit Cadence**: Schedule `/audit` runs monthly and after major releases.
+3. **Update Vulnerability Taxonomy**: When external agents find new patterns, append them using the template.
+4. **Security Posture Dashboard**: Consider adding a simple dashboard showing VUL-XXX status (Open/Resolved).
+

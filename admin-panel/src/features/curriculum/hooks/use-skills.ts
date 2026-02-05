@@ -5,24 +5,23 @@ import { useApp } from '@/hooks/use-app';
 
 type Skill = Database['public']['Tables']['skills']['Row'];
 
+export type CurriculumStatus = Database['public']['Enums']['curriculum_status'];
+
 // Form input type - excludes auto-generated fields
 export type SkillFormInput = {
   domain_id: string;
   slug: string;
   title: string;
   description?: string;
-  difficulty_level: number;
   sort_order: number;
-  status: 'draft' | 'live';
+  status: CurriculumStatus;
 };
-
-export type CurriculumStatus = 'draft' | 'published' | 'live';
 
 export interface PaginationParams {
   page: number;
   pageSize: number;
   search?: string;
-  status?: 'all' | 'draft' | 'published' | 'live';
+  status?: 'all' | CurriculumStatus;
   domainId?: string;
   sortBy?: string;
   sortOrder?: 'asc' | 'desc';
@@ -97,7 +96,7 @@ export function usePaginatedSkills(params: PaginationParams) {
       }
 
       if (status && status !== 'all') {
-        query = query.eq('status', status as any); // Type cast status
+        query = query.eq('status', status);
       }
 
       if (domainId && domainId !== 'all') {
@@ -123,21 +122,24 @@ export function usePaginatedSkills(params: PaginationParams) {
   });
 }
 
-export function useSkill(id: string) {
+export function useSkill(skill_id: string) {
     const { currentApp } = useApp();
     return useQuery({
-        queryKey: ['skill', id, currentApp?.app_id],
+        queryKey: ['skill', skill_id, currentApp?.app_id],
         queryFn: async () => {
+            if (!currentApp?.app_id) throw new Error('No app selected');
+
             const { data, error } = await supabase
                 .from('skills')
                 .select('*')
-                .eq('id', id)
+                .eq('skill_id', skill_id)
+                .eq('app_id', currentApp.app_id)
                 .single();
 
             if (error) throw error;
             return data as Skill;
         },
-        enabled: Boolean(id) && Boolean(currentApp?.app_id),
+        enabled: Boolean(skill_id) && Boolean(currentApp?.app_id),
     });
 }
 
@@ -154,14 +156,14 @@ export function useCreateSkill() {
           app_id: currentApp.app_id
       };
 
-      const { data, error } = await (supabase
-        .from('skills') as any)
+      const { data, error } = await supabase
+        .from('skills')
         .insert(payload)
         .select()
         .single();
       
       if (error) throw error;
-      return data as Skill;
+      return data;
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['skills'] });
@@ -175,20 +177,20 @@ export function useUpdateSkill() {
 
     return useMutation({
         mutationFn: async ({ skill_id, ...updates }: { skill_id: string } & Partial<Skill>) => {
-            const { data, error } = await (supabase
-                .from('skills') as any)
+            const { data, error } = await supabase
+                .from('skills')
                 .update(updates)
                 .eq('skill_id', skill_id)
                 .select()
                 .single();
 
             if (error) throw error;
-            return data as Skill;
+            return data;
         },
         onSuccess: (data) => {
             queryClient.invalidateQueries({ queryKey: ['skills'] });
             queryClient.invalidateQueries({ queryKey: ['skills-paginated'] });
-            queryClient.invalidateQueries({ queryKey: ['skill', (data as any).skill_id] });
+            queryClient.invalidateQueries({ queryKey: ['skill', data.skill_id] });
         },
     });
 }
@@ -198,8 +200,8 @@ export function useDeleteSkill() {
 
     return useMutation({
         mutationFn: async (skill_id: string) => {
-            const { error } = await (supabase
-                .from('skills') as any)
+            const { error } = await supabase
+                .from('skills')
                 .update({ deleted_at: new Date().toISOString() })
                 .eq('skill_id', skill_id);
             
@@ -216,11 +218,11 @@ export function useBulkDeleteSkills() {
     const queryClient = useQueryClient();
 
     return useMutation({
-        mutationFn: async (ids: string[]) => {
-            const { error } = await (supabase
-                .from('skills') as any)
+        mutationFn: async (skill_ids: string[]) => {
+            const { error } = await supabase
+                .from('skills')
                 .update({ deleted_at: new Date().toISOString() })
-                .in('id', ids);
+                .in('skill_id', skill_ids);
 
             if (error) throw error;
         },
@@ -236,11 +238,11 @@ export function useBulkUpdateSkillsStatus() {
     const queryClient = useQueryClient();
 
     return useMutation({
-        mutationFn: async ({ ids, status }: { ids: string[]; status: CurriculumStatus }) => {
-            const { error } = await (supabase
-                .from('skills') as any)
+        mutationFn: async ({ skill_ids, status }: { skill_ids: string[]; status: CurriculumStatus }) => {
+            const { error } = await supabase
+                .from('skills')
                 .update({ status })
-                .in('id', ids);
+                .in('skill_id', skill_ids);
 
             if (error) throw error;
         },
@@ -258,21 +260,22 @@ export function useDuplicateSkill() {
     const { currentApp } = useApp();
 
     return useMutation({
-        mutationFn: async (id: string) => {
+        mutationFn: async (skill_id: string) => {
             if (!currentApp?.app_id) throw new Error('No app selected');
 
             const { data: original, error: fetchError } = await supabase
                 .from('skills')
                 .select('*')
-                .eq('id', id)
+                .eq('skill_id', skill_id)
+                .eq('app_id', currentApp.app_id)
                 .single();
 
             if (fetchError) throw fetchError;
             if (!original) throw new Error('Skill not found');
 
             // eslint-disable-next-line @typescript-eslint/no-unused-vars
-            const { id: _, created_at, updated_at, app_id, ...rest } = original as any;
-            const duplicate = {
+            const { skill_id: _, created_at, updated_at, app_id, ...rest } = original;
+            const duplicate: Database['public']['Tables']['skills']['Insert'] = {
                 ...rest,
                 app_id: currentApp.app_id, // Ensure we use current app ID
                 title: `${rest.title} (Copy)`,
@@ -280,8 +283,8 @@ export function useDuplicateSkill() {
                 status: 'draft',
             };
 
-            const { data, error } = await (supabase
-                .from('skills') as any)
+            const { data, error } = await supabase
+                .from('skills')
                 .insert(duplicate)
                 .select()
                 .single();
@@ -301,11 +304,11 @@ export function useUpdateSkillOrder() {
     const queryClient = useQueryClient();
 
     return useMutation({
-        mutationFn: async (updates: { id: string; sort_order: number }[]) => {
-            const promises = updates.map(({ id, sort_order }) =>
-                (supabase.from('skills') as any)
+        mutationFn: async (updates: { skill_id: string; sort_order: number }[]) => {
+            const promises = updates.map(({ skill_id, sort_order }) =>
+                supabase.from('skills')
                     .update({ sort_order })
-                    .eq('id', id)
+                    .eq('skill_id', skill_id)
             );
 
             const results = await Promise.all(promises);

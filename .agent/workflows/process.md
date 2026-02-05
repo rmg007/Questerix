@@ -42,11 +42,16 @@ Before Phase 1, create `.agent/artifacts/TASK_STATE.json`:
 
 1.  **Explore & Audit**: Analyze the request against the current repository state and existing legacy patterns.
 2.  **Expert Consultation (Team Mode)**: Communicate as a senior technical partner. Do not just "listen and obey"—Proactively challenge assumptions, suggest better architectural alternatives, and warn about potential downstream risks. Discuss until a "Gold Standard" plan is reached.
-3.  **Architectural Lockdown**: Explicitly identify the Design Patterns (e.g., Repository, Bloc, Factory) and SOLID principles. Justify why these patterns are the best choice for this specific feature.
-4.  **Structural Map**: Define the file structure and strict module boundaries to prevent spaghetti growth.
-5.  **Impact Analysis**: Explicitly state the impact on existing systems (Database, API, UI).
-6.  **Edge Case Audit**: Document at least 3 edge cases and how they are handled.
-7.  **Final Blueprint**: Produce a detailed Implementation Plan once consensus is reached.
+3.  **Threat Modeling** (Security-by-Design):
+    *   Read `knowledge/questerix_governance/artifacts/security/vulnerability_taxonomy.md`
+    *   For each pattern, check: Do "Introduction Triggers" match this change?
+    *   If yes → Add "Prevention Checklist" items to implementation plan
+    *   Document in plan: "Relevant vulnerability patterns: VUL-XXX, VUL-YYY"
+4.  **Architectural Lockdown**: Explicitly identify the Design Patterns (e.g., Repository, Bloc, Factory) and SOLID principles. Justify why these patterns are the best choice for this specific feature.
+5.  **Structural Map**: Define the file structure and strict module boundaries to prevent spaghetti growth.
+6.  **Impact Analysis**: Explicitly state the impact on existing systems (Database, API, UI).
+7.  **Edge Case Audit**: Document at least 3 edge cases and how they are handled.
+8.  **Final Blueprint**: Produce a detailed Implementation Plan once consensus is reached.
 
 **EXIT GATE**: USER gives explicit approval to proceed.
 > **IMPORTANT**: Once approved, **PROCEED AUTONOMOUSLY** through Phases 2, 3, 4, and 5. Do not stop to ask for permission again until the final "Task Finished" announcement.
@@ -125,19 +130,24 @@ Before Phase 1, create `.agent/artifacts/TASK_STATE.json`:
 2.  **Multi-Tenant & Security Isolation**:
     *   **Data Leakage Check**: Verify that RLS policies explicitly filter data by `app_id` or `tenant_id`.
     *   **Session Isolation**: Test with different user sessions to ensure one tenant cannot see another's data.
-3.  **Performance & Jank Audit**:
+3.  **Architectural Vulnerability Check**:
+    *   Read `vulnerability_taxonomy.md` for patterns relevant to changed files
+    *   Run detection methods for each applicable VUL-XXX pattern
+    *   If new vulnerability discovered → Append to taxonomy with VUL-XXX ID
+    *   Document results: "Verified: VUL-002 (Subject Leakage) - PASS"
+4.  **Performance & Jank Audit**:
     *   Check for unnecessary re-renders (React) or frame drops (Flutter).
     *   Ensure expensive operations are run in background threads (Isolates/Workers).
     *   Verify virtualization/pagination for large lists.
-4.  **QA Loop**: Run tests. If any fail, fix the code and re-run.
+5.  **QA Loop**: Run tests. If any fail, fix the code and re-run.
     *   **Micro-Postmortem**: For every test failure fixed, **IMMEDIATELY** add an entry to `docs/LEARNING_LOG.md`.
-5.  **Visual Design Audit (If UI changed)**:
+6.  **Visual Design Audit (If UI changed)**:
     *   **Visual Inspection**: Use `browser_subagent` to capture screenshots of all modified screens.
     *   **Premium Critique**: Review for "Wow" factor: check gradients, glassmorphism, spacing consistency, and modern typography.
     *   **UX Fidelity**: Verify smooth transitions, responsive layouts, and intuitive button placement.
     *   **Accessibility Check**: Ensure contrast ratios and screen reader labels meet standards.
-6.  **Repeat**: Loop until **100% of tests pass**, **Visuals are Premium**, and **Performance is Smooth**.
-7.  **Evidence**: Provide a summary of passed tests (pass/fail counts) and **attach visual proof** (screenshots).
+7.  **Repeat**: Loop until **100% of tests pass**, **Visuals are Premium**, and **Performance is Smooth**.
+8.  **Evidence**: Provide a summary of passed tests (pass/fail counts) and **attach visual proof** (screenshots).
 
 **EXIT GATE**: 100% Test Success, Security Verified, and Visual Design Approved.
 

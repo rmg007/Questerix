@@ -95,7 +95,7 @@ export type Database = {
             columns: ["skill_id"]
             isOneToOne: false
             referencedRelation: "skills"
-            referencedColumns: ["id"]
+            referencedColumns: ["skill_id"]
           },
           {
             foreignKeyName: "ai_generation_sessions_source_document_id_fkey"
@@ -307,7 +307,7 @@ export type Database = {
             columns: ["question_id"]
             isOneToOne: false
             referencedRelation: "questions"
-            referencedColumns: ["id"]
+            referencedColumns: ["question_id"]
           },
           {
             foreignKeyName: "attempts_user_id_fkey"
@@ -366,8 +366,8 @@ export type Database = {
           created_at: string
           deleted_at: string | null
           description: string | null
-          id: string
-          name: string
+          domain_id: string
+          title: string
           slug: string
           sort_order: number | null
           status: Database["public"]["Enums"]["curriculum_status"] | null
@@ -379,8 +379,8 @@ export type Database = {
           created_at?: string
           deleted_at?: string | null
           description?: string | null
-          id?: string
-          name: string
+          domain_id?: string
+          title: string
           slug: string
           sort_order?: number | null
           status?: Database["public"]["Enums"]["curriculum_status"] | null
@@ -392,8 +392,8 @@ export type Database = {
           created_at?: string
           deleted_at?: string | null
           description?: string | null
-          id?: string
-          name?: string
+          domain_id?: string
+          title?: string
           slug?: string
           sort_order?: number | null
           status?: Database["public"]["Enums"]["curriculum_status"] | null
@@ -641,33 +641,48 @@ export type Database = {
       questions: {
         Row: {
           app_id: string
+          created_at: string
+          deleted_at: string | null
           explanation: string | null
-          id: string
           metadata: Json | null
           options: Json | null
-          question_text: string
+          question_id: string
+          content: string
           skill_id: string
+          sort_order: number | null
+          status: Database["public"]["Enums"]["curriculum_status"] | null
           type: Database["public"]["Enums"]["question_type"]
+          updated_at: string
         }
         Insert: {
           app_id: string
+          created_at?: string
+          deleted_at?: string | null
           explanation?: string | null
-          id?: string
           metadata?: Json | null
           options?: Json | null
-          question_text: string
+          question_id?: string
+          content: string
           skill_id: string
+          sort_order?: number | null
+          status?: Database["public"]["Enums"]["curriculum_status"] | null
           type: Database["public"]["Enums"]["question_type"]
+          updated_at?: string
         }
         Update: {
           app_id?: string
+          created_at?: string
+          deleted_at?: string | null
           explanation?: string | null
-          id?: string
           metadata?: Json | null
           options?: Json | null
-          question_text?: string
+          question_id?: string
+          content?: string
           skill_id?: string
+          sort_order?: number | null
+          status?: Database["public"]["Enums"]["curriculum_status"] | null
           type?: Database["public"]["Enums"]["question_type"]
+          updated_at?: string
         }
         Relationships: [
           {
@@ -682,7 +697,7 @@ export type Database = {
             columns: ["skill_id"]
             isOneToOne: false
             referencedRelation: "skills"
-            referencedColumns: ["id"]
+            referencedColumns: ["skill_id"]
           },
         ]
       }
@@ -735,7 +750,7 @@ export type Database = {
             columns: ["skill_id"]
             isOneToOne: false
             referencedRelation: "skills"
-            referencedColumns: ["id"]
+            referencedColumns: ["skill_id"]
           },
           {
             foreignKeyName: "skill_progress_user_id_fkey"
@@ -753,8 +768,8 @@ export type Database = {
           deleted_at: string | null
           description: string | null
           domain_id: string | null
-          id: string
-          name: string
+          title: string
+          skill_id: string
           slug: string
           sort_order: number | null
           status: Database["public"]["Enums"]["curriculum_status"] | null
@@ -766,8 +781,8 @@ export type Database = {
           deleted_at?: string | null
           description?: string | null
           domain_id?: string | null
-          id?: string
-          name: string
+          title: string
+          skill_id?: string
           slug: string
           sort_order?: number | null
           status?: Database["public"]["Enums"]["curriculum_status"] | null
@@ -779,8 +794,8 @@ export type Database = {
           deleted_at?: string | null
           description?: string | null
           domain_id?: string | null
-          id?: string
-          name?: string
+          title?: string
+          skill_id?: string
           slug?: string
           sort_order?: number | null
           status?: Database["public"]["Enums"]["curriculum_status"] | null
@@ -799,7 +814,7 @@ export type Database = {
             columns: ["domain_id"]
             isOneToOne: false
             referencedRelation: "domains"
-            referencedColumns: ["id"]
+            referencedColumns: ["domain_id"]
           },
         ]
       }

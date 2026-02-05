@@ -69,7 +69,7 @@ function SortableRow({ skill, isSelected, onSelect, onDelete, onDuplicate, rende
         transform,
         transition,
         isDragging,
-    } = useSortable({ id: skill.id, disabled: isDragDisabled });
+    } = useSortable({ id: skill.skill_id, disabled: isDragDisabled });
 
     const style = {
         transform: CSS.Transform.toString(transform),
@@ -100,7 +100,7 @@ function SortableRow({ skill, isSelected, onSelect, onDelete, onDuplicate, rende
                 )}
             </td>
             <td className="px-4 py-4">
-                <button onClick={() => onSelect(skill.id)} className="text-gray-400 hover:text-gray-600">
+                <button onClick={() => onSelect(skill.skill_id)} className="text-gray-400 hover:text-gray-600">
                     {isSelected ? <CheckSquare className="h-5 w-5 text-purple-600" /> : <Square className="h-5 w-5" />}
                 </button>
             </td>
@@ -137,20 +137,20 @@ function SortableRow({ skill, isSelected, onSelect, onDelete, onDuplicate, rende
             <td className="px-6 py-4 text-right">
                 <div className="flex items-center justify-end gap-2">
                     <Link
-                        to={`/skills/${skill.id}/edit`}
+                        to={`/skills/${skill.skill_id}/edit`}
                         className="px-3 py-1 bg-blue-100 text-blue-700 rounded-full text-sm font-medium hover:bg-blue-200 transition-colors"
                     >
                         Edit
                     </Link>
                     <button
-                        onClick={() => onDuplicate(skill.id)}
+                        onClick={() => onDuplicate(skill.skill_id)}
                         disabled={isDuplicating}
                         className="px-3 py-1 bg-purple-100 text-purple-700 rounded-full text-sm font-medium hover:bg-purple-200 transition-colors disabled:opacity-50"
                     >
                         Duplicate
                     </button>
                     <button
-                        onClick={() => onDelete(skill.id)}
+                        onClick={() => onDelete(skill.skill_id)}
                         className="px-3 py-1 bg-red-100 text-red-700 rounded-full text-sm font-medium hover:bg-red-200 transition-colors"
                     >
                         Delete
@@ -169,7 +169,7 @@ function SortableCard({ skill, isSelected, onSelect, onDelete, onDuplicate, rend
         transform,
         transition,
         isDragging,
-    } = useSortable({ id: skill.id, disabled: isDragDisabled });
+    } = useSortable({ id: skill.skill_id, disabled: isDragDisabled });
 
     const style = {
         transform: CSS.Transform.toString(transform),
@@ -202,13 +202,13 @@ function SortableCard({ skill, isSelected, onSelect, onDelete, onDuplicate, rend
                     </div>
                 )}
                 <button
-                    onClick={() => onSelect(skill.id)}
+                    onClick={() => onSelect(skill.skill_id)}
                     className="p-2 text-gray-400 hover:text-gray-600 flex-shrink-0"
                 >
                     {isSelected ? <CheckSquare className="h-5 w-5 text-purple-600" /> : <Square className="h-5 w-5" />}
                 </button>
                 <div className="flex-1 min-w-0">
-                    <h3 className="font-medium text-gray-900 truncate">{skill.title}</h3>
+                    <h3 className="font-medium text-gray-900 truncate">{skill.name}</h3>
                     <p className="text-sm text-gray-500 truncate">{skill.slug}</p>
                 </div>
                 <div className="flex-shrink-0">
@@ -327,7 +327,7 @@ export function SkillList() {
     const totalCount = paginatedData?.totalCount ?? 0;
     const totalPages = paginatedData?.totalPages ?? 1;
 
-    const skillIds = useMemo(() => skills.map((s: any) => s.id), [skills]);
+    const skillIds = useMemo(() => skills.map((s: any) => s.skill_id), [skills]);
 
     const isDragDisabled = Boolean(debouncedSearch) || statusFilter !== 'all' || selectedDomainId !== 'all' || sortBy !== 'sort_order';
 
@@ -370,7 +370,7 @@ export function SkillList() {
         if (selectedIds.size === skills.length) {
             setSelectedIds(new Set());
         } else {
-            setSelectedIds(new Set(skills.map((s: any) => s.id)));
+            setSelectedIds(new Set(skills.map((s: any) => s.skill_id)));
         }
     };
 
@@ -400,7 +400,7 @@ export function SkillList() {
     const handleMarkLive = async () => {
         if (selectedIds.size === 0) return;
         try {
-            await bulkUpdateStatus.mutateAsync({ ids: Array.from(selectedIds), status: 'live' });
+            await bulkUpdateStatus.mutateAsync({ skill_ids: Array.from(selectedIds), status: 'live' });
             showToast(`${selectedIds.size} skill(s) marked as live`, 'success');
             setSelectedIds(new Set());
         } catch {
@@ -411,7 +411,7 @@ export function SkillList() {
     const handleMarkDraft = async () => {
         if (selectedIds.size === 0) return;
         try {
-            await bulkUpdateStatus.mutateAsync({ ids: Array.from(selectedIds), status: 'draft' });
+            await bulkUpdateStatus.mutateAsync({ skill_ids: Array.from(selectedIds), status: 'draft' });
             showToast(`${selectedIds.size} skill(s) marked as draft`, 'success');
             setSelectedIds(new Set());
         } catch {
@@ -422,7 +422,7 @@ export function SkillList() {
     const handleMarkPublished = async () => {
         if (selectedIds.size === 0) return;
         try {
-            await bulkUpdateStatus.mutateAsync({ ids: Array.from(selectedIds), status: 'published' });
+            await bulkUpdateStatus.mutateAsync({ skill_ids: Array.from(selectedIds), status: 'published' });
             showToast(`${selectedIds.size} skill(s) marked as published (ready for release)`, 'success');
             setSelectedIds(new Set());
         } catch {
@@ -711,9 +711,9 @@ export function SkillList() {
                                     ) : (
                                         skills.map((skill: any) => (
                                             <SortableRow
-                                                key={skill.id}
+                                                key={skill.skill_id}
                                                 skill={skill}
-                                                isSelected={selectedIds.has(skill.id)}
+                                                isSelected={selectedIds.has(skill.skill_id)}
                                                 onSelect={handleSelectOne}
                                                 onDelete={handleDelete}
                                                 onDuplicate={handleDuplicate}
@@ -763,9 +763,9 @@ export function SkillList() {
                                 <div className="space-y-3">
                                     {skills.map((skill: any) => (
                                         <SortableCard
-                                            key={skill.id}
+                                            key={skill.skill_id}
                                             skill={skill}
-                                            isSelected={selectedIds.has(skill.id)}
+                                            isSelected={selectedIds.has(skill.skill_id)}
                                             onSelect={handleSelectOne}
                                             onDelete={handleDelete}
                                             onDuplicate={handleDuplicate}

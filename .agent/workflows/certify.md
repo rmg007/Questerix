@@ -106,6 +106,15 @@ description: Independent post-implementation audit and certification
   - Verify: Validation exists (Zod schemas, Dart validators)
   - **Proof**: Code snippets showing validation logic
 
+- [ ] **Vulnerability Taxonomy Audit**
+  - Read: `knowledge/questerix_governance/artifacts/security/vulnerability_taxonomy.md`
+  - For each OPEN VUL-XXX pattern relevant to changed files:
+    - Run the detection method from the taxonomy
+    - If pattern found → Mark as FAIL with evidence
+    - If pattern not found → Mark as PASS
+  - **Proof**: Results for each checked VUL-XXX pattern
+  - Update taxonomy: If fix verified, mark pattern as ✅ RESOLVED with commit hash
+
 **Exit Gate**: Security posture verified OR vulnerabilities documented.
 
 ---

@@ -30,8 +30,8 @@ interface Member {
 }
 
 interface Skill {
-  id: string
-  title: string
+  skill_id: string
+  name: string
 }
 
 interface ProgressEntry {
@@ -150,8 +150,8 @@ export function GroupDetailPage() {
       if (assignmentSkillIds.length === 0) return []
       const { data, error } = await supabase
         .from('skills')
-        .select('id, title')
-        .in('id', assignmentSkillIds)
+        .select('skill_id, name')
+        .in('skill_id', assignmentSkillIds)
       if (error) throw error
       return data
     },
@@ -253,7 +253,7 @@ export function GroupDetailPage() {
     return 'in_progress'
   }
 
-  const getSkillTitle = (id: string) => assignmentSkills?.find((s: Skill) => s.id === id)?.title || 'Skill'
+  const getSkillTitle = (skillId: string) => assignmentSkills?.find((s: Skill) => s.skill_id === skillId)?.name || 'Skill'
 
   const memberCount = members?.length || 0
 

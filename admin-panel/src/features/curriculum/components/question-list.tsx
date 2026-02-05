@@ -61,13 +61,13 @@ import { CSS } from '@dnd-kit/utilities';
 const DEFAULT_PAGE_SIZE = 10;
 
 interface Question {
-    id: string;
+    question_id: string;
     content: string;
     type: string;
     points: number;
     sort_order: number;
     status?: string;
-    skills?: { title: string; domains: { title: string } | null } | null;
+    skills?: { name: string; domains: { name: string } | null } | null;
 }
 
 interface SortableRowProps {
@@ -89,7 +89,7 @@ function SortableRow({ question, isSelected, onSelect, onDelete, onDuplicate, re
         transform,
         transition,
         isDragging,
-    } = useSortable({ id: question.id, disabled: isDragDisabled });
+    } = useSortable({ id: question.question_id, disabled: isDragDisabled });
 
     const style = {
         transform: CSS.Transform.toString(transform),
@@ -120,7 +120,7 @@ function SortableRow({ question, isSelected, onSelect, onDelete, onDuplicate, re
                 )}
             </td>
             <td className="px-4 py-4">
-                <button onClick={() => onSelect(question.id)} className="text-gray-400 hover:text-gray-600">
+                <button onClick={() => onSelect(question.question_id)} className="text-gray-400 hover:text-gray-600">
                     {isSelected ? <CheckSquare className="h-5 w-5 text-purple-600" /> : <Square className="h-5 w-5" />}
                 </button>
             </td>
@@ -133,7 +133,7 @@ function SortableRow({ question, isSelected, onSelect, onDelete, onDuplicate, re
                 </span>
             </td>
             <td className="px-6 py-4">
-                <span className="text-gray-700">{question.skills?.title}</span>
+                <span className="text-gray-700">{question.skills?.name}</span>
             </td>
             <td className="px-6 py-4">
                 <span className="inline-flex items-center justify-center w-8 h-8 rounded-lg bg-orange-100 text-orange-700 font-semibold text-sm">
@@ -157,20 +157,20 @@ function SortableRow({ question, isSelected, onSelect, onDelete, onDuplicate, re
             <td className="px-6 py-4 text-right">
                 <div className="flex items-center justify-end gap-2">
                     <Link
-                        to={`/questions/${question.id}/edit`}
+                        to={`/questions/${question.question_id}/edit`}
                         className="px-3 py-1 bg-blue-100 text-blue-700 rounded-full text-sm font-medium hover:bg-blue-200 transition-colors"
                     >
                         Edit
                     </Link>
                     <button
-                        onClick={() => onDuplicate(question.id)}
+                        onClick={() => onDuplicate(question.question_id)}
                         disabled={isDuplicating}
                         className="px-3 py-1 bg-purple-100 text-purple-700 rounded-full text-sm font-medium hover:bg-purple-200 transition-colors disabled:opacity-50"
                     >
                         Duplicate
                     </button>
                     <button
-                        onClick={() => onDelete(question.id)}
+                        onClick={() => onDelete(question.question_id)}
                         className="px-3 py-1 bg-red-100 text-red-700 rounded-full text-sm font-medium hover:bg-red-200 transition-colors"
                     >
                         Delete
@@ -189,7 +189,7 @@ function SortableCard({ question, isSelected, onSelect, onDelete, onDuplicate, r
         transform,
         transition,
         isDragging,
-    } = useSortable({ id: question.id, disabled: isDragDisabled });
+    } = useSortable({ id: question.question_id, disabled: isDragDisabled });
 
     const style = {
         transform: CSS.Transform.toString(transform),
@@ -222,7 +222,7 @@ function SortableCard({ question, isSelected, onSelect, onDelete, onDuplicate, r
                     </div>
                 )}
                 <button
-                    onClick={() => onSelect(question.id)}
+                    onClick={() => onSelect(question.question_id)}
                     className="p-2 text-gray-400 hover:text-gray-600 flex-shrink-0"
                 >
                     {isSelected ? <CheckSquare className="h-5 w-5 text-purple-600" /> : <Square className="h-5 w-5" />}
@@ -238,9 +238,9 @@ function SortableCard({ question, isSelected, onSelect, onDelete, onDuplicate, r
                 <span className="px-2 py-1 bg-blue-100 text-blue-700 rounded-full text-xs font-medium capitalize">
                     {question.type}
                 </span>
-                {question.skills?.title && (
+                {question.skills?.name && (
                     <span className="text-gray-600 text-xs">
-                        Skill: <span className="font-medium">{question.skills.title}</span>
+                        Skill: <span className="font-medium">{question.skills.name}</span>
                     </span>
                 )}
                 <span className="inline-flex items-center gap-1 text-gray-600">
@@ -257,20 +257,20 @@ function SortableCard({ question, isSelected, onSelect, onDelete, onDuplicate, r
             </div>
             <div className="flex items-center justify-end gap-2 pt-2 border-t border-gray-100">
                 <Link
-                    to={`/questions/${question.id}/edit`}
+                    to={`/questions/${question.question_id}/edit`}
                     className="px-4 py-2 bg-blue-100 text-blue-700 rounded-full text-sm font-medium hover:bg-blue-200 transition-colors"
                 >
                     Edit
                 </Link>
                 <button
-                    onClick={() => onDuplicate(question.id)}
+                    onClick={() => onDuplicate(question.question_id)}
                     disabled={isDuplicating}
                     className="px-4 py-2 bg-purple-100 text-purple-700 rounded-full text-sm font-medium hover:bg-purple-200 transition-colors disabled:opacity-50"
                 >
                     Duplicate
                 </button>
                 <button
-                    onClick={() => onDelete(question.id)}
+                    onClick={() => onDelete(question.question_id)}
                     className="px-4 py-2 bg-red-100 text-red-700 rounded-full text-sm font-medium hover:bg-red-200 transition-colors"
                 >
                     Delete
@@ -352,7 +352,7 @@ export function QuestionList() {
     const totalCount = paginatedData?.totalCount ?? 0;
     const totalPages = paginatedData?.totalPages ?? 1;
 
-    const questionIds = useMemo(() => questions.map((q: any) => q.id), [questions]);
+    const questionIds = useMemo(() => questions.map((q: any) => q.question_id), [questions]);
 
     const isDragDisabled = Boolean(debouncedSearch) || statusFilter !== 'all' || selectedSkillId !== 'all' || sortBy !== 'sort_order';
 
@@ -360,14 +360,14 @@ export function QuestionList() {
         const { active, over } = event;
 
         if (over && active.id !== over.id) {
-            const oldIndex = questions.findIndex((q: any) => q.id === active.id);
-            const newIndex = questions.findIndex((q: any) => q.id === over.id);
+            const oldIndex = questions.findIndex((q: any) => q.question_id === active.id);
+            const newIndex = questions.findIndex((q: any) => q.question_id === over.id);
 
             if (oldIndex !== -1 && newIndex !== -1) {
                 const reorderedQuestions = arrayMove(questions, oldIndex, newIndex);
 
                 const updates = reorderedQuestions.map((question: any, index: number) => ({
-                    id: question.id,
+                    question_id: question.question_id,
                     sort_order: index + 1 + (page - 1) * pageSize,
                 }));
 
@@ -395,7 +395,7 @@ export function QuestionList() {
         if (selectedIds.size === questions.length) {
             setSelectedIds(new Set());
         } else {
-            setSelectedIds(new Set(questions.map((q: any) => q.id)));
+            setSelectedIds(new Set(questions.map((q: any) => q.question_id)));
         }
     };
 
@@ -425,7 +425,7 @@ export function QuestionList() {
     const handleMarkLive = async () => {
         if (selectedIds.size === 0) return;
         try {
-            await bulkUpdateStatus.mutateAsync({ ids: Array.from(selectedIds), status: 'live' });
+            await bulkUpdateStatus.mutateAsync({ question_ids: Array.from(selectedIds), status: 'live' });
             showToast(`${selectedIds.size} question(s) marked as live`, 'success');
             setSelectedIds(new Set());
         } catch {
@@ -436,7 +436,7 @@ export function QuestionList() {
     const handleMarkDraft = async () => {
         if (selectedIds.size === 0) return;
         try {
-            await bulkUpdateStatus.mutateAsync({ ids: Array.from(selectedIds), status: 'draft' });
+            await bulkUpdateStatus.mutateAsync({ question_ids: Array.from(selectedIds), status: 'draft' });
             showToast(`${selectedIds.size} question(s) marked as draft`, 'success');
             setSelectedIds(new Set());
         } catch {
@@ -447,7 +447,7 @@ export function QuestionList() {
     const handleMarkPublished = async () => {
         if (selectedIds.size === 0) return;
         try {
-            await bulkUpdateStatus.mutateAsync({ ids: Array.from(selectedIds), status: 'published' });
+            await bulkUpdateStatus.mutateAsync({ question_ids: Array.from(selectedIds), status: 'published' });
             showToast(`${selectedIds.size} question(s) marked as published (ready for release)`, 'success');
             setSelectedIds(new Set());
         } catch {
@@ -815,9 +815,9 @@ export function QuestionList() {
                                     <SortableContext items={questionIds} strategy={verticalListSortingStrategy}>
                                         {questions.map((question: any) => (
                                             <SortableRow
-                                                key={question.id}
+                                                key={question.question_id}
                                                 question={question}
-                                                isSelected={selectedIds.has(question.id)}
+                                                isSelected={selectedIds.has(question.question_id)}
                                                 onSelect={handleSelectOne}
                                                 onDelete={handleDelete}
                                                 onDuplicate={handleDuplicate}
@@ -867,9 +867,9 @@ export function QuestionList() {
                                 <div className="space-y-3">
                                     {questions.map((question: any) => (
                                         <SortableCard
-                                            key={question.id}
+                                            key={question.question_id}
                                             question={question}
-                                            isSelected={selectedIds.has(question.id)}
+                                            isSelected={selectedIds.has(question.question_id)}
                                             onSelect={handleSelectOne}
                                             onDelete={handleDelete}
                                             onDuplicate={handleDuplicate}

@@ -1,5 +1,5 @@
 import { Link, useLocation, useNavigate } from 'react-router-dom'
-import { LayoutDashboard, Book, Layers, FileText, Upload, LogOut, Settings, Key, History, Users, X, UserCog, Shield, Bug, AlertTriangle, Globe, Boxes, Layout } from 'lucide-react'
+import { LayoutDashboard, Book, Layers, FileText, Upload, LogOut, Settings, Key, History, Users, UserCog, Shield, Bug, AlertTriangle, Globe, Boxes, Layout } from 'lucide-react'
 import { useApp } from '@/contexts/AppContext'
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select'
 import { cn } from '@/lib/utils'

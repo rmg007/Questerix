@@ -93,7 +93,12 @@ serve(async (req) => {
     }
 
     const genAI = new GoogleGenerativeAI(apiKey);
-    const geminiModel = genAI.getGenerativeModel({ model: 'gemini-1.5-flash' });
+    const geminiModel = genAI.getGenerativeModel({ 
+      model: model, // ✅ FIX P1: Use variable, not hardcoded literal
+      generationConfig: {
+        responseMimeType: "application/json", // ✅ FIX R1: Force JSON output
+      },
+    });
 
     // Build prompt
     const prompt = buildPrompt(text, difficulty_distribution, custom_instructions);
@@ -137,7 +142,7 @@ serve(async (req) => {
       JSON.stringify({
         questions,
         metadata: {
-          model: 'gemini-1.5-flash',
+          model: model, // ✅ FIX P1: Return actual model used
           generation_time_ms: generationTime,
           token_count: actualTokenCount, // FIX T5: Use actual count
           prompt_tokens: usageMetadata?.promptTokenCount,

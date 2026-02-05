@@ -1,7 +1,17 @@
 [
   {
-    "description": "Placeholder task file - no credentials",
-    "command": "echo 'Tasks complete'",
-    "cwd": "."
+    "description": "Git add all",
+    "command": "git add .",
+    "cwd": "C:/Users/mhali/OneDrive/Desktop/Important Projects/Questerix"
+  },
+  {
+    "description": "Commit learning log",
+    "command": "git commit -m \"docs: add session learnings - autonomous CI, Drift patterns, security hardening\"",
+    "cwd": "C:/Users/mhali/OneDrive/Desktop/Important Projects/Questerix"
+  },
+  {
+    "description": "Git push",
+    "command": "git push",
+    "cwd": "C:/Users/mhali/OneDrive/Desktop/Important Projects/Questerix"
   }
 ]

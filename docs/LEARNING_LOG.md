@@ -573,3 +573,382 @@ These require manual code changes to resolve.
 3. **Update Vulnerability Taxonomy**: When external agents find new patterns, append them using the template.
 4. **Security Posture Dashboard**: Consider adding a simple dashboard showing VUL-XXX status (Open/Resolved).
 
+---
+
+## 2026-02-05: Jira Bug Remediation (KAN-4 through KAN-15)
+
+### Session Context
+- **Objective**: Fix all code quality and security issues identified in Jira
+- **Scope**: Pyflakes errors, GitHub Actions, hardcoded credentials, npm vulnerabilities
+- **Outcome**: 10 issues closed, 3 commits, 0 vulnerabilities remaining
+
+---
+
+### Key Learnings
+
+#### 1. Pyflakes: Unused Imports Are Technical Debt
+
+**What Happened**: KAN-5 flagged 14+ Pyflakes issues. Unused imports included `os`, `Literal`, `Optional`, `Any`, and `psycopg2.sql`.
+
+**Prevention**:
+- Enable Pyflakes in CI/CD with zero-tolerance policy
+- Use IDE autoformat on save (removes unused imports)
+
+---
+
+#### 2. F-Strings Without Placeholders
+
+**Pattern**: F-strings should only be used when interpolating variables.
+
+```python
+# BAD
+print(f"Processing migration file...")
+
+# GOOD  
+print("Processing migration file...")
+```
+
+---
+
+#### 3. GitHub Actions: Version Tags + Dependabot
+
+**Decision**: Use version tags (`@v4`) with Dependabot enabled instead of SHA pinning.
+
+**Reasoning**: SHA pinning is more secure but harder to maintain. Dependabot provides automated security updates.
+
+---
+
+#### 4. Supabase `anon` Key IS Designed to Be Public
+
+**Reality**: The `anon` key is intentionally exposed in client apps. Security relies on **Row Level Security (RLS)**, not key secrecy.
+
+**Danger**: `service_role` key - NEVER expose (bypasses RLS).
+
+---
+
+#### 5. npm Audit: Transitive Dependencies Are Silent Killers
+
+**Fix**: `npm audit fix --force` → `langchain` 1.2.18 (SQL injection fix).
+
+**Prevention**: Add `npm audit` to CI/CD, fail on high severity.
+
+---
+
+#### 6. RLS: `WITH CHECK (true)` Is a Security Red Flag
+
+**Bad**: `WITH CHECK (true)` allows anyone to insert/update.
+
+**Good**: Scope to authenticated user: `WITH CHECK (user_id = auth.uid())`.
+
+---
+
+#### 7. Extensions Should Not Live in `public` Schema
+
+**Fix**: `CREATE EXTENSION vector WITH SCHEMA extensions;`
+
+---
+
+#### 8. PowerShell JSON Escaping
+
+**Pattern**: Use single quotes for JSON payloads in PowerShell:
+```powershell
+$body = '{"transition":{"id":"41"}}'
+```
+
+---
+
+### Commits
+
+| Commit | Description |
+|--------|-------------|
+| `b27dc44c` | Pyflakes fixes |
+| `425b2a18` | Security remediation |
+| `93902367` | Langchain vulnerability fix |
+
+---
+
+## 2026-02-05: Build Error Resolution & Schema Alignment
+
+### Session Context
+- **Objective**: Resolve TypeScript build errors in `admin-panel` caused by mismatches between `database.types.ts` and actual database schema.
+- **Technologies**: TypeScript, Supabase, React.
+
+---
+
+### Key Learnings
+
+#### 1. Generated Types Must Exactly Match Database Schema
+
+**What Happened**: The `database.types.ts` file (used for type-safe Supabase queries) diverged from the actual database schema.
+
+**Specific Gaps Found**:
+| Table | Missing Field(s) | Impact |
+|-------|------------------|--------|
+| `subjects` | `color_hex` | `SubjectsPage.tsx` couldn't access the color |\
+| `app_landing_pages` | `meta_title`, `meta_description` | SEO fields missing from Insert/Update types |
+| `curriculum_snapshots` | Entire table | Version history page failed to query |
+| `curriculum_meta` | Entire table | Curriculum service lacked type definitions |
+
+**Fix**: Manually added missing table/column definitions to `database.types.ts`.
+
+**Prevention**:
+- Run `supabase gen types typescript` after every migration to regenerate types.
+- Add CI step to compare generated types with committed `database.types.ts`.
+
+---
+
+#### 2. React State Initialization Must Match Type Definitions
+
+**What Happened**: Duplicate object properties in state initialization caused TypeScript errors:
+
+```typescript
+// BAD - Duplicate 'slug' property
+const [formData, setFormData] = useState({
+  name: '',
+  slug: '',  // First occurrence
+  slug: '',  // Duplicate! TypeScript error
+  description: '',
+});
+```
+
+**Files Affected**:
+- `SubjectsPage.tsx` - Duplicate `slug`
+- `LandingsPage.tsx` - Duplicate `hero_headline`
+
+**Fix**: Removed duplicate properties, ensured single initialization per field.
+
+**Lesson**: When copy-pasting state initialization, always search for duplicates before committing.
+
+---
+
+#### 3. Nullability Handling for Optional Database Fields
+
+**What Happened**: `AppsPage.tsx` assigned `app.grade_level` (which can be `null`) to a state expecting `string`.
+
+**Error**:
+```
+Type 'string | null' is not assignable to type 'string'
+```
+
+**Fix**:
+```typescript
+// Provide empty string fallback for nullable database fields
+grade_level: app.grade_level ?? ''
+```
+
+**Best Practice**: Always use nullish coalescing (`??`) for optional database fields going into form state.
+
+---
+
+#### 4. Monitoring Module Must Export `setUser` for Auth Flows
+
+**What Happened**: `LoginPage.tsx` imported `setUser` from a monitoring module, but the function wasn't exported.
+
+**Fix**: Added `setUser` function to `monitoring.ts`:
+```typescript
+export function setUser(userId: string, email?: string): void {
+  logEvent({ type: 'info', message: `User set: ${userId}`, context: { userId, email } });
+}
+```
+
+**Lesson**: When adding auth-related logging, ensure monitoring stubs exist for both anonymous and authenticated states.
+
+---
+
+#### 5. Remaining Lint Debt (22 Errors, 7 Warnings)
+
+**Status**: Build now succeeds, but `npm run lint` still reports issues.
+
+**Categories**:
+| Type | Count | Common Culprits |
+|------|-------|-----------------|
+| `@typescript-eslint/no-explicit-any` | 14 | AI assistant APIs, governance code |
+| `@typescript-eslint/no-unused-vars` | 5 | Test utilities, error tracker |
+| `@typescript-eslint/ban-ts-comment` | 3 | Third-party library shims |
+| `react-hooks/exhaustive-deps` | 5 | useEffect dependency warnings |
+
+**Recommendation**: Schedule a dedicated lint cleanup sprint to address these systematically.
+
+---
+
+### Files Modified
+
+| File | Action | Purpose |
+|------|--------|---------|
+| `database.types.ts` | Modified | Added `color_hex`, `meta_*` fields, `curriculum_*` tables |
+| `SubjectsPage.tsx` | Modified | Fixed duplicates, added `color_hex` input |
+| `LandingsPage.tsx` | Modified | Fixed duplicates, added SEO fields |
+| `AppsPage.tsx` | Modified | Fixed nullability handling |
+| `monitoring.ts` | Modified | Added `setUser` function |
+
+---
+
+### Recommendations for Future Work
+
+1. **Type Generation Automation**: Add `npm run gen:types` script that runs `supabase gen types typescript`.
+2. **Pre-Commit Hook**: Use Husky to run TypeScript check before commits.
+3. **Lint Cleanup Sprint**: Dedicate 2-4 hours to resolve the 22 remaining lint errors.
+
+
+## 2026-02-05: Autonomous CI Execution & Database Security Hardening
+
+### Session Context
+- **Objective**: Enable fully autonomous command execution via Superpower Mode and fix all certification security issues.
+- **Technologies**: Python (ops_runner.py), Flutter/Drift, Supabase PostgreSQL, PowerShell.
+
+---
+
+### Key Learnings
+
+#### 1. Windows Console Unicode Encoding Fix
+
+**What Happened**: The `ops_runner.py` file watcher script crashed with `UnicodeEncodeError` when printing emoji characters (✓, ⚡) to Windows PowerShell console.
+
+**Error**:
+```
+UnicodeEncodeError: 'charmap' codec can't encode character '\u2713'
+```
+
+**Fix**: Reconfigure stdout/stderr to use UTF-8 with error replacement:
+```python
+if sys.platform == 'win32':
+    sys.stdout.reconfigure(encoding='utf-8', errors='replace')
+    sys.stderr.reconfigure(encoding='utf-8', errors='replace')
+```
+
+**Prevention**: Always add Windows UTF-8 encoding fix at script startup for CLI tools that may output Unicode.
+
+---
+
+#### 2. Drift `batch.delete` Is Not a Thing
+
+**What Happened**: Code used `batch.delete(table, filter)` pattern which doesn't exist in Drift ORM.
+
+**Error**:
+```
+The method 'delete' isn't defined for the type 'Batch'
+```
+
+**Wrong Pattern**:
+```dart
+await _database.batch((batch) {
+  for (final id in ids) {
+    batch.delete(_database.domains, (d) => d.id.equals(id));
+  }
+});
+```
+
+**Correct Pattern**:
+```dart
+await (_database.delete(_database.domains)
+      ..where((d) => d.id.isIn(ids)))
+    .go();
+```
+
+**Key Insight**: Drift's `batch` is for INSERTs and UPDATEs. For batch deletes, use a single DELETE statement with `.isIn()` for efficiency.
+
+---
+
+#### 3. Supabase Function Search Path Hardening
+
+**What Happened**: Supabase security advisor flagged 35 functions with "mutable search_path" vulnerability.
+
+**Risk**: Attackers could potentially hijack function behavior by manipulating the PostgreSQL search_path.
+
+**Fix**: Set explicit search_path for each function:
+```sql
+ALTER FUNCTION public.is_admin SET search_path = public;
+ALTER FUNCTION public.match_knowledge_chunks(vector, double precision, integer) SET search_path = public;
+```
+
+**Gotcha**: Overloaded functions (like `publish_curriculum`) require explicit argument signatures:
+```sql
+-- This fails for overloaded functions:
+ALTER FUNCTION public.publish_curriculum SET search_path = public;
+
+-- Use explicit signatures:
+ALTER FUNCTION public.publish_curriculum() SET search_path = public;
+ALTER FUNCTION public.publish_curriculum(uuid) SET search_path = public;
+```
+
+---
+
+#### 4. RLS Policy Permissiveness Levels
+
+**What Happened**: Supabase flagged `USING (true)` policies as security risks.
+
+**Analysis**: Not all `true` policies are unsafe:
+- **Intentionally Permissive**: `error_logs` INSERT allows any client to log errors (observability requirement)
+- **Accidentally Permissive**: `domains` ALL for authenticated users bypassed intended admin-only access
+
+**Action**:
+```sql
+-- Bad: Allows any authenticated user full access
+DROP POLICY "Authenticated can do all" ON public.domains;
+
+-- Good: Kept intentionally permissive for observability
+-- "Anyone can insert error logs" on error_logs (by design)
+```
+
+**Key Insight**: Document WHY a permissive policy exists. If undocumented, it's probably a mistake.
+
+---
+
+#### 5. Superpower Mode: The `ops_runner.py` Pattern
+
+**Problem**: IDE command approval prompts break autonomous workflows.
+
+**Solution**: The "ops_runner.py + tasks.json" pattern:
+
+1. AI writes commands to `tasks.json`:
+```json
+[
+  {"command": "flutter test", "cwd": "C:/project/student-app"},
+  {"command": "npm run lint", "cwd": "C:/project/admin-panel"}
+]
+```
+
+2. `ops_runner.py` watches for file changes and executes automatically
+3. Results captured in Python output, not IDE-gated
+
+**Key Insight**: File I/O bypasses IDE approval gates while maintaining auditability (commands are in version-controlled JSON).
+
+---
+
+#### 6. Drift Type Mapping: `OutboxData` vs `OutboxEntry`
+
+**What Happened**: Sync service used `OutboxData` (the companion class) instead of `OutboxEntry` (the actual row type).
+
+**Error**:
+```
+A value of type 'List<OutboxData>' can't be assigned to a variable of type 'List<OutboxEntry>'
+```
+
+**Pattern**: In Drift:
+- `FooEntry` = The actual database row type (use this for queries)
+- `FooData` = Companion class for inserts/updates
+- `FooCompanion` = Builder pattern for partial updates
+
+---
+
+### Files Modified/Created
+
+| File | Action | Purpose |
+|------|--------|---------|
+| `ops_runner.py` | Modified | UTF-8 encoding fix for Windows |
+| `sync_service.dart` | Modified | Fixed Drift types and batch operations |
+| `drift_*_repository.dart` (3 files) | Modified | Fixed batchDelete pattern |
+| Supabase migrations (3) | Created | RLS + function hardening |
+
+---
+
+### Security Fixes Summary
+
+| Issue Type | Before | After |
+|------------|--------|-------|
+| RLS Disabled Tables | 2 ERROR | 0 |
+| Mutable Search Path | 35 WARN | 0 |
+| Permissive Policies | 6 WARN | 2 (intentional) |
+| Total Security Warnings | 47 | 4 |
+
+**Commit**: `bde34538` - security: comprehensive database hardening

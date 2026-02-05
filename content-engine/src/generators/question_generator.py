@@ -6,7 +6,7 @@ import os
 import json
 import time
 import logging
-from typing import List, Dict, Any, Optional
+from typing import List, Dict, Optional
 from pydantic import ValidationError
 
 try:

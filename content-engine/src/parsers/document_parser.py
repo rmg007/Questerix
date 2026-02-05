@@ -3,7 +3,7 @@ Document parser for extracting text from PDF, DOCX, and images.
 """
 
 from pathlib import Path
-from typing import Optional, Dict, Any
+from typing import Dict, Any
 import logging
 
 try:

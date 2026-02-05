@@ -22,7 +22,6 @@ from pathlib import Path
 
 try:
     import psycopg2
-    from psycopg2 import sql
 except ImportError:
     print("ERROR: psycopg2 not installed")
     print("Install it with: pip install psycopg2-binary")
@@ -32,7 +31,7 @@ def apply_migrations(database_url):
     """Apply all migrations to the database"""
     
     # Connect to database
-    print(f"🔗 Connecting to database...")
+    print("🔗 Connecting to database...")
     try:
         conn = psycopg2.connect(database_url)
         conn.autocommit = False
@@ -59,7 +58,7 @@ def apply_migrations(database_url):
             
             cursor.execute(sql_content)
             conn.commit()
-            print(f"    ✓ Success")
+            print("    ✓ Success")
         except Exception as e:
             print(f"    ❌ Failed: {e}")
             conn.rollback()
@@ -69,14 +68,14 @@ def apply_migrations(database_url):
     # Apply seed data
     seed_file = Path(__file__).parent.parent / 'supabase' / 'seed.sql'
     if seed_file.exists():
-        print(f"\n🌱 Applying seed data...")
+        print("\n🌱 Applying seed data...")
         try:
             with open(seed_file, 'r') as f:
                 sql_content = f.read()
             
             cursor.execute(sql_content)
             conn.commit()
-            print(f"  ✓ Seed data applied")
+            print("  ✓ Seed data applied")
         except Exception as e:
             print(f"  ❌ Seed data failed: {e}")
             conn.rollback()

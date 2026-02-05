@@ -50,7 +50,7 @@ jobs:
 
       - name: Create test environment file
         run: |
-          cat > .env.test.local << EOF
+          cat > .env.test.local <<EOF
           TEST_ADMIN_EMAIL=$TEST_ADMIN_EMAIL
           TEST_ADMIN_PASSWORD=$TEST_ADMIN_PASSWORD
           TEST_SUPER_ADMIN_EMAIL=$TEST_SUPER_ADMIN_EMAIL

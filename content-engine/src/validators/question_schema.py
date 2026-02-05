@@ -4,7 +4,7 @@ Ensures strict compliance with Questerix database schema.
 """
 
 from pydantic import BaseModel, Field, field_validator
-from typing import Literal, Dict, Any, List, Optional
+from typing import Dict, Any, List, Optional
 from enum import Enum
 
 

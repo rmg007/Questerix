@@ -1,16 +1,16 @@
 [
   {
-    "description": "Git add all",
+    "description": "Stage all changes",
     "command": "git add .",
     "cwd": "C:/Users/mhali/OneDrive/Desktop/Important Projects/Questerix"
   },
   {
-    "description": "Git commit security fixes",
-    "command": "git commit -m \"security: comprehensive database hardening\" -m \"- Enable RLS on user_subscriptions and app_landing_pages\" -m \"- Add proper policies for group_join_requests and student_recovery_keys\" -m \"- Set search_path = public on 35 functions\" -m \"- Drop overly permissive policies on domains, skills, questions\"",
+    "description": "Commit Pyflakes fixes and workflow cleanup",
+    "command": "git commit -m \"fix(KAN-5,KAN-6): Fix Pyflakes Python errors and cleanup workflows\" -m \"KAN-5: Fixed unused imports and f-strings without placeholders in:\" -m \"  - ops_runner.py (removed os, typing imports; fixed f-strings)\" -m \"  - apply-migrations.py (removed psycopg2.sql; fixed f-strings)\" -m \"  - question_schema.py (removed Literal)\" -m \"  - question_generator.py (removed Any)\" -m \"  - document_parser.py (removed Optional)\" -m \"\" -m \"KAN-6: Reviewed GitHub Actions pinning - using version tags with Dependabot\" -m \"for automated security updates (industry standard alternative to SHA pinning)\"",
     "cwd": "C:/Users/mhali/OneDrive/Desktop/Important Projects/Questerix"
   },
   {
-    "description": "Git push",
+    "description": "Push to remote",
     "command": "git push",
     "cwd": "C:/Users/mhali/OneDrive/Desktop/Important Projects/Questerix"
   }

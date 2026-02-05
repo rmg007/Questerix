@@ -13,10 +13,8 @@ The AI agent writes tasks.json, this script executes them automatically.
 import json
 import subprocess
 import sys
-import os
 import time
 from pathlib import Path
-from typing import List, Dict, Any
 
 # Fix Windows console encoding for Unicode
 if sys.platform == 'win32':
@@ -77,7 +75,7 @@ def execute_manifest(manifest_path: str) -> bool:
             print(f"  Working directory: {cwd}")
         
         try:
-            result = subprocess.run(
+            subprocess.run(
                 command,
                 shell=True,
                 cwd=cwd if cwd else None,
@@ -144,9 +142,9 @@ class TaskFileHandler(FileSystemEventHandler):
         success = execute_manifest(str(abs_path))
         
         if success:
-            print(f"\n✅ All tasks completed successfully")
+            print("\n✅ All tasks completed successfully")
         else:
-            print(f"\n❌ Some tasks failed")
+            print("\n❌ Some tasks failed")
         
         # Mark as processed with current modification time
         self.processed_files[abs_path] = current_mtime

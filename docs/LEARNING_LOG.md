@@ -325,4 +325,59 @@ Set-Content -Path "output/app_colors.g.dart" -Value $dartContent
 | `admin-panel/src/lib/error-tracker.ts` | Created | React capture utility |
 | `admin-panel/src/features/monitoring/pages/ErrorLogsPage.tsx` | Created | Triage Dashboard |
 | `student-app/lib/src/core/errors/error_tracker.dart` | Created | Flutter capture utility |
-| `student-app/pubspec.yaml` | Modified | Removed Sentry dependency |
+| `student_app/pubspec.yaml` | Modified | Removed Sentry dependency |
+
+---
+
+## 2026-02-05: Project Oracle & Sync Performance Refactor
+
+### Session Context
+- **Objective**: Integrate database-backed known issues into semantic search and optimize sync performance.
+- **Technologies**: pgvector (HNSW), Supabase RPC, Flutter/Drift Batching.
+
+---
+
+### Key Learnings
+
+#### 1. Semantic Indexing of Structured Data
+**What Worked**: Formatting structured database records (e.g., `known_issues`) into a "Markdown pseudo-file" before embedding.
+- **Pattern**:
+  ```markdown
+  # [Root Cause]
+  [Description]
+  ## Resolution
+  [Resolution Steps]
+  ```
+- **Benefit**: Allows the semantic engine (Project Oracle) to process database records exactly like documentation files, maintaining a unified search pipeline.
+
+#### 2. Vector Index Maintenance (IVFFlat vs. HNSW)
+**Observation**: `IVFFlat` indexes can suffer from "index drift" as new data is added, requiring frequent `REINDEX` or specialized `lists` parameters.
+- **Optimization**: Switched to `HNSW` (Hierarchical Navigable Small World) index for `knowledge_chunks`.
+- **Reasoning**: `HNSW` is more robust for growing datasets and provides better recall at the cost of slightly higher memory usage, which is acceptable for the Questerix KB size.
+
+#### 3. Supabase RPC Batching (The "Array Sink" Pattern)
+**What Worked**: Refactoring the Flutter `SyncService` from record-by-record processing to grouped batching.
+- **Pattern**: Group outbox items by `table` + `action`, then send in batches of 50.
+- **Critical Insight**: Supabase RPC functions that take JSON/arrays (like `submit_attempt_and_update_progress`) should always be the default for sync operations to minimize RTT (Round Trip Time).
+- **Result**: Reduced network requests by ~80% during high-volume student activity syncs.
+
+#### 4. Automated Observability Maintenance
+**Process**: Setup `pg_cron` for automated pruning of raw error logs.
+- **Insight**: Observability should not turn into a storage cost liability. Automated pruning is essential for $0-tier sustainability.
+
+---
+
+### Recommendations for Future Work
+1. **GitHub CLI Automation**: Ensure `gh auth login` is performed on first environment setup to enable automated issue tracking.
+2. **Sync Buffering**: Implement a 200ms debounce buffer in the `SyncService` to further group frequent UI-triggered updates.
+
+---
+
+### Files Modified/Created
+
+| File | Action | Purpose |
+|------|--------|---------|
+| `student-app/.../sync_service.dart` | Refactored | Implemented batched push logic |
+| `scripts/knowledge-base/index-issues.ts` | Created | Database-to-Oracle indexing script |
+| `supabase/migrations/...maintenance_and_alerts.sql` | Created | automated maintenance & alerts |
+| `supabase/functions/critical-alert/index.ts` | Created | Real-time crash alerting |

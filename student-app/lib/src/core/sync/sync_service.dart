@@ -84,36 +84,57 @@ class SyncService extends StateNotifier<SyncState> {
 
   /// Push: Upload pending changes from outbox to Supabase
   /// FIX D4: Guard against concurrent push operations
+  /// Push: Upload pending changes from outbox to Supabase
+  /// Uses batched operations to reduce network overhead
   Future<void> push() async {
-    // Prevent concurrent push - check if already syncing
+    // Prevent concurrent push
     if (state.isSyncing) {
       debugPrint('SYNC: Push skipped - already syncing');
       return;
     }
 
     final outboxItems = await (_database.select(_database.outbox)
-          ..where((o) =>
-              o.status.equals('pending')) // Only pending items, not failed
+          ..where((o) => o.status.equals('pending'))
           ..orderBy([(o) => OrderingTerm.asc(o.createdAt)]))
         .get();
 
-    for (final item in outboxItems) {
-      try {
-        final payload = jsonDecode(item.payload) as Map<String, dynamic>;
+    if (outboxItems.isEmpty) return;
 
-        switch (item.action) {
-          case 'INSERT':
-          case 'UPSERT':
-            // Use submit_attempt_and_update_progress RPC for attempts
-            if (item.table == 'attempts') {
+    // Group items by Table and Action
+    final groups = <String, List<OutboxData>>{};
+    for (final item in outboxItems) {
+      final key = '${item.table}:${item.action}';
+      groups.putIfAbsent(key, () => []).add(item);
+    }
+
+    for (final groupKey in groups.keys) {
+      final items = groups[groupKey]!;
+      final parts = groupKey.split(':');
+      final tableName = parts[0];
+      final action = parts[1];
+
+      // Process in batches of 50 to avoid payload limits
+      const int batchSize = 50;
+      for (var i = 0; i < items.length; i += batchSize) {
+        final batch = items.sublist(
+            i, i + batchSize > items.length ? items.length : i + batchSize);
+
+        try {
+          if (action == 'INSERT' || action == 'UPSERT') {
+            final payloads = batch
+                .map((item) => jsonDecode(item.payload) as Map<String, dynamic>)
+                .toList();
+
+            if (tableName == 'attempts') {
+              // RPC handles progress updates automatically
               final List<dynamic> response = await _supabase.rpc(
                 'submit_attempt_and_update_progress',
                 params: {
-                  'attempts_json': [payload],
+                  'attempts_json': payloads,
                 },
               );
 
-              // Process returned skill_progress updates
+              // Update local skill progress if returned
               if (response.isNotEmpty) {
                 final progressList = response.map((json) {
                   return SkillProgressCompanion(
@@ -146,41 +167,35 @@ class SyncService extends StateNotifier<SyncState> {
                 });
               }
             } else {
-              await _supabase.from(item.table).upsert(payload);
+              await _supabase.from(tableName).upsert(payloads);
             }
-            break;
-          case 'DELETE':
-            await _supabase.from(item.table).delete().eq('id', item.recordId);
-            break;
+          } else if (action == 'DELETE') {
+            final ids = batch.map((item) => item.recordId).toList();
+            await _supabase.from(tableName).delete().in('id', ids);
+          }
+
+          // Remove batch from outbox on success
+          await (_database.delete(_database.outbox)
+                ..where((o) => o.id.isIn(batch.map((b) => b.id))))
+              .go();
+        } catch (e) {
+          debugPrint('SYNC: Error processing batch for $tableName: $e');
+          // For batches, we fail the items individually to respect retry limits
+          await _database.batch((batchWriter) {
+            for (final item in batch) {
+              final newRetryCount = item.retryCount + 1;
+              batchWriter.update(
+                _database.outbox,
+                OutboxCompanion(
+                  retryCount: Value(newRetryCount),
+                  status: Value(newRetryCount > 5 ? 'failed' : 'pending'),
+                ),
+                where: (o) => o.id.equals(item.id),
+              );
+            }
+          });
+          // Continue to next group/batch instead of rethrowing, to maximize progress
         }
-
-        // Remove from outbox on success
-        await (_database.delete(_database.outbox)
-              ..where((o) => o.id.equals(item.id)))
-            .go();
-      } catch (e) {
-        // Update retry count
-        final newRetryCount = item.retryCount + 1;
-
-        await (_database.update(_database.outbox)
-              ..where((o) => o.id.equals(item.id)))
-            .write(
-          OutboxCompanion(
-            retryCount: Value(newRetryCount),
-            // FIX D1: Mark as 'failed' instead of deleting - Dead Letter Queue
-            status: Value(newRetryCount > 5 ? 'failed' : 'pending'),
-          ),
-        );
-
-        // Log failed items for debugging (but NEVER delete user data)
-        if (newRetryCount > 5) {
-          debugPrint(
-              'SYNC: Item ${item.id} moved to Dead Letter Queue after $newRetryCount retries');
-          // Don't rethrow for dead-lettered items - continue processing others
-          continue;
-        }
-
-        rethrow;
       }
     }
   }

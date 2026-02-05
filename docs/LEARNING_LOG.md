@@ -247,3 +247,34 @@ Set-Content -Path "output/app_colors.g.dart" -Value $dartContent
 ### Certification Status
 
 ✅ **CERTIFIED** with documented notes on pre-existing test failures.
+
+
+## 2026-02-04: Operation Ironclad Audit
+
+### Context
+- **Objective**: Security and Architecture Audit
+- **Outcome**: Certified with one fix
+
+### Key Learnings
+
+#### 1. Test String Exactness
+**What Happened**: A UI test failed because it expected 'Ask a parent for help' but the UI displayed 'Ask a Parent for Help'.
+**Fix**: Updated the test expectation to match the exact string casing.
+**Lesson**: UI copy changes must be synchronized with test expectations. When modifying UI text, always grep for usage in 	est/.
+
+#### 2. Audit Script Encoding
+**What Happened**: The audit script failed to print to stdout in Windows PowerShell due to a UnicodeEncodeError with the checkmark emoji.
+**Fix**: Modified the script to write directly to a UTF-8 encoded file instead of relying on console output.
+**Lesson**: For autonomous agents on Windows, file I/O is more reliable than stdout for capturing rich text reports.
+
+#### 3. The 'Zombie Tenant' Risk (Hardcoded UUIDs)
+**What Happened**: We identified a risk where developers might hardcode a tenant UUID (like 51f4...) in pp_config_service.dart for local testing.
+**Risk**: If this leaks to production, offline devices could default to the wrong school tenant during sync failures, violating data isolation.
+**Fix**: Implemented an automated architectural check (udit_architecture) to scan for known testing UUIDs before release.
+**Lesson**: Never trust manual review for constants. Use automated grep checks in CI/CD pipelines to block known development secrets/UUIDs.
+
+#### 4. The 'Blind Fire' RPC (Unscoped Admin Actions)
+**What Happened**: We audited the publish_curriculum RPC and found it could theoretically be called without arguments in TypeScript.
+**Risk**: A typeless or ny-cast call could inadvertently trigger a global publish action across all tenants.
+**Fix**: Verified that all usages are arguments-scoped. Documented the risk for future linter rules.
+**Lesson**: Dangerous RPCs should require explicit arguments even at the database function level (raise exception if null) to prevent client-side mistakes.

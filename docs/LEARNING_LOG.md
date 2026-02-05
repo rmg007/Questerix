@@ -667,6 +667,107 @@ $body = '{"transition":{"id":"41"}}'
 
 ---
 
+## 2026-02-05: IDE Autonomous Execution & Supabase CLI Issues
+
+### Session Context
+- **Objective**: Execute `/certify` workflow with full autonomous operation
+- **Scope**: IDE configuration, Supabase CLI authentication, database type recovery
+- **Outcome**: Partial certification (IDE bug blocked command execution)
+
+---
+
+### Key Learnings
+
+#### 1. Antigravity IDE Flickering Bug (Agent vs. Client Approval Conflict)
+
+**What Happened**: When both **agent-side auto-approval** (`SafeToAutoRun: true` via `// turbo-all` in global user rules) AND **client-side auto-approval** (IDE's "Always Approve" setting) are enabled, they race to approve commands, causing:
+- UI flickering
+- Inability to type in the editor
+- Commands getting stuck or rejected
+
+**Root Cause**: Two approval systems trying to handle the same event simultaneously.
+
+**Investigation Findings**:
+- Global user rules (`// turbo-all`) are stored in IDE's internal SQLite database (`.vscdb`), not editable JSON files
+- `.cursorrules` project file cannot override global behavior
+- Setting `SafeToAutoRun: false` doesn't help if IDE still intercepts
+
+**Workarounds Attempted**:
+| Approach | Result |
+|----------|--------|
+| Update `.cursorrules` with override instructions | ❌ Agent still follows global rules |
+| Set `SafeToAutoRun: false` for all commands | ❌ IDE still shows approval modal |
+| Delete `state.vscdb` to reset | ⚠️ Not tested (requires IDE closed) |
+
+**Recommended Fix**: Use ONE approval system only:
+- Either: Disable IDE's auto-approve, rely on agent's `turbo-all`
+- Or: Remove `// turbo-all` from global rules, enable IDE's auto-approve
+
+**Prevention**: Don't enable both systems simultaneously.
+
+---
+
+#### 2. Supabase CLI Auth Token Blocking
+
+**What Happened**: Running `supabase gen types typescript --project-id XXX` gets stuck waiting for interactive authentication when `SUPABASE_ACCESS_TOKEN` is not set.
+
+**Danger**: If command output is redirected (`> file.ts`), the file gets truncated/emptied while the command hangs, corrupting the target file.
+
+**Pattern**:
+```powershell
+# DANGEROUS - will empty the file if auth fails
+supabase gen types typescript --project-id XXX > database.types.ts
+
+# SAFER - check auth first  
+$env:SUPABASE_ACCESS_TOKEN = "sbp_..."
+supabase gen types typescript --project-id XXX > database.types.ts
+```
+
+**Recovery**: If file is corrupted, restore from git:
+```powershell
+git checkout admin-panel/src/types/database.types.ts
+```
+
+---
+
+#### 3. Database Types Recovery Pattern (Placeholder Types)
+
+**Scenario**: When Supabase CLI is blocked and you need to unblock the build, create minimal placeholder types:
+
+```typescript
+export type Json = string | number | boolean | null | { [key: string]: Json | undefined } | Json[]
+
+export interface Database {
+  public: {
+    Tables: { [key: string]: { Row: Record<string, unknown>; Insert: Record<string, unknown>; Update: Record<string, unknown> } }
+    Views: { [key: string]: { Row: Record<string, unknown> } }
+    Functions: { [key: string]: { Args: Record<string, unknown>; Returns: unknown } }
+    Enums: Record<string, never>
+  }
+}
+```
+
+**Trade-off**: Build passes but loses type safety. Schedule proper type regeneration as follow-up.
+
+---
+
+### Recommendations for Future Work
+
+1. **Report IDE Bug**: Submit flickering issue to Antigravity team with symptom details
+2. **Environment Setup**: Document `SUPABASE_ACCESS_TOKEN` requirement in onboarding
+3. **CI/CD Types**: Generate types in CI where auth is properly configured
+
+---
+
+### Files Modified
+
+| File | Action | Purpose |
+|------|--------|---------|
+| `.cursorrules` | Modified | Attempted anti-flicker override |
+| `admin-panel/src/types/database.types.ts` | Recovered | Placeholder types after CLI corruption |
+
+---
+
 ## 2026-02-05: Build Error Resolution & Schema Alignment
 
 ### Session Context

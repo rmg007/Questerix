@@ -71,3 +71,7 @@ deploy-*.log
 # Build artifacts (regenerated each deploy)
 admin-panel/dist/
 student-app/build/
+
+
+#Ignore vscode AI rules
+.github\instructions\codacy.instructions.md

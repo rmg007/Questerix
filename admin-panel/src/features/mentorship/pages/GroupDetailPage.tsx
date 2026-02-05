@@ -386,7 +386,6 @@ export function GroupDetailPage() {
                                 onChange={(e) => setEditNickname(e.target.value)}
                                 className="px-3 py-1.5 bg-white border border-slate-300 rounded-lg text-slate-900 focus:outline-none focus:border-purple-500 focus:ring-1 focus:ring-purple-500"
                                 placeholder="Enter nickname"
-                                autoFocus
                                 onKeyDown={(e) => {
                                   if (e.key === 'Enter') handleSaveNickname(member.user_id)
                                   if (e.key === 'Escape') cancelEditing()

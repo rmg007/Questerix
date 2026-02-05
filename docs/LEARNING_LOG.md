@@ -422,3 +422,79 @@ Set-Content -Path "output/app_colors.g.dart" -Value $dartContent
 | `supabase/migrations/...update_pull_changes.sql` | Created | Enabled pull support for mastery |
 | `student-app/.../sync_service.dart` | Modified | Implemented mastery pull logic |
 | `supabase/migrations/...maintenance_and_alerts.sql` | Modified | Switched to HNSW index |
+
+---
+
+## 2026-02-05: ESLint `no-implicit-coercion` Rule Enforcement
+
+### Session Context
+- **Objective**: Add the `no-implicit-coercion` ESLint rule to prevent implicit type coercion patterns.
+- **Scope**: All ESLint-configured projects (Admin Panel, Landing Pages).
+
+---
+
+### What Was Done
+
+#### 1. Added ESLint Rule
+Added `"no-implicit-coercion": "error"` to both ESLint configuration files:
+
+| File | Format |
+|------|--------|
+| `admin-panel/.eslintrc.cjs` | Legacy CommonJS |
+| `landing-pages/eslint.config.js` | Flat config (ESM) |
+
+**Example (Legacy format)**:
+```javascript
+rules: {
+  'no-implicit-coercion': 'error',
+  // ...existing rules
+}
+```
+
+#### 2. Ran Auto-Fix
+Executed `npx eslint . --fix` in both directories to automatically correct fixable violations.
+
+**Results**:
+- 54 files modified with auto-corrections
+- Remaining unfixable errors documented for manual resolution
+
+---
+
+### Key Learnings
+
+#### 1. What `no-implicit-coercion` Prevents
+This rule disallows shorthand type conversions that can be confusing:
+
+| Disallowed | Preferred |
+|------------|-----------|
+| `!!foo` | `Boolean(foo)` |
+| `+foo` | `Number(foo)` |
+| `"" + foo` | `String(foo)` |
+| `~arr.indexOf(item)` | `arr.includes(item)` |
+
+**Benefit**: Improves code readability by making type conversions explicit.
+
+#### 2. ESLint Config Format Differences
+- **Legacy (`.eslintrc.cjs`)**: Uses `module.exports` with a `rules` object
+- **Flat Config (`eslint.config.js`)**: Uses `defineConfig` with `rules` inside configuration objects
+
+---
+
+### Files Modified
+
+| File | Action | Purpose |
+|------|--------|---------|
+| `admin-panel/.eslintrc.cjs` | Modified | Added rule |
+| `landing-pages/eslint.config.js` | Modified | Added rule |
+| 54 source files | Auto-fixed | Applied ESLint corrections |
+
+---
+
+### Remaining Issues (Not Auto-Fixable)
+
+| Directory | Errors | Type |
+|-----------|--------|------|
+| `admin-panel` | 93 | `no-undef` (process), `no-mixed-spaces-and-tabs` |
+| `landing-pages` | 2 | `@typescript-eslint/no-empty-object-type` |
+
+These require manual code changes to resolve.

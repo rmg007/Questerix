@@ -68,4 +68,13 @@ class DriftSkillRepository implements SkillRepository {
       ),
     );
   }
+
+  /// Batch delete skills (for tombstone sync)
+  Future<void> batchDelete(List<String> ids) async {
+    await _database.batch((batch) {
+      for (final id in ids) {
+        batch.delete(_database.skills, (s) => s.id.equals(id));
+      }
+    });
+  }
 }

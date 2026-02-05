@@ -195,55 +195,85 @@ class SyncService extends StateNotifier<SyncState> {
   Future<void> _pullDomains() async {
     final lastSync = await _getLastSync('domains');
 
-    final response = await _supabase
-        .from('domains')
-        .select()
-        .gt('updated_at', lastSync.toIso8601String())
-        .eq('status', 'live')
-        .isFilter('deleted_at', null);
+    // Use pull_changes RPC for tombstone support
+    final response = await _supabase.rpc('pull_changes', params: {
+      'table_name': 'domains',
+      'last_sync_time': lastSync.toIso8601String(),
+    }) as Map<String, dynamic>;
 
-    if (response.isNotEmpty) {
+    final active = response['active'] as List;
+    final deleted = response['deleted'] as List;
+
+    // Upsert active records
+    if (active.isNotEmpty) {
       final domains =
-          response.map((json) => model.Domain.fromJson(json)).toList();
+          active.map((json) => model.Domain.fromJson(json)).toList();
       await _domainRepo.batchUpsert(domains);
-      await _updateLastSync('domains', DateTime.now());
     }
+
+    // Delete tombstoned records
+    if (deleted.isNotEmpty) {
+      final deletedIds = deleted.map((json) => json['id'] as String).toList();
+      await _domainRepo.batchDelete(deletedIds);
+    }
+
+    await _updateLastSync('domains', DateTime.now());
   }
 
   Future<void> _pullSkills() async {
     final lastSync = await _getLastSync('skills');
 
-    final response = await _supabase
-        .from('skills')
-        .select()
-        .gt('updated_at', lastSync.toIso8601String())
-        .eq('status', 'live')
-        .isFilter('deleted_at', null);
+    // Use pull_changes RPC for tombstone support
+    final response = await _supabase.rpc('pull_changes', params: {
+      'table_name': 'skills',
+      'last_sync_time': lastSync.toIso8601String(),
+    }) as Map<String, dynamic>;
 
-    if (response.isNotEmpty) {
+    final active = response['active'] as List;
+    final deleted = response['deleted'] as List;
+
+    // Upsert active records
+    if (active.isNotEmpty) {
       final skills =
-          response.map((json) => model.Skill.fromJson(json)).toList();
+          active.map((json) => model.Skill.fromJson(json)).toList();
       await _skillRepo.batchUpsert(skills);
-      await _updateLastSync('skills', DateTime.now());
     }
+
+    // Delete tombstoned records
+    if (deleted.isNotEmpty) {
+      final deletedIds = deleted.map((json) => json['id'] as String).toList();
+      await _skillRepo.batchDelete(deletedIds);
+    }
+
+    await _updateLastSync('skills', DateTime.now());
   }
 
   Future<void> _pullQuestions() async {
     final lastSync = await _getLastSync('questions');
 
-    final response = await _supabase
-        .from('questions')
-        .select()
-        .gt('updated_at', lastSync.toIso8601String())
-        .eq('status', 'live')
-        .isFilter('deleted_at', null);
+    // Use pull_changes RPC for tombstone support
+    final response = await _supabase.rpc('pull_changes', params: {
+      'table_name': 'questions',
+      'last_sync_time': lastSync.toIso8601String(),
+    }) as Map<String, dynamic>;
 
-    if (response.isNotEmpty) {
+    final active = response['active'] as List;
+    final deleted = response['deleted'] as List;
+
+    // Upsert active records
+    if (active.isNotEmpty) {
       final questions =
-          response.map((json) => model.Question.fromJson(json)).toList();
+          active.map((json) => model.Question.fromJson(json)).toList();
       await _questionRepo.batchUpsert(questions);
-      await _updateLastSync('questions', DateTime.now());
     }
+
+    // Delete tombstoned records
+    if (deleted.isNotEmpty) {
+      final deletedIds = deleted.map((json) => json['id'] as String).toList();
+      await _questionRepo.batchDelete(deletedIds);
+    }
+
+    await _updateLastSync('questions', DateTime.now());
   }
 
   Future<DateTime> _getLastSync(String tableName) async {

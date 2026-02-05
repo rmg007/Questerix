@@ -2,7 +2,6 @@
 Document parser for extracting text from PDF, DOCX, and images.
 """
 
-import os
 from pathlib import Path
 from typing import Optional, Dict, Any
 import logging

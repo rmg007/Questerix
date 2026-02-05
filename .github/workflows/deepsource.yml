@@ -34,6 +34,19 @@ jobs:
           cd student-app
           flutter pub get
 
+      - name: Run Tests with Coverage (questerix_domain)
+        run: |
+          cd questerix_domain
+          flutter test --coverage
+
+      - name: Run Tests with Coverage (student-app)
+        run: |
+          cd student-app
+          flutter test --coverage
+
+      - name: Install DeepSource CLI
+        run: curl https://deepsource.io/cli | sh
+
       - name: Run Dart Analyze
         run: |
           cd student-app
@@ -45,13 +58,20 @@ jobs:
           input: student-app/dart_analyze.txt
           output: student-app/dart_analyze.sarif
 
-      - name: Upload SARIF report to DeepSource
+      - name: Report SARIF to DeepSource
         run: |
-          cd student-app
-          # Install the CLI
-          curl https://deepsource.io/cli | sh
+          ./bin/deepsource report --analyzer dart-analyze --analyzer-type community --value-file student-app/dart_analyze.sarif
+        env:
+          DEEPSOURCE_DSN: ${{ secrets.DEEPSOURCE_DSN }}
 
-          # Send the report to DeepSource
-          ./bin/deepsource report --analyzer dart-analyze --analyzer-type community --value-file ./dart_analyze.sarif
+      - name: Report Coverage to DeepSource (questerix_domain)
+        run: |
+          ./bin/deepsource report --analyzer test-coverage --key dart --value-file questerix_domain/coverage/lcov.info
+        env:
+          DEEPSOURCE_DSN: ${{ secrets.DEEPSOURCE_DSN }}
+
+      - name: Report Coverage to DeepSource (student-app)
+        run: |
+          ./bin/deepsource report --analyzer test-coverage --key dart --value-file student-app/coverage/lcov.info
         env:
           DEEPSOURCE_DSN: ${{ secrets.DEEPSOURCE_DSN }}

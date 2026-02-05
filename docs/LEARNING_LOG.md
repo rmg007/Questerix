@@ -278,3 +278,51 @@ Set-Content -Path "output/app_colors.g.dart" -Value $dartContent
 **Risk**: A typeless or ny-cast call could inadvertently trigger a global publish action across all tenants.
 **Fix**: Verified that all usages are arguments-scoped. Documented the risk for future linter rules.
 **Lesson**: Dangerous RPCs should require explicit arguments even at the database function level (raise exception if null) to prevent client-side mistakes.
+## 2026-02-05: Zero-Cost Error Monitoring Implementation
+
+### Session Context
+- **Objective**: Replace paid Sentry service with a Supabase-native error tracking system.
+- **Technologies**: Supabase RPC, PostgreSQL Tables, React ErrorBoundary, Flutter Error Handling.
+
+---
+
+### Key Learnings
+
+#### 1. Zero-Cost Observability via Supabase
+**What Worked**: Using a custom `error_logs` table combined with a `SECURITY DEFINER` RPC function (`log_error`) allows for seamless error capture without external SDKs.
+- **Benefit**: Saves $89/month (Sentry lower tier) while keeping all data within the project's primary data store.
+- **Security**: The `log_error` function can be configured to allow anonymous inserts (useful for login errors) while correctly attributing `user_id` via `auth.uid()` for authenticated sessions.
+
+#### 2. Robustness in Error Trackers
+**Key Requirement**: Error trackers must be the most resilient part of the system.
+- **Problem**: If the `captureException` logic itself throws an error (e.g., network failure to Supabase), it can trigger an infinite loop if caught by a global handler.
+- **Solution**: Always wrap error tracking logic in a try-catch that fails silently (`console.error` only) to the user.
+
+#### 3. React vs. Flutter Error Catching Patterns
+**Implementation Note**:
+- **React**: `ErrorBoundary` only catches errors in the render tree. Async errors (Promises) and event handlers must be caught via `window.addEventListener('unhandledrejection')` and `window.addEventListener('error')`.
+- **Flutter**: Requires a two-pronged approach using `FlutterError.onError` (UI framework) and `PlatformDispatcher.instance.onError` (async/platform level).
+
+#### 4. The "Observability to Knowledge" Pipeline
+**Process Innovation**: Created a `promote_error_to_issue` RPC that allows one-click conversion from a raw error log into a `known_issues` entry.
+- **Impact**: Dramatically reduces the friction for technical documentation.
+- **AI Integration**: Documented issues in `known_issues` can be indexed by Project Oracle, allowing AI agents to "learn" from past bugs automatically.
+
+---
+
+### Recommendations for Future Work
+1. **Log Cleanup**: Implement a TTL (Time To Live) or a maintenance cron job to prune `error_logs` older than 30 days to avoid table bloat.
+2. **Alerting**: Add a Supabase Edge Function with Postmark/SendGrid integration to send emails for "Critical" severity errors.
+3. **Session Replay**: Explore lightweight "breadcrumbs" (e.g., last 10 navigation events) to be stored in the `extra_context` JSONB field.
+
+---
+
+### Files Modified/Created
+
+| File | Action | Purpose |
+|------|--------|---------|
+| `supabase/migrations/...error_tracking_system.sql` | Created | Database schema & RPCs |
+| `admin-panel/src/lib/error-tracker.ts` | Created | React capture utility |
+| `admin-panel/src/features/monitoring/pages/ErrorLogsPage.tsx` | Created | Triage Dashboard |
+| `student-app/lib/src/core/errors/error_tracker.dart` | Created | Flutter capture utility |
+| `student-app/pubspec.yaml` | Modified | Removed Sentry dependency |

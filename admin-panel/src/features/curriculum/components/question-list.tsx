@@ -467,7 +467,7 @@ export function QuestionList() {
         }
     };
 
-    const handleImport = async (data: Record<string, any>[]) => {
+    const handleImport = async (data: Record<string, unknown>[]) => {
         if (!currentApp) return;
         if (selectedSkillId === 'all') {
             alert('Please select a specific skill filter before importing to assign questions to that skill.');
@@ -488,19 +488,20 @@ export function QuestionList() {
                 };
 
                 return {
-                    content: item.content || '',
-                    type: (item.type || 'multiple_choice') as any,
-                    points: parseInt(item.points) || 1,
-                    status: (item.status || 'draft') as any,
+                    app_id: currentApp?.app_id || '',
+                    content: String(item.content || ''),
+                    type: (item.type || 'multiple_choice') as 'boolean' | 'multiple_choice' | 'mcq_multi' | 'text_input' | 'reorder_steps',
+                    points: parseInt(item.points as string) || 1,
+                    status: (item.status || 'draft') as 'draft' | 'published' | 'live',
                     options: parseField(item.options),
                     solution: parseField(item.solution),
-                    explanation: item.explanation || '',
+                    explanation: String(item.explanation || ''),
                     skill_id: selectedSkillId,
                     sort_order: (paginatedData?.totalCount ?? 0) + index + 1
                 };
             });
 
-            await bulkCreate.mutateAsync(questionsToImport as any);
+            await bulkCreate.mutateAsync(questionsToImport);
             showToast(`Successfully imported ${questionsToImport.length} questions`, 'success');
         } catch (error) {
             console.error('Import error:', error);
@@ -579,7 +580,7 @@ export function QuestionList() {
             <div className="flex items-center justify-center h-64">
                 <div className="text-center text-red-500">
                     <p>Error loading questions.</p>
-                    <p className="text-sm text-gray-400 mt-2">{(error as any)?.message || 'Unknown error'}</p>
+                    <p className="text-sm text-gray-400 mt-2">{error instanceof Error ? error.message : 'Unknown error'}</p>
                 </div>
             </div>
         );

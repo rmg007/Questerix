@@ -16,6 +16,7 @@ import { RichTextEditor } from '@/components/ui/rich-text-editor';
 import { RadioGroup, RadioGroupItem } from '@/components/ui/radio-group';
 import { useCreateQuestion, useUpdateQuestion } from '../hooks/use-questions';
 import { useSkills } from '../hooks/use-skills';
+import { useApp } from '@/contexts/AppContext';
 import { useNavigate } from 'react-router-dom';
 import { Loader2, Plus, Trash, ArrowUp, ArrowDown } from 'lucide-react';
 import { Checkbox } from '@/components/ui/checkbox';
@@ -61,6 +62,7 @@ interface QuestionFormProps {
 
 export function QuestionForm({ initialData }: QuestionFormProps) {
   const navigate = useNavigate();
+  const { currentApp } = useApp();
   const createQuestion = useCreateQuestion();
   const updateQuestion = useUpdateQuestion();
   const { data: skills, isLoading: isLoadingSkills } = useSkills();
@@ -103,25 +105,25 @@ export function QuestionForm({ initialData }: QuestionFormProps) {
           }
       }
       // Parse JSON solution
-      let sol: Json;
+      let sol: Json = {};
       try {
         sol = typeof data.solution === 'string' ? JSON.parse(data.solution as string) : data.solution;
       } catch {
-        sol = data.solution;
+        sol = data.solution || {};
       }
       switch (type) {
           case 'multiple_choice':
-              return sol.correct_option_id || '';
+              return (sol as Record<string, unknown>).correct_option_id || '';
           case 'mcq_multi':
-              return sol.correct_ids || [];
+              return (sol as Record<string, unknown>).correct_ids || [];
           case 'boolean':
-              return sol.correct_value ?? null;
+              return (sol as Record<string, unknown>).correct_value ?? null;
           case 'text_input':
-              return sol.exact_match || '';
+              return (sol as Record<string, unknown>).exact_match || '';
           case 'reorder_steps':
-              return sol.correct_order || [];
+              return (sol as Record<string, unknown>).correct_order || [];
           default:
-              return sol.correct_option_id || '';
+              return (sol as Record<string, unknown>).correct_option_id || '';
       }
   };
 
@@ -157,7 +159,12 @@ export function QuestionForm({ initialData }: QuestionFormProps) {
 
   const onSubmit = async (data: QuestionFormData) => {
     try {
-      const submissionData = { ...data };
+      const submissionData: Partial<Question> = { 
+        ...data,
+        app_id: currentApp?.app_id || '',
+        options: data.options as Json,
+        solution: data.solution as Json
+      };
 
       if (data.type === 'multiple_choice') {
           const opts = data.options as { options: { id: string, text: string}[] };
@@ -168,8 +175,8 @@ export function QuestionForm({ initialData }: QuestionFormProps) {
              return;
           }
 
-          submissionData.options = opts;
-          submissionData.solution = { correct_option_id: correctId };
+          submissionData.options = opts as Json;
+          submissionData.solution = { correct_option_id: correctId } as Json;
       } else if (data.type === 'mcq_multi') {
           const opts = data.options as { options: { id: string, text: string}[] };
           const correctIds = data.solution as string[];
@@ -179,35 +186,32 @@ export function QuestionForm({ initialData }: QuestionFormProps) {
              return;
           }
 
-          submissionData.options = opts;
-          submissionData.solution = { correct_ids: correctIds };
+          submissionData.options = opts as Json;
+          submissionData.solution = { correct_ids: correctIds } as Json;
       } else if (data.type === 'boolean') {
-          const opts = data.options as { true_label?: string, false_label?: string };
-          const correctValue = data.solution as boolean | null;
+          const labels = data.options as { true_label?: string; false_label?: string };
+          const correctValue = data.solution as boolean;
           
           if (correctValue === null || correctValue === undefined) {
-             form.setError('solution', { message: 'Please select the correct answer (True or False)' });
+             form.setError('solution', { message: 'Please select a correct answer' });
              return;
           }
 
-          submissionData.options = {
-              true_label: opts.true_label || 'True',
-              false_label: opts.false_label || 'False'
-          };
-          submissionData.solution = { correct_value: correctValue };
+          submissionData.options = labels as Json;
+          submissionData.solution = { correct_value: correctValue } as Json;
       } else if (data.type === 'text_input') {
-          const opts = data.options as { placeholder?: string };
+          const placeholder = data.options as { placeholder?: string };
           const exactMatch = data.solution as string;
           
-          if (!exactMatch || exactMatch.trim() === '') {
-             form.setError('solution', { message: 'Please enter the correct answer' });
+          if (!exactMatch) {
+             form.setError('solution', { message: 'Please provide the expected answer' });
              return;
           }
 
-          submissionData.options = { placeholder: opts.placeholder || '' };
-          submissionData.solution = { exact_match: exactMatch.trim() };
+          submissionData.options = placeholder as Json;
+          submissionData.solution = { exact_match: exactMatch } as Json;
       } else if (data.type === 'reorder_steps') {
-          const opts = data.options as { steps: { id: string, text: string}[] };
+          const opts = data.options as { steps: { id: string; text: string }[] };
           const correctOrder = data.solution as string[];
           
           if (!opts.steps || opts.steps.length < 2) {
@@ -220,8 +224,8 @@ export function QuestionForm({ initialData }: QuestionFormProps) {
              return;
           }
 
-          submissionData.options = opts;
-          submissionData.solution = { correct_order: correctOrder };
+          submissionData.options = opts as Json;
+          submissionData.solution = { correct_order: correctOrder } as Json;
       }
 
       if (initialData) {
@@ -230,7 +234,7 @@ export function QuestionForm({ initialData }: QuestionFormProps) {
            ...submissionData
         });
       } else {
-        await createQuestion.mutateAsync(submissionData);
+        await createQuestion.mutateAsync(submissionData as Database['public']['Tables']['questions']['Insert']);
       }
       navigate('/questions');
     } catch (error) {

@@ -29,8 +29,8 @@ export const GenerationPage: React.FC = () => {
   const [isSaving, setIsSaving] = useState(false);
   const [selectedSkillId, setSelectedSkillId] = useState<string>('');
   const [error, setError] = useState<string | null>(null);
-  const [validationSummary, setValidationSummary] = useState<any>(null);
-  const [governanceInfo, setGovernanceInfo] = useState<any>(null);
+  const [validationSummary, setValidationSummary] = useState<{ status: string; summary: string; overall_score: number; findings: Array<{ question_id: number; issues: string[] }> } | null>(null);
+  const [governanceInfo, setGovernanceInfo] = useState<{ tokens_consumed: number; quota_remaining: number } | null>(null);
 
   const { data: skills } = useSkills();
   const bulkCreate = useBulkCreateQuestions();
@@ -78,7 +78,7 @@ export const GenerationPage: React.FC = () => {
       });
 
       setGeneratedQuestions(transformedQuestions);
-      setValidationSummary(result.validation);
+      setValidationSummary(result.validation || null);
       setGovernanceInfo(result.governance);
       
       console.log(`Generated ${result.metadata.questions_generated} questions.`);
@@ -156,8 +156,9 @@ export const GenerationPage: React.FC = () => {
         };
 
         return {
+          app_id: currentApp?.app_id || '',
           content: q.text,
-          type: q.question_type === 'mcq' ? 'multiple_choice' : q.question_type,
+          type: (q.question_type === 'mcq' ? 'multiple_choice' : q.question_type) as 'boolean' | 'multiple_choice' | 'mcq_multi' | 'text_input' | 'reorder_steps',
           points: q.difficulty === 'hard' ? 20 : q.difficulty === 'medium' ? 10 : 5,
           status: 'draft' as const,
           options,
@@ -168,7 +169,7 @@ export const GenerationPage: React.FC = () => {
         };
       });
 
-      await bulkCreate.mutateAsync(questionsToImport as any);
+      await bulkCreate.mutateAsync(questionsToImport);
       
       toast({
         title: 'Success!',
@@ -339,7 +340,7 @@ export const GenerationPage: React.FC = () => {
                 {validationSummary?.status.toUpperCase()}
               </span>
               <span className="text-sm font-medium text-gray-500">
-                Score: {(validationSummary?.overall_score * 100).toFixed(0)}%
+                 Score: {((validationSummary?.overall_score || 0) * 100).toFixed(0)}%
               </span>
             </div>
           </div>
@@ -371,7 +372,7 @@ export const GenerationPage: React.FC = () => {
               >
                 <option value="">Select Target Skill...</option>
                 {skills?.map((skill: { skill_id: string; title: string }) => (
-                  <option key={skill.id} value={skill.id}>
+                  <option key={skill.skill_id} value={skill.skill_id}>
                     {skill.title}
                   </option>
                 ))}

@@ -74,6 +74,56 @@ jobs:
         with:
           name: python-coverage
           path: content-engine/.coverage
+
+  python-security:
+    name: Python Security Scan
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+      
+      - name: Install Bandit
+        run: pip install bandit[toml]
+      
+      - name: Run Bandit on content-engine
+        run: bandit -r content-engine/ -f json -o bandit-content-engine.json || true
+      
+      - name: Run Bandit on root scripts
+        run: bandit -r *.py -f json -o bandit-root.json || true
+      
+      - name: Check for high severity issues
+        run: |
+          if [ -f bandit-content-engine.json ]; then
+            HIGH_SEVER=$(jq '[.results[] | select(.issue_severity == "HIGH" or .issue_severity == "CRITICAL")] | length' bandit-content-engine.json)
+            if [ "$HIGH_SEVER" -gt 0 ]; then
+              echo "❌ Found $HIGH_SEVER high/critical severity issues in content-engine"
+              jq '.results[] | select(.issue_severity == "HIGH" or .issue_severity == "CRITICAL")' bandit-content-engine.json
+              exit 1
+            fi
+          fi
+          
+          if [ -f bandit-root.json ]; then
+            HIGH_ROOT=$(jq '[.results[] | select(.issue_severity == "HIGH" or .issue_severity == "CRITICAL")] | length' bandit-root.json)
+            if [ "$HIGH_ROOT" -gt 0 ]; then
+              echo "❌ Found $HIGH_ROOT high/critical severity issues in root scripts"
+              jq '.results[] | select(.issue_severity == "HIGH" or .issue_severity == "CRITICAL")' bandit-root.json
+              exit 1
+            fi
+          fi
+          
+          echo "✅ No high/critical severity security issues found"
+      
+      - name: Upload Bandit reports
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: bandit-reports
+          path: |
+            bandit-content-engine.json
+            bandit-root.json
+
   admin:
     runs-on: ubuntu-latest
     steps:

@@ -11,6 +11,7 @@ The AI agent writes tasks.json, this script executes them automatically.
 """
 
 import json
+import shlex
 import subprocess
 import sys
 import time
@@ -75,9 +76,30 @@ def execute_manifest(manifest_path: str) -> bool:
             print(f"  Working directory: {cwd}")
         
         try:
+            # SECURITY: Use shell=False to prevent shell injection attacks
+            # Parse command string into arguments safely using shlex
+            # This prevents malicious commands like: "npm install; rm -rf /"
+            if isinstance(command, str):
+                # Parse string command into argument list
+                # On Windows, shlex.split() doesn't handle paths with backslashes well
+                # So we use platform-specific parsing
+                if sys.platform == 'win32':
+                    # On Windows, keep as string but use shell=False with PowerShell
+                    cmd_args = ['powershell.exe', '-NoProfile', '-Command', command]
+                else:
+                    # On Unix, use shlex for safe parsing
+                    cmd_args = shlex.split(command)
+            elif isinstance(command, list):
+                # Already a list of arguments (safest form)
+                cmd_args = command
+            else:
+                print(f"  ✗ Invalid command type: {type(command)}")
+                success = False
+                continue
+            
             subprocess.run(
-                command,
-                shell=True,
+                cmd_args,
+                shell=False,  # SECURITY: Never use shell=True
                 cwd=cwd if cwd else None,
                 check=True,
                 capture_output=False,

@@ -33,7 +33,7 @@
     "codescene": {
       "command": "cs-mcp",
       "env": {
-        "CS_ACCESS_TOKEN": "pat_eyJpZCI6ODQ3MTAsInJhbmQiOiJPUmhaMWU2d0NtWENCRms3WG5BSFB1V29FazBuZDVNOSJ9"
+        "CS_ACCESS_TOKEN": "${CS_ACCESS_TOKEN}"
       }
     }
   }

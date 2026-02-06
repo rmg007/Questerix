@@ -1181,3 +1181,145 @@ TypeError: (0 , common_1.guessLocationOfTsconfig) is not a function
 2. **Expand Feature Isolation**: Add rules for new features as they're created
 3. **Cross-App Rules**: Consider architecture tests for student-app (Flutter has equivalent libraries)
 
+---
+
+## 2026-02-05: Dependency-Cruiser Integration for Code Health Analysis
+
+### Session Context
+- **Objective**: Integrate dependency-cruiser for automated architectural validation
+- **Scope**: Workflow integration, configuration, code health reporting
+- **Outcome**: Tool successfully integrated into `/certify`, `/audit`, and `/process` workflows
+
+---
+
+### Key Learnings
+
+#### 1. Entry Point Files Required (Not Directories)
+
+**What Happened**: Initial configuration using directory paths returned 0 modules:
+```powershell
+# FAILED - Returns 0 modules
+depcruise admin-panel/src --config .dependency-cruiser.cjs
+```
+
+**Fix**: Specify explicit entry point files:
+```powershell
+# SUCCESS - 140 modules, 423 dependencies
+depcruise admin-panel/src/main.tsx landing-pages/src/main.tsx --config .dependency-cruiser.cjs
+```
+
+**Lesson**: Dependency-cruiser crawls from entry points. Directory scanning only works if you have a clear module system with index files.
+
+---
+
+#### 2. TypeScript Configuration in `.dependency-cruiser.cjs`
+
+**Key Settings**:
+```javascript
+options: {
+  tsConfig: {
+    fileName: 'admin-panel/tsconfig.json',
+  },
+  enhancedResolveOptions: {
+    extensions: ['.ts', '.tsx', '.js', '.jsx', '.json'],
+    conditionNames: ['import', 'require', 'node', 'default'],
+  },
+}
+```
+
+**Lesson**: Without proper `tsConfig` path, depcruise fails to resolve path aliases like `@/`.
+
+---
+
+#### 3. Useful Architectural Rules
+
+| Rule | Severity | Purpose |
+|------|----------|---------|
+| `no-circular` | Error | Prevents circular dependencies |
+| `no-orphans` | Warn | Detects unused/dead modules |
+| `feature-to-feature-isolation` | Warn | Features shouldn't cross-import |
+| `no-utils-to-features` | Error | Utils layer stays pure |
+| `no-hooks-to-pages` | Warn | Hooks shouldn't depend on pages |
+
+**Key Insight**: Start with warnings to understand violations, then promote to errors.
+
+---
+
+#### 4. Report Generation Strategy
+
+**Commands Added**:
+```json
+{
+  "deps:validate": "depcruise ... --config ...",
+  "deps:report": "depcruise ... --output-type html > dependency-report.html",
+  "deps:graph": "depcruise ... --output-type dot > dependency-graph.dot",
+  "deps:archi": "depcruise ... --output-type archi > architecture-graph.dot"
+}
+```
+
+**Best Practice**: Generate HTML report for visual inspection, DOT files for graphviz processing.
+
+---
+
+#### 5. PowerShell Line Count Analysis Pattern
+
+**Useful Command for Finding Large Files**:
+```powershell
+Get-ChildItem -Path admin-panel\src -Recurse -Include *.ts,*.tsx | 
+  ForEach-Object { 
+    $lines = (Get-Content $_.FullName | Measure-Object -Line).Lines
+    if ($lines -gt 200) { "$lines,$($_.Name)" } 
+  } | Sort-Object {[int]($_ -split ',')[0]} -Descending
+```
+
+**Output**: Quick identification of refactoring candidates.
+
+---
+
+#### 6. CodeScene MCP Requires IDE Restart
+
+**What Happened**: CodeScene MCP was configured in `.mcp_config.json` but tools weren't available.
+
+**Cause**: MCP servers are loaded at IDE startup. Configuration changes require restart.
+
+**Pattern**: After adding new MCP server to config:
+1. Save `.mcp_config.json`
+2. Restart IDE
+3. Verify with `list_resources` or direct tool call
+
+---
+
+### Hotspots Identified (Technical Debt)
+
+| File | Lines | Priority |
+|------|-------|----------|
+| `question-list.tsx` | 845 | 🔴 Critical |
+| `skill-list.tsx` | 748 | 🔴 Critical |
+| `practice_screen.dart` | 1038 | 🔴 Critical |
+| `question-form.tsx` | 710 | 🔴 Critical |
+| `onboarding_screen.dart` | 626 | 🟡 High |
+
+**Note**: `database.types.ts` (1140) and `database.g.dart` (7086) are generated - ignore.
+
+---
+
+### Files Modified/Created
+
+| File | Action | Purpose |
+|------|--------|---------|
+| `.dependency-cruiser.cjs` | Created | 7 architectural rules |
+| `package.json` | Modified | 4 deps: scripts |
+| `.agent/workflows/certify.md` | Modified | Phase 2 check |
+| `.agent/workflows/audit.md` | Modified | Phase 4 analysis |
+| `.agent/workflows/process.md` | Modified | Phase 4 hygiene check |
+| `docs/reports/code-health-2026-02-05.md` | Created | Full analysis report |
+
+---
+
+### Recommendations for Future Work
+
+1. **CI Integration**: Add `npm run deps:validate` as CI step (fail on violations)
+2. **Refactoring Sprints**: Schedule dedicated sessions for 800+ line files
+3. **Feature Isolation**: Monitor `feature-to-feature-isolation` warnings as codebase grows
+4. **Monthly Reports**: Run code health analysis monthly and track trends
+

@@ -135,6 +135,36 @@ jobs:
           npx wait-on http://localhost:4173
           npx pa11y http://localhost:4173 --standard WCAG2AA || echo "Accessibility issues detected"
 
+  supabase-regression-tests:
+    name: Security Regression Tests
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      
+      - name: Setup Supabase CLI
+        uses: supabase/setup-cli@v1
+        with:
+          version: latest
+      
+      - name: Start Supabase
+        run: |
+          cd supabase
+          supabase start
+      
+      - name: Run Regression Tests
+        run: |
+          cd supabase
+          chmod +x tests/run_all.sh
+          ./tests/run_all.sh
+        env:
+          DATABASE_URL: postgresql://postgres:postgres@localhost:54322/postgres
+      
+      - name: Stop Supabase
+        if: always()
+        run: |
+          cd supabase
+          supabase stop
+
   oracle-plus-validation:
     name: Spec Drift Detection
     runs-on: ubuntu-latest

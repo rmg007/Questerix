@@ -83,7 +83,7 @@ def execute_manifest(manifest_path: str) -> bool:
                 capture_output=False,
                 text=True
             )
-            print(f"  ✓ Completed successfully")
+            print("  ✓ Completed successfully")
         except subprocess.CalledProcessError as e:
             print(f"  ✗ Failed with exit code {e.returncode}")
             success = False

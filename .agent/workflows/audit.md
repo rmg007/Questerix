@@ -196,6 +196,19 @@ grep -r "MATERIALIZED VIEW\|app.claim\|jwt.*claim" supabase/migrations/*.sql
 grep -r "\.from\|\.select" admin-panel/src student-app/lib | grep -v "app_id"
 ```
 
+### Module Coupling Analysis
+```powershell
+# Run dependency-cruiser validation
+npm run deps:validate
+
+# Generate visual report for inspection
+npm run deps:report
+```
+- **Check for**: Circular dependencies, orphan modules, cross-feature imports
+- **Review**: Open `dependency-report.html` for interactive graph
+- **Pass if**: "no dependency violations found"
+- **Fail if**: Any circular dependencies or architecture rule violations
+
 ### New Pattern Discovery
 - If suspicious code found → Document as potential vulnerability
 - Add to findings with "NEEDS REVIEW" status

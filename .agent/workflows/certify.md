@@ -78,6 +78,13 @@ description: Independent post-implementation audit and certification
   - Verify: Repository pattern used, Bloc/Provider correctly structured, etc.
   - **Proof**: File structure screenshot or tree output
 
+- [ ] **Dependency Architecture Validation**
+  - Run: `npm run deps:validate` (from workspace root)
+  - Check for: Circular dependencies, orphan modules, cross-feature imports
+  - Generate report: `npm run deps:report` → open `dependency-report.html`
+  - **Proof**: Command output showing "no dependency violations found"
+  - If violations found: Either fix immediately or document in Issue Log
+
 **Exit Gate**: Code quality meets standards OR refactoring plan created.
 
 ---

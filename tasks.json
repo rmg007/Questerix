@@ -1,17 +1,17 @@
 [
   {
-    "description": "Git add all",
-    "command": "git add .",
+    "description": "Analyze admin-panel TypeScript code health",
+    "command": "echo 'Starting CodeScene analysis for admin-panel...' && C:\\Users\\mhali\\AppData\\Local\\Programs\\cs-mcp\\cs-mcp.exe analyze --path admin-panel/src --format json > docs/reports/codescene-admin-panel.json 2>&1 || echo 'Note: Run through IDE MCP for full analysis'",
     "cwd": "C:/Users/mhali/OneDrive/Desktop/Important Projects/Questerix"
   },
   {
-    "description": "Commit learning log",
-    "command": "git commit -m \"docs: add session learnings - autonomous CI, Drift patterns, security hardening\"",
+    "description": "Analyze student-app Dart code health",
+    "command": "echo 'Starting CodeScene analysis for student-app...' && C:\\Users\\mhali\\AppData\\Local\\Programs\\cs-mcp\\cs-mcp.exe analyze --path student-app/lib --format json > docs/reports/codescene-student-app.json 2>&1 || echo 'Note: Run through IDE MCP for full analysis'",
     "cwd": "C:/Users/mhali/OneDrive/Desktop/Important Projects/Questerix"
   },
   {
-    "description": "Git push",
-    "command": "git push",
+    "description": "Analyze content-engine Python code health", 
+    "command": "echo 'Starting CodeScene analysis for content-engine...' && C:\\Users\\mhali\\AppData\\Local\\Programs\\cs-mcp\\cs-mcp.exe analyze --path content-engine/src --format json > docs/reports/codescene-content-engine.json 2>&1 || echo 'Note: Run through IDE MCP for full analysis'",
     "cwd": "C:/Users/mhali/OneDrive/Desktop/Important Projects/Questerix"
   }
 ]

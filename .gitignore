@@ -75,3 +75,8 @@ student-app/build/
 
 #Ignore vscode AI rules
 .github\instructions\codacy.instructions.md
+
+dependency-report.html
+dependency-graph.dot
+architecture-graph.dot
+deps-output.txt

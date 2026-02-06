@@ -1053,3 +1053,131 @@ A value of type 'List<OutboxData>' can't be assigned to a variable of type 'List
 | Total Security Warnings | 47 | 4 |
 
 **Commit**: `bde34538` - security: comprehensive database hardening
+
+---
+
+## 2026-02-05: ArchUnitTS Architectural Testing Integration
+
+### Session Context
+- **Objective**: Integrate ArchUnitTS for automated architectural testing in admin-panel
+- **Technologies**: archunit (npm), Vitest, TypeScript
+- **Outcome**: 13 architecture tests passing, CI integrated
+
+---
+
+### Key Learnings
+
+#### 1. npm Package Name Confusion (arch-unit-ts vs archunit)
+
+**What Happened**: Initial research found LukasNiessen's "ArchUnitTS" (GitHub repo name), but the npm package names are different:
+
+| Package | Description | Status |
+|---------|-------------|--------|
+| `arch-unit-ts` | Different library, hexagonal architecture focused | ❌ Wrong one |
+| `archunit` | LukasNiessen's ArchUnitTS library | ✅ Correct one |
+
+**Error Encountered**:
+```
+Property 'toPassAsync' does not exist on type 'Assertion<any>'
+```
+
+**Root Cause**: Installed wrong package (`arch-unit-ts`) which has completely different API.
+
+**Prevention**:
+- Always check the README's installation command: `npm install archunit --save-dev`
+- Verify GitHub repo URL matches npm package's repository field
+
+---
+
+#### 2. Vitest `globals: true` Requirement for Custom Matchers
+
+**What Happened**: After installing correct package, tests failed with:
+```
+ArchUnitTS Vitest Integration Error: 'expect' is not defined globally.
+```
+
+**Root Cause**: ArchUnit extends Vitest's `expect()` with custom matchers like `toPassAsync()`. This requires `globals: true` in vitest.config.ts.
+
+**Fix**:
+```typescript
+// vitest.config.ts
+export default defineConfig({
+  test: {
+    globals: true, // Required for ArchUnit custom matchers
+    environment: 'jsdom',
+  },
+})
+```
+
+**Pattern**: Any testing library that extends assertion matchers likely requires `globals: true` in Vitest.
+
+---
+
+#### 3. ArchUnit Metrics API Bug (guessLocationOfTsconfig)
+
+**What Happened**: Code Metrics tests failed with:
+```
+TypeError: (0 , common_1.guessLocationOfTsconfig) is not a function
+```
+
+**Root Cause**: Internal bug in archunit v2.1.63 - the metrics module has an incorrect import.
+
+**Workaround**: Commented out Code Metrics tests until library is fixed:
+```typescript
+// Note: Code Metrics tests commented out due to archunit library bug
+// with guessLocationOfTsconfig. Can be re-enabled when library is fixed.
+```
+
+**Lesson**: When integrating new libraries:
+1. Start with core features (architectural rules worked fine)
+2. Test advanced features (metrics) separately
+3. Don't block integration on optional features
+
+---
+
+#### 4. Tool Evaluation Framework (Worth It vs Not)
+
+**Pattern Applied**: Evaluated three tools in this session:
+
+| Tool | Purpose | Decision | Reason |
+|------|---------|----------|--------|
+| **Danger JS** | PR convention enforcement | ❌ Pass | Redundant with existing CI |
+| **Repolinter** | OSS file hygiene | ❌ Pass | One-time task, not ongoing |
+| **ArchUnitTS** | Architectural boundaries | ✅ Adopt | Fills genuine gap |
+
+**Evaluation Criteria**:
+1. Does it fill a gap vs. duplicate existing tools?
+2. Is the problem ongoing (needs automation) or one-time?
+3. Does it integrate with existing stack (Vitest for us)?
+4. What's the maintenance burden?
+
+---
+
+### Files Modified/Created
+
+| File | Action | Purpose |
+|------|--------|---------|
+| `admin-panel/src/__tests__/architecture.test.ts` | Created | 13 architecture tests |
+| `admin-panel/package.json` | Modified | Added archunit + test:arch script |
+| `admin-panel/vitest.config.ts` | Modified | Added globals: true |
+| `.github/workflows/ci.yml` | Modified | Added Architecture Tests step |
+
+---
+
+### Architecture Rules Implemented
+
+| Category | Count | Examples |
+|----------|-------|----------|
+| **Layer Dependencies** | 3 | services ↛ components, lib ↛ features |
+| **Feature Isolation** | 5 | curriculum ↛ mentorship, platform ↛ curriculum |
+| **Naming Conventions** | 2 | Hooks must be `use-*.ts` |
+| **Circular Dependencies** | 3 | Cycle detection in components, lib, hooks |
+
+---
+
+### Recommendations for Future Work
+
+1. **Monitor ArchUnit Releases**: Re-enable Code Metrics tests when `guessLocationOfTsconfig` bug is fixed
+2. **Expand Feature Isolation**: Add rules for new features as they're created
+3. **Cross-App Rules**: Consider architecture tests for student-app (Flutter has equivalent libraries)
+

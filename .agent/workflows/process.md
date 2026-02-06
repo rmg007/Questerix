@@ -141,15 +141,20 @@ Before Phase 1, create `.agent/artifacts/TASK_STATE.json`:
     *   Check for unnecessary re-renders (React) or frame drops (Flutter).
     *   Ensure expensive operations are run in background threads (Isolates/Workers).
     *   Verify virtualization/pagination for large lists.
-5.  **QA Loop**: Run tests. If any fail, fix the code and re-run.
+5.  **Dependency Hygiene Check** (TypeScript/React only):
+    *   Run: `npm run deps:validate` (from workspace root)
+    *   Verify: No circular dependencies introduced by new code
+    *   Verify: Feature isolation maintained (no cross-feature imports)
+    *   **Proof**: Command output showing "no dependency violations found"
+6.  **QA Loop**: Run tests. If any fail, fix the code and re-run.
     *   **Micro-Postmortem**: For every test failure fixed, **IMMEDIATELY** add an entry to `docs/LEARNING_LOG.md`.
-6.  **Visual Design Audit (If UI changed)**:
+7.  **Visual Design Audit (If UI changed)**:
     *   **Visual Inspection**: Use `browser_subagent` to capture screenshots of all modified screens.
     *   **Premium Critique**: Review for "Wow" factor: check gradients, glassmorphism, spacing consistency, and modern typography.
     *   **UX Fidelity**: Verify smooth transitions, responsive layouts, and intuitive button placement.
     *   **Accessibility Check**: Ensure contrast ratios and screen reader labels meet standards.
-7.  **Repeat**: Loop until **100% of tests pass**, **Visuals are Premium**, and **Performance is Smooth**.
-8.  **Evidence**: Provide a summary of passed tests (pass/fail counts) and **attach visual proof** (screenshots).
+8.  **Repeat**: Loop until **100% of tests pass**, **Visuals are Premium**, and **Performance is Smooth**.
+9.  **Evidence**: Provide a summary of passed tests (pass/fail counts) and **attach visual proof** (screenshots).
 
 **EXIT GATE**: 100% Test Success, Security Verified, and Visual Design Approved.
 

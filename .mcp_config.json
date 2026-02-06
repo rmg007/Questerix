@@ -29,6 +29,12 @@
       "env": {
         "CODE_SCALPEL_ROOT": "c:\\Users\\mhali\\OneDrive\\Desktop\\Important Projects\\Questerix"
       }
+    },
+    "codescene": {
+      "command": "cs-mcp",
+      "env": {
+        "CS_ACCESS_TOKEN": "pat_eyJpZCI6ODQ3MTAsInJhbmQiOiJPUmhaMWU2d0NtWENCRms3WG5BSFB1V29FazBuZDVNOSJ9"
+      }
     }
   }
 }

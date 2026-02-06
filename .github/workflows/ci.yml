@@ -58,6 +58,8 @@ jobs:
         run: cd admin-panel && npm ci
       - name: Lint
         run: cd admin-panel && npm run lint
+      - name: Architecture Tests
+        run: cd admin-panel && npm run test:arch
       - name: Test
         run: cd admin-panel && npm run test -- --coverage
 

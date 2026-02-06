@@ -1,4 +1,3 @@
-/* eslint-disable @typescript-eslint/no-explicit-any */
 import { useForm } from 'react-hook-form';
 import { useEffect, useRef } from 'react';
 import { zodResolver } from '@hookform/resolvers/zod';
@@ -30,6 +29,7 @@ import {
 import { Card, CardHeader, CardTitle, CardContent } from "@/components/ui/card"
 import { Separator } from "@/components/ui/separator"
 import { Database } from '@/lib/database.types';
+import type { Json } from '@/types/database.types';
 
 type Question = Database['public']['Tables']['questions']['Row'];
 
@@ -46,9 +46,8 @@ const questionSchema = z.object({
   skill_id: z.string().uuid(),
   type: z.enum(QUESTION_TYPES),
   content: z.string().min(1, 'Question text is required'),
-  // Options: for MCQ, list of specific objects. For others, could be flexible.
-  options: z.any(), 
-  solution: z.any(),
+  options: z.unknown(),
+  solution: z.unknown(),
   explanation: z.string().optional(),
   points: z.coerce.number().min(1),
   status: z.enum(['draft', 'live']).default('draft'),
@@ -104,7 +103,7 @@ export function QuestionForm({ initialData }: QuestionFormProps) {
           }
       }
       // Parse JSON solution
-      let sol: any;
+      let sol: Json;
       try {
         sol = typeof data.solution === 'string' ? JSON.parse(data.solution as string) : data.solution;
       } catch {
@@ -134,10 +133,10 @@ export function QuestionForm({ initialData }: QuestionFormProps) {
       skill_id: initialData?.skill_id || '',
       type: initialType as QuestionFormData['type'],
       content: initialData?.content || '',
-      explanation: initialData?.explanation || '',
+      explanation: initialData?.explanation|| '',
       points: initialData?.points || 1,
-      status: (initialData as any)?.status || 'draft',
-      options: parseOptions(initialData, initialType), 
+      status: ('status' in (initialData || {})) ? (initialData?.status as 'draft' | 'live') : 'draft',
+      options:parseOptions(initialData, initialType), 
       solution: parseSolution(initialData, initialType),
     },
   });
@@ -229,9 +228,9 @@ export function QuestionForm({ initialData }: QuestionFormProps) {
         await updateQuestion.mutateAsync({
            question_id: initialData.question_id,
            ...submissionData
-        } as any);
+        });
       } else {
-        await createQuestion.mutateAsync(submissionData as any);
+        await createQuestion.mutateAsync(submissionData);
       }
       navigate('/questions');
     } catch (error) {
@@ -242,8 +241,8 @@ export function QuestionForm({ initialData }: QuestionFormProps) {
   const isSubmitting = createQuestion.isPending || updateQuestion.isPending;
 
   // Custom Field Array for MCQ Options
-  const currentOptions = (form.watch('options') as any)?.options || [];
-  const setOptions = (newOptions: any[]) => {
+  const currentOptions = (form.watch('options') as { options: { id: string; text: string }[] })?.options || [];
+  const setOptions = (newOptions: { id: string; text: string }[]) => {
       form.setValue('options', { options: newOptions });
   };
 
@@ -286,10 +285,10 @@ export function QuestionForm({ initialData }: QuestionFormProps) {
   const textAnswer = form.watch('solution') as string || '';
 
   // Reorder steps helpers
-  const currentSteps = (form.watch('options') as any)?.steps || [];
+  const currentSteps = (form.watch('options') as { steps: { id: string; text: string }[] })?.steps || [];
   const currentOrder = (form.watch('solution') as string[]) || [];
 
-  const setSteps = (newSteps: any[]) => {
+  const setSteps = (newSteps: { id: string; text: string }[]) => {
       form.setValue('options', { steps: newSteps });
   };
 
@@ -327,7 +326,7 @@ export function QuestionForm({ initialData }: QuestionFormProps) {
 
   return (
     <Form {...form}>
-      <form onSubmit={form.handleSubmit(onSubmit as any)} className="space-y-8 w-full max-w-5xl mx-auto pb-10">
+      <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-8 w-full max-w-5xl mx-auto pb-10">
         
         <div className="flex items-center justify-between">
             <div>
@@ -353,7 +352,7 @@ export function QuestionForm({ initialData }: QuestionFormProps) {
                     </CardHeader>
                     <CardContent className="space-y-6">
                         <FormField
-                            control={form.control as any}
+                            control={form.control}
                             name="type"
                             render={({ field }) => (
                                 <FormItem>
@@ -378,7 +377,7 @@ export function QuestionForm({ initialData }: QuestionFormProps) {
                         />
 
                         <FormField
-                          control={form.control as any}
+                          control={form.control}
                           name="content"
                           render={({ field }) => (
                             <FormItem>
@@ -414,7 +413,7 @@ export function QuestionForm({ initialData }: QuestionFormProps) {
                                     defaultValue={form.watch('solution') as string}
                                     className="space-y-3"
                                 >
-                                    {currentOptions.map((opt: any, index: number) => (
+                                    {currentOptions.map((opt, index: number) => (
                                         <div key={index} className="flex items-center gap-3">
                                             <RadioGroupItem value={opt.id} id={opt.id} />
                                             <div className="flex-1 flex gap-2">
@@ -448,7 +447,7 @@ export function QuestionForm({ initialData }: QuestionFormProps) {
                             <div className="space-y-4">
                                 <p className="text-sm text-muted-foreground mb-2">Check the boxes for all correct answers.</p>
                                 <div className="space-y-3">
-                                    {currentOptions.map((opt: any, index: number) => (
+                                    {currentOptions.map((opt, index: number) => (
                                         <div key={index} className="flex items-center gap-3">
                                             <Checkbox 
                                                 checked={currentSelectedIds.includes(opt.id)}
@@ -571,7 +570,7 @@ export function QuestionForm({ initialData }: QuestionFormProps) {
                                         </Button>
                                     </div>
                                     <div className="space-y-2">
-                                        {currentSteps.map((step: any, index: number) => (
+                                        {currentSteps.map((step, index: number) => (
                                             <div key={step.id} className="flex items-center gap-3">
                                                 <span className="flex h-10 w-10 items-center justify-center rounded-md border bg-muted text-sm font-medium shrink-0">
                                                     {step.id}
@@ -597,7 +596,7 @@ export function QuestionForm({ initialData }: QuestionFormProps) {
                                     <p className="text-xs text-muted-foreground mb-4">Use arrows to arrange steps in the solution order.</p>
                                     <div className="space-y-2 bg-muted/30 p-4 rounded-lg">
                                         {currentOrder.map((stepId: string, index: number) => {
-                                            const step = currentSteps.find((s: any) => s.id === stepId);
+                                            const step = currentSteps.find((s) => s.id === stepId);
                                             return (
                                                 <div key={stepId} className="flex items-center gap-3 p-3 border rounded-md bg-white shadow-sm">
                                                     <span className="font-bold text-muted-foreground w-6">{index + 1}.</span>
@@ -648,7 +647,7 @@ export function QuestionForm({ initialData }: QuestionFormProps) {
                     </CardHeader>
                     <CardContent>
                         <FormField
-                            control={form.control as any}
+                            control={form.control}
                             name="explanation"
                             render={({ field }) => (
                                 <FormItem>
@@ -675,7 +674,7 @@ export function QuestionForm({ initialData }: QuestionFormProps) {
                     </CardHeader>
                     <CardContent className="space-y-6">
                         <FormField
-                            control={form.control as any}
+                            control={form.control}
                             name="status"
                             render={({ field }) => (
                                 <FormItem>
@@ -705,7 +704,7 @@ export function QuestionForm({ initialData }: QuestionFormProps) {
                         />
 
                         <FormField
-                            control={form.control as any}
+                            control={form.control}
                             name="points"
                             render={({ field }) => (
                                 <FormItem>
@@ -726,7 +725,7 @@ export function QuestionForm({ initialData }: QuestionFormProps) {
                     </CardHeader>
                     <CardContent>
                          <FormField
-                            control={form.control as any}
+                            control={form.control}
                             name="skill_id"
                             render={({ field }) => (
                                 <FormItem>

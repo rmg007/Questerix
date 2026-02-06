@@ -1,4 +1,3 @@
-/* eslint-disable @typescript-eslint/no-explicit-any */
 import { useState, useEffect } from 'react';
 import { supabase } from '@/lib/supabase';
 import { Users, Shield, ShieldAlert, UserX, Search } from 'lucide-react';

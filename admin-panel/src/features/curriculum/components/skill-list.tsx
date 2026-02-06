@@ -1,4 +1,3 @@
-/* eslint-disable @typescript-eslint/no-explicit-any */
 import { Link } from 'react-router-dom';
 import { usePaginatedSkills, useDeleteSkill, useBulkDeleteSkills, useBulkUpdateSkillsStatus, useDuplicateSkill, useUpdateSkillOrder } from '../hooks/use-skills';
 import { useDomains } from '../hooks/use-domains';
@@ -39,19 +38,25 @@ import { CSS } from '@dnd-kit/utilities';
 
 const DEFAULT_PAGE_SIZE = 10;
 
-interface Skill {
+//Type for skill list rows (API returns expanded data with joins)
+interface SkillListItem {
     skill_id: string;
     title: string;
     slug: string;
-    sort_order: number;
-    status?: string;
-    difficulty_level?: number;
-    domain_id?: string;
+    sort_order: number | null;
+    status: 'draft' | 'published' | 'live' | null;
+    difficulty_level: number | null;
+    domain_id: string | null;
     domains?: { title: string } | null;
+    app_id: string;
+    created_at: string;
+    updated_at: string;
+    deleted_at: string | null;
+    description: string | null;
 }
 
 interface SortableRowProps {
-    skill: Skill;
+    skill: SkillListItem;
     isSelected: boolean;
     onSelect: (id: string) => void;
     onDelete: (id: string) => void;
@@ -327,7 +332,7 @@ export function SkillList() {
     const totalCount = paginatedData?.totalCount ?? 0;
     const totalPages = paginatedData?.totalPages ?? 1;
 
-    const skillIds = useMemo(() => skills.map((s: any) => s.skill_id), [skills]);
+    const skillIds = useMemo(() => skills.map((s: SkillListItem) => s.skill_id), [skills]);
 
     const isDragDisabled = Boolean(debouncedSearch) || statusFilter !== 'all' || selectedDomainId !== 'all' || sortBy !== 'sort_order';
 
@@ -335,13 +340,13 @@ export function SkillList() {
         const { active, over } = event;
 
         if (over && active.id !== over.id) {
-            const oldIndex = skills.findIndex((s: any) => s.skill_id === active.id);
-            const newIndex = skills.findIndex((s: any) => s.skill_id === over.id);
+            const oldIndex = skills.findIndex((s: SkillListItem) => s.skill_id === active.id);
+            const newIndex = skills.findIndex((s: SkillListItem) => s.skill_id === over.id);
 
             if (oldIndex !== -1 && newIndex !== -1) {
                 const reorderedSkills = arrayMove(skills, oldIndex, newIndex);
 
-                const updates = reorderedSkills.map((skill: any, index: number) => ({
+                const updates = reorderedSkills.map((skill: SkillListItem, index: number) => ({
                     skill_id: skill.skill_id,
                     sort_order: index + 1 + (page - 1) * pageSize,
                 }));
@@ -370,7 +375,7 @@ export function SkillList() {
         if (selectedIds.size === skills.length) {
             setSelectedIds(new Set());
         } else {
-            setSelectedIds(new Set(skills.map((s: any) => s.skill_id)));
+            setSelectedIds(new Set(skills.map((s: SkillListItem) => s.skill_id)));
         }
     };
 
@@ -514,7 +519,7 @@ export function SkillList() {
                 </div>
                 <div className="flex flex-col gap-2 sm:flex-row sm:items-center">
                     <DataToolbar
-                        data={skills as any[]}
+                        data={skills as Record<string, unknown>[]}
                         columns={SKILL_COLUMNS}
                         entityName="Skills"
                         importDisabled={true}
@@ -709,7 +714,7 @@ export function SkillList() {
                                             </td>
                                         </tr>
                                     ) : (
-                                        skills.map((skill: any) => (
+                                        skills.map((skill: SkillListItem) => (
                                             <SortableRow
                                                 key={skill.skill_id}
                                                 skill={skill}
@@ -761,7 +766,7 @@ export function SkillList() {
                                 </div>
                             ) : (
                                 <div className="space-y-3">
-                                    {skills.map((skill: any) => (
+                                    {skills.map((skill: SkillListItem) => (
                                         <SortableCard
                                             key={skill.skill_id}
                                             skill={skill}

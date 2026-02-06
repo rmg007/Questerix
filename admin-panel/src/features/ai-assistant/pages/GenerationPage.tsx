@@ -1,4 +1,3 @@
-/* eslint-disable @typescript-eslint/no-explicit-any */
 import React, { useState } from 'react';
 import { Wand2, Download, AlertCircle, Save } from 'lucide-react';
 import { DocumentUploader } from '../components/DocumentUploader';
@@ -371,7 +370,7 @@ export const GenerationPage: React.FC = () => {
                 className="px-3 py-2 border border-gray-300 rounded-md text-sm min-w-[200px]"
               >
                 <option value="">Select Target Skill...</option>
-                {skills?.map((skill: any) => (
+                {skills?.map((skill: { skill_id: string; title: string }) => (
                   <option key={skill.id} value={skill.id}>
                     {skill.title}
                   </option>

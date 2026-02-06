@@ -1,4 +1,3 @@
-/* eslint-disable @typescript-eslint/no-explicit-any */
 import { Link } from 'react-router-dom'
 import { Plus, CheckSquare, Square, Search, X, Trash, Book, GripVertical } from 'lucide-react'
 import { usePaginatedDomains, useDeleteDomain, useBulkDeleteDomains, useBulkUpdateDomainsStatus, useUpdateDomainOrder } from '../hooks/use-domains'

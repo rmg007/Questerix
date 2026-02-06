@@ -1,4 +1,3 @@
-/* eslint-disable @typescript-eslint/no-explicit-any */
 import { useApp } from '@/contexts/AppContext';
 import { Link } from 'react-router-dom';
 import { 
@@ -18,6 +17,7 @@ import { SortableHeader } from '@/components/ui/sortable-header';
 import { DataToolbar } from '@/components/ui/data-toolbar';
 import { Button } from '@/components/ui/button';
 import type { DataColumn } from '@/lib/data-utils';
+import type { QuestionListItem } from '@/types/common.types';
 import {
   Plus,
   Search,
@@ -60,18 +60,10 @@ import { CSS } from '@dnd-kit/utilities';
 
 const DEFAULT_PAGE_SIZE = 10;
 
-interface Question {
-    question_id: string;
-    content: string;
-    type: string;
-    points: number;
-    sort_order: number;
-    status?: string;
-    skills?: { title: string; domains: { title: string } | null } | null;
-}
+// QuestionListItem type imported from common.types
 
 interface SortableRowProps {
-    question: Question;
+    question: QuestionListItem;
     isSelected: boolean;
     onSelect: (id: string) => void;
     onDelete: (id: string) => void;
@@ -133,7 +125,7 @@ function SortableRow({ question, isSelected, onSelect, onDelete, onDuplicate, re
                 </span>
             </td>
             <td className="px-6 py-4">
-                <span className="text-gray-700">{question.skills?.title}</span>
+                <span className="text-gray-700">{question.skills?.name}</span>
             </td>
             <td className="px-6 py-4">
                 <span className="inline-flex items-center justify-center w-8 h-8 rounded-lg bg-orange-100 text-orange-700 font-semibold text-sm">
@@ -238,9 +230,9 @@ function SortableCard({ question, isSelected, onSelect, onDelete, onDuplicate, r
                 <span className="px-2 py-1 bg-blue-100 text-blue-700 rounded-full text-xs font-medium capitalize">
                     {question.type}
                 </span>
-                {question.skills?.title && (
+                {question.skills?.name && (
                     <span className="text-gray-600 text-xs">
-                        Skill: <span className="font-medium">{question.skills.title}</span>
+                        Skill: <span className="font-medium">{question.skills.name}</span>
                     </span>
                 )}
                 <span className="inline-flex items-center gap-1 text-gray-600">
@@ -352,7 +344,7 @@ export function QuestionList() {
     const totalCount = paginatedData?.totalCount ?? 0;
     const totalPages = paginatedData?.totalPages ?? 1;
 
-    const questionIds = useMemo(() => questions.map((q: any) => q.question_id), [questions]);
+    const questionIds = useMemo(() => questions.map((q: QuestionListItem) => q.question_id), [questions]);
 
     const isDragDisabled = Boolean(debouncedSearch) || statusFilter !== 'all' || selectedSkillId !== 'all' || sortBy !== 'sort_order';
 
@@ -360,13 +352,13 @@ export function QuestionList() {
         const { active, over } = event;
 
         if (over && active.id !== over.id) {
-            const oldIndex = questions.findIndex((q: any) => q.question_id === active.id);
-            const newIndex = questions.findIndex((q: any) => q.question_id === over.id);
+            const oldIndex = questions.findIndex((q: QuestionListItem) => q.question_id === active.id);
+            const newIndex = questions.findIndex((q: QuestionListItem) => q.question_id === over.id);
 
             if (oldIndex !== -1 && newIndex !== -1) {
                 const reorderedQuestions = arrayMove(questions, oldIndex, newIndex);
 
-                const updates = reorderedQuestions.map((question: any, index: number) => ({
+                const updates = reorderedQuestions.map((question: QuestionListItem, index: number) => ({
                     question_id: question.question_id,
                     sort_order: index + 1 + (page - 1) * pageSize,
                 }));
@@ -395,7 +387,7 @@ export function QuestionList() {
         if (selectedIds.size === questions.length) {
             setSelectedIds(new Set());
         } else {
-            setSelectedIds(new Set(questions.map((q: any) => q.question_id)));
+            setSelectedIds(new Set(questions.map((q: QuestionListItem) => q.question_id)));
         }
     };
 
@@ -484,7 +476,7 @@ export function QuestionList() {
 
         try {
             const questionsToImport = data.map((item, index) => {
-                const parseField = (field: any) => {
+                const parseField = (field: unknown) => {
                     if (typeof field === 'string') {
                         try {
                             return JSON.parse(field);
@@ -617,7 +609,7 @@ export function QuestionList() {
             </div>
 
             <DataToolbar
-                data={questions as any[]}
+                data={questions as Record<string, unknown>[]}
                 columns={QUESTION_COLUMNS}
                 entityName="Questions"
                 onImport={handleImport}
@@ -658,8 +650,8 @@ export function QuestionList() {
                                 className="px-3 py-3 min-h-[48px] rounded-lg border border-gray-200 bg-white text-gray-700 focus:border-purple-500 focus:ring-2 focus:ring-purple-200 transition-colors text-base w-full sm:w-auto sm:min-w-[200px]"
                             >
                                 <option value="all">All Skills</option>
-                                {skills?.map((skill: any) => (
-                                    <option key={skill.id} value={skill.id}>
+                                {skills?.map((skill: { skill_id: string; title: string }) => (
+                                    <option key={skill.skill_id} value={skill.skill_id}>
                                         {skill.title}
                                     </option>
                                 ))}
@@ -813,7 +805,7 @@ export function QuestionList() {
                                     </tr>
                                 ) : (
                                     <SortableContext items={questionIds} strategy={verticalListSortingStrategy}>
-                                        {questions.map((question: any) => (
+                                        {questions.map((question: QuestionListItem) => (
                                             <SortableRow
                                                 key={question.question_id}
                                                 question={question}
@@ -865,7 +857,7 @@ export function QuestionList() {
                                 </div>
                             ) : (
                                 <div className="space-y-3">
-                                    {questions.map((question: any) => (
+                                    {questions.map((question: QuestionListItem) => (
                                         <SortableCard
                                             key={question.question_id}
                                             question={question}

@@ -53,3 +53,4 @@ The project consists of:
 - **`/autopilot`**: Triggers full autonomous build & maintenance capability.
 - **`/test`**: Runs the recommended "Enterprise QA" suite (Offline-Sync integration, E2E, Lint).
 *See `docs/technical/DEVELOPMENT.md` for full command details.*
+ 

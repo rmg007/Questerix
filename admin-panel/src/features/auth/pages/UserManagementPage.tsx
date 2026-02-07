@@ -81,7 +81,7 @@ export function UserManagementPage() {
     if (error) {
       console.error('Error fetching users:', error);
     } else {
-      setUsers((data as any[]) || []);
+      setUsers((data as AdminUser[]) || []);
     }
     setLoading(false);
   };
@@ -89,8 +89,8 @@ export function UserManagementPage() {
   const handleDeactivate = async (userId: string) => {
     if (!confirm('Are you sure you want to deactivate this admin user?')) return;
 
-    const { error } = await (supabase
-      .from('profiles') as any)
+    const { error } = await supabase
+      .from('profiles')
       .update({ deleted_at: new Date().toISOString() })
       .eq('id', userId);
 
@@ -102,8 +102,8 @@ export function UserManagementPage() {
   };
 
   const handleReactivate = async (userId: string) => {
-    const { error } = await (supabase
-      .from('profiles') as any)
+    const { error } = await supabase
+      .from('profiles')
       .update({ deleted_at: null })
       .eq('id', userId);
 

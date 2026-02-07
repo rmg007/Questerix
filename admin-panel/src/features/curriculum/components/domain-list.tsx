@@ -107,7 +107,7 @@ function SortableRow({ domain, isSelected, onSelect, onDelete, renderStatusBadge
         <code className="px-2 py-1 bg-gray-100 rounded text-sm text-gray-600">{domain.slug}</code>
       </td>
       <td className="px-6 py-4">
-        {renderStatusBadge((domain as any).status || 'draft')}
+        {renderStatusBadge(domain.status || 'draft')}
       </td>
       <td className="px-6 py-4 text-right">
         <div className="flex items-center justify-end gap-2">
@@ -185,7 +185,7 @@ function SortableCard({ domain, isSelected, onSelect, onDelete, renderStatusBadg
           <code className="px-2 py-0.5 bg-gray-100 rounded text-xs text-gray-600">{domain.slug}</code>
         </div>
         <div className="flex-shrink-0">
-          {renderStatusBadge((domain as any).status || 'draft')}
+          {renderStatusBadge(domain.status || 'draft')}
         </div>
       </div>
       <div className="flex items-center justify-end gap-2 pt-2 border-t border-gray-100">
@@ -458,7 +458,7 @@ export function DomainList() {
         </div>
         <div className="flex flex-col gap-2 sm:flex-row sm:items-center">
           <DataToolbar
-            data={domains as any[]}
+            data={domains}
             columns={DOMAIN_COLUMNS}
             entityName="Domains"
             importDisabled={true}

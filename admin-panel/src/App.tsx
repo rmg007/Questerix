@@ -4,7 +4,7 @@ import { ToastProvider } from './components/ui/toast'
 import { LoginPage } from './features/auth/pages/LoginPage'
 import { AuthGuard } from './features/auth/components/auth-guard'
 import { AppLayout } from './components/layout/app-layout'
-import { DashboardPage } from './features/curriculum/pages/dashboard-page'
+// DashboardPage import removed
 import { DomainsPage } from './features/curriculum/pages/domains-page'
 import { DomainCreatePage } from './features/curriculum/pages/domain-create-page'
 import { DomainEditPage } from './features/curriculum/pages/domain-edit-page'
@@ -49,7 +49,7 @@ function App() {
                   <AppLayout />
                 </AuthGuard>
               }>
-                <Route path="/" element={<DashboardPage />} />
+                <Route path="/" element={<Navigate to="/domains" replace />} />
                 <Route path="/domains" element={<DomainsPage />} />
                 <Route path="/domains/new" element={<DomainCreatePage />} />
                 <Route path="/domains/:id/edit" element={<DomainEditPage />} />

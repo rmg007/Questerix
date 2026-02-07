@@ -1,5 +1,5 @@
 import { Link, useLocation, useNavigate } from 'react-router-dom'
-import { LayoutDashboard, Book, Layers, FileText, Upload, LogOut, Settings, Key, History, Users, UserCog, Shield, Bug, AlertTriangle, Globe, Boxes, Layout } from 'lucide-react'
+import { Book, Layers, FileText, Upload, LogOut, Settings, Key, History, Users, UserCog, Shield, Bug, AlertTriangle, Globe, Boxes, Layout } from 'lucide-react'
 import { useApp } from '@/contexts/AppContext'
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select'
 import { cn } from '@/lib/utils'
@@ -13,7 +13,7 @@ interface SidebarProps {
 }
 
 const baseNavigation = [
-  { name: 'Dashboard', href: '/', icon: LayoutDashboard },
+  // Dashboard removed as per requirement
   { name: 'My Groups', href: '/groups', icon: Users },
   { name: 'Domains', href: '/domains', icon: Book },
   { name: 'Skills', href: '/skills', icon: Layers },
@@ -84,11 +84,35 @@ export function Sidebar({ isOpen = true, onClose, isMobile = false }: SidebarPro
           if (profileData.role === 'super_admin') {
             console.log('Sidebar: User is super_admin, showing invitation codes')
             setIsSuperAdmin(true)
+          } else {
+            console.log('Sidebar: User is NOT super_admin, resetting state')
+            setIsSuperAdmin(false)
           }
         }
+      } else {
+        // No user, reset state
+        setUserInfo(null)
+        setIsSuperAdmin(false)
       }
     }
+
+    // Initial check
     checkRole()
+
+    // Subscribe to auth changes to handle session switching (Role Flickering Fix)
+    const { data: { subscription } } = supabase.auth.onAuthStateChange((event, session) => {
+      console.log('Sidebar: Auth state change:', event, session?.user?.email)
+      if (event === 'SIGNED_IN' || event === 'TOKEN_REFRESHED') {
+        checkRole()
+      } else if (event === 'SIGNED_OUT') {
+        setUserInfo(null)
+        setIsSuperAdmin(false)
+      }
+    })
+
+    return () => {
+      subscription.unsubscribe()
+    }
   }, [])
 
   const navigation = [

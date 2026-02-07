@@ -45,7 +45,7 @@ export const GovernancePage: React.FC = () => {
       if (error) throw error;
 
       // eslint-disable-next-line @typescript-eslint/no-explicit-any
-      const formattedData = data.map((q: { question_id: string; content: string; type: string }) => ({
+      const formattedData = data.map((q: { app_id: string; monthly_token_limit: number; current_token_usage: number; is_throttled: boolean; updated_at: string; apps: { display_name: string } }) => ({
         app_id: q.app_id,
         display_name: q.apps.display_name,
         monthly_token_limit: q.monthly_token_limit,

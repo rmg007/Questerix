@@ -7,12 +7,12 @@ describe('env loaders', () => {
       SUPABASE_URL: 'https://example.supabase.co',
       SUPABASE_SERVICE_ROLE_KEY: 'sbp_xxx',
       NODE_ENV: 'test',
-    } as any);
+    } as Record<string, string>);
     expect(env.SUPABASE_URL).toContain('https://');
   });
 
   it('throws on invalid server env', () => {
-    expect(() => getServerEnv({} as any)).toThrow();
+    expect(() => getServerEnv({} as Record<string, string>)).toThrow();
   });
 
   it('validates client env', () => {

@@ -20,11 +20,11 @@ export function getServerEnv(src: NodeJS.ProcessEnv = process.env): ServerEnv {
   return ServerEnvSchema.parse({
     SUPABASE_URL: src.SUPABASE_URL,
     SUPABASE_SERVICE_ROLE_KEY: src.SUPABASE_SERVICE_ROLE_KEY,
-    NODE_ENV: src.NODE_ENV as any,
+    NODE_ENV: src.NODE_ENV as 'development' | 'test' | 'production' | undefined,
   });
 }
 
-export function getClientEnv(src: Record<string, any> = import.meta.env): ClientEnv {
+export function getClientEnv(src: Record<string, unknown> = import.meta.env): ClientEnv {
   return ClientEnvSchema.parse({
     VITE_SUPABASE_URL: src.VITE_SUPABASE_URL,
     VITE_SUPABASE_ANON_KEY: src.VITE_SUPABASE_ANON_KEY,

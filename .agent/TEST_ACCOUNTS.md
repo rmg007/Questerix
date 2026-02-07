@@ -42,6 +42,42 @@ This file contains test credentials. Ensure:
 
 ---
 
+### Admin One
+| Field | Value |
+|-------|-------|
+| **Email** | `admin1@example.com` |
+| **Password** | `admin1@example.com` |
+| **Name** | Admin One |
+| **Role** | `admin` |
+| **User ID** | `2ad17108-d1d2-4b66-ac4d-3a81682b36ae` |
+| **Permissions** | Manage curriculum, publish content, view analytics |
+
+---
+
+### Admin Two
+| Field | Value |
+|-------|-------|
+| **Email** | `admin2@example.com` |
+| **Password** | `admin2@example.com` |
+| **Name** | Admin Two |
+| **Role** | `admin` |
+| **User ID** | `d0645d96-ebfc-42af-9491-5c00f33dfd39` |
+| **Permissions** | Manage curriculum, publish content, view analytics |
+
+---
+
+### Admin Three
+| Field | Value |
+|-------|-------|
+| **Email** | `admin3@example.com` |
+| **Password** | `admin3@example.com` |
+| **Name** | Admin Three |
+| **Role** | `admin` |
+| **User ID** | `daffb975-d557-4cc5-a585-7e9b2e1b113c` |
+| **Permissions** | Manage curriculum, publish content, view analytics |
+
+---
+
 ### Mentor (Created via Browser)
 | Field | Value |
 |-------|-------|

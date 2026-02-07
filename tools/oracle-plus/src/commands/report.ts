@@ -57,7 +57,7 @@ export async function reportCommand(options: ReportOptions) {
   }
 }
 
-function generateMarkdownReport(validations: any[]): string {
+function generateMarkdownReport(validations: unknown[]): string {
   const now = new Date().toISOString();
   
   let report = `# Oracle Plus Drift Report\n\n`;
@@ -90,7 +90,7 @@ function generateMarkdownReport(validations: any[]): string {
 
   report += `## Validation Results\n\n`;
   
-  Object.entries(bySpec).forEach(([specName, vals]: [string, any]) => {
+  Object.entries(bySpec).forEach(([specName, vals]: [string, { status: string; validation_type: string; created_at: string; findings?: { severity: string; type: string; entity: string; expected: string; actual: string }[] }[]]) => {
     const latestVal = vals[0]; // Most recent
     const statusIcon = latestVal.status === 'pass' ? '✅' : latestVal.status === 'fail' ? '❌' : '⚠️';
     
@@ -104,7 +104,7 @@ function generateMarkdownReport(validations: any[]): string {
       report += `| Severity | Type | Entity | Expected | Actual |\n`;
       report += `|----------|------|--------|----------|--------|\n`;
       
-      latestVal.findings.forEach((f: any) => {
+      latestVal.findings.forEach((f: { severity: string; type: string; entity: string; expected: string; actual: string }) => {
         report += `| ${f.severity} | ${f.type} | ${f.entity} | ${f.expected} | ${f.actual} |\n`;
       });
       report += `\n`;

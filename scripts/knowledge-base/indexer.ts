@@ -34,7 +34,7 @@ interface ChunkToIndex {
   breadcrumb: string;
   content: string;
   contentHash: string;
-  metadata: Record<string, any>;
+  metadata: Record<string, unknown>;
 }
 
 /**

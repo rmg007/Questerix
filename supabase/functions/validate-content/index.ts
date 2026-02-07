@@ -8,12 +8,12 @@ const corsHeaders = {
 };
 
 interface ValidationRequest {
-  questions: any[];
+  questions: unknown[];
   source_text: string;
   rules?: {
     name: string;
     rule_type: string;
-    params: any;
+    params: unknown;
   }[];
 }
 
@@ -150,7 +150,7 @@ serve(async (req) => {
   }
 });
 
-function buildValidationPrompt(questions: any[], sourceText: string, rules: any[]): string {
+function buildValidationPrompt(questions: unknown[], sourceText: string, rules: unknown[]): string {
   return `You are an expert educational content auditor. Your task is to validate AI-generated questions against source material and specific quality rules.
 
 **Source Material:**
@@ -184,5 +184,4 @@ ${rules.length > 0 ? JSON.stringify(rules, null, 2) : 'Default: Accuracy, Safety
   "summary": "Executive summary of validation"
 }
 
-Return ONLY the JSON object.`;
-}
+Return ONLY the JSON object.`;}

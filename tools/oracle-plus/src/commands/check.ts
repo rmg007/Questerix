@@ -72,7 +72,7 @@ export async function checkCommand(options: CheckOptions) {
 
       if (data.status === 'fail') failCount++;
       
-      data.findings?.forEach((f: any) => {
+      data.findings?.forEach((f: { severity: string }) => {
         if (f.severity === 'critical') criticalCount++;
         if (f.severity === 'high') highCount++;
       });
@@ -101,7 +101,20 @@ export async function checkCommand(options: CheckOptions) {
   }
 }
 
-function outputConsole(results: any[], summary: any) {
+function outputConsole(
+  results: {
+    status: 'pass' | 'fail' | string;
+    spec: string;
+    findings?: {
+      severity: 'critical' | 'high' | 'medium' | 'low';
+      type: string;
+      entity: string;
+      expected: unknown;
+      actual: unknown;
+    }[];
+  }[],
+  summary: { failCount: number; criticalCount: number; highCount: number }
+): void {
   console.log('\n' + chalk.bold('📊 Drift Analysis Results') + '\n');
   
   results.forEach(result => {
@@ -109,7 +122,7 @@ function outputConsole(results: any[], summary: any) {
     console.log(`${statusIcon} ${chalk.bold(result.spec)}: ${result.status}`);
     
     if (result.findings && result.findings.length > 0) {
-      result.findings.forEach((f: any) => {
+      result.findings.forEach(f => {
         const severityColor = {
           critical: chalk.red,
           high: chalk.yellow,
@@ -132,7 +145,21 @@ function outputConsole(results: any[], summary: any) {
   console.log(`  High Issues: ${chalk.yellow(summary.highCount)}`);
 }
 
-function outputGithub(results: any[], summary: any) {
+function outputGithub(
+  results: Array<{
+    status: string;
+    spec: string;
+    findings?: Array<{
+      severity: string;
+      type: string;
+      entity: string;
+      expected: string;
+      actual: string;
+    }>;
+    recommendations?: string[];
+  }>,
+  summary: { criticalCount: number; highCount: number; failCount: number }
+) {
   console.log('## 📊 Oracle Plus: Specification Drift Report\n');
   
   if (summary.criticalCount > 0) {
@@ -162,7 +189,7 @@ function outputGithub(results: any[], summary: any) {
       console.log('| Severity | Type | Entity | Expected | Actual |');
       console.log('|----------|------|--------|----------|--------|');
       
-      result.findings.forEach((f: any) => {
+      result.findings.forEach((f: { severity: string; type: string; entity: string; expected: string; actual: string }) => {
         console.log(`| ${f.severity} | ${f.type} | ${f.entity} | ${f.expected} | ${f.actual} |`);
       });
       console.log('');

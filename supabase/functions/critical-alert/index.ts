@@ -9,7 +9,7 @@ interface ErrorRecord {
   extra_context: {
     severity?: string;
     alert_needed?: string;
-    [key: string]: any;
+    [key: string]: unknown;
   };
 }
 

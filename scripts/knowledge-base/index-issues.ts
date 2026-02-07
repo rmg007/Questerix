@@ -8,6 +8,7 @@
 import { createSupabaseClient } from './lib/supabase-client.js';
 import { generateEmbeddings } from './lib/embedder.js';
 import { hashContent } from './lib/hasher.js';
+import type { SupabaseClient } from '@supabase/supabase-js';
 
 const DRY_RUN = process.argv.includes('--dry-run');
 
@@ -51,7 +52,7 @@ ${issue.resolution || 'No resolution documented yet.'}
 /**
  * Fetch all known issues from the database
  */
-async function fetchIssues(supabase: any): Promise<KnownIssue[]> {
+async function fetchIssues(supabase: SupabaseClient): Promise<KnownIssue[]> {
   const { data, error } = await supabase
     .from('known_issues')
     .select('*');
@@ -66,7 +67,7 @@ async function fetchIssues(supabase: any): Promise<KnownIssue[]> {
 /**
  * Fetch existing chunks for database records
  */
-async function getExistingDbChunks(supabase: any): Promise<Map<string, string>> {
+async function getExistingDbChunks(supabase: SupabaseClient): Promise<Map<string, string>> {
   const { data, error } = await supabase
     .from('knowledge_chunks')
     .select('id, file_path, content_hash')
@@ -76,7 +77,14 @@ async function getExistingDbChunks(supabase: any): Promise<Map<string, string>> 
     throw new Error(`Failed to fetch existing database chunks: ${error.message}`);
   }
 
-  return new Map(data?.map((row: any) => [`${row.file_path}:${row.content_hash}`, row.id]) || []);
+  return new Map(
+    data?.map(
+      (row: { id: string; file_path: string; content_hash: string }) => [
+        `${row.file_path}:${row.content_hash}`,
+        row.id
+      ]
+    ) || []
+  );
 }
 
 /**
@@ -93,7 +101,7 @@ async function main() {
   }
 
   const existingChunks = await getExistingDbChunks(supabase);
-  const chunksToIndex: any[] = [];
+  const chunksToIndex: Array<{ issue: unknown; content: string; contentHash: string; filePath: string }> = [];
   const currentKeys = new Set<string>();
 
   for (const issue of issues) {
@@ -118,7 +126,6 @@ async function main() {
     console.log('✨ No new or updated issues to index.');
   } else {
     console.log(`🚀 Indexing ${chunksToIndex.length} new/updated issues...`);
-    
     if (!DRY_RUN) {
       const embeddings = await generateEmbeddings(
         chunksToIndex.map(c => c.content),

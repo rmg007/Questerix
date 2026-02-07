@@ -8,7 +8,7 @@ import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { Card, CardHeader, CardTitle, CardDescription, CardContent, CardFooter } from "@/components/ui/card"
 import { Label } from "@/components/ui/label"
-import { Rocket, Loader2, AlertCircle } from "lucide-react"
+import { Rocket, Loader2, AlertCircle, Eye, EyeOff } from "lucide-react"
 import { SecurityLogger } from "@/services/SecurityLogger"
 
 const loginSchema = z.object({
@@ -30,6 +30,8 @@ export function LoginPage() {
   const navigate = useNavigate()
   const [error, setError] = useState<string | null>(null)
   const [isRegister, setIsRegister] = useState(false)
+  const [showPassword, setShowPassword] = useState(false)
+  const [showRegisterPassword, setShowRegisterPassword] = useState(false)
   
   const loginForm = useForm<LoginFormValues>({
     resolver: zodResolver(loginSchema),
@@ -176,11 +178,22 @@ export function LoginPage() {
                 
                 <div className="space-y-2">
                   <Label htmlFor="password">Password</Label>
-                  <Input 
-                    id="password"
-                    type="password" 
-                    {...registerForm.register("password")} 
-                  />
+                  <div className="relative">
+                    <Input 
+                      id="password"
+                      type={showRegisterPassword ? "text" : "password"}
+                      {...registerForm.register("password")} 
+                      className="pr-10"
+                    />
+                    <button
+                      type="button"
+                      onClick={() => setShowRegisterPassword(!showRegisterPassword)}
+                      className="absolute right-3 top-1/2 -translate-y-1/2 text-muted-foreground hover:text-foreground transition-colors"
+                      aria-label={showRegisterPassword ? "Hide password" : "Show password"}
+                    >
+                      {showRegisterPassword ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
+                    </button>
+                  </div>
                   {registerForm.formState.errors.password && (
                     <p className="text-sm text-destructive">{registerForm.formState.errors.password.message}</p>
                   )}
@@ -227,11 +240,22 @@ export function LoginPage() {
                 
                 <div className="space-y-2">
                   <Label htmlFor="login-password">Password</Label>
-                  <Input 
-                    id="login-password"
-                    type="password" 
-                    {...loginForm.register("password")} 
-                  />
+                  <div className="relative">
+                    <Input 
+                      id="login-password"
+                      type={showPassword ? "text" : "password"}
+                      {...loginForm.register("password")} 
+                      className="pr-10"
+                    />
+                    <button
+                      type="button"
+                      onClick={() => setShowPassword(!showPassword)}
+                      className="absolute right-3 top-1/2 -translate-y-1/2 text-muted-foreground hover:text-foreground transition-colors"
+                      aria-label={showPassword ? "Hide password" : "Show password"}
+                    >
+                      {showPassword ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
+                    </button>
+                  </div>
                   {loginForm.formState.errors.password && (
                     <p className="text-sm text-destructive">{loginForm.formState.errors.password.message}</p>
                   )}

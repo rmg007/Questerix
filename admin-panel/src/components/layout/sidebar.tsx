@@ -1,5 +1,5 @@
 import { Link, useLocation, useNavigate } from 'react-router-dom'
-import { Book, Layers, FileText, Upload, LogOut, Settings, Key, History, Users, UserCog, Shield, Bug, AlertTriangle, Globe, Boxes, Layout } from 'lucide-react'
+import { Book, Layers, FileText, Upload, LogOut, Settings, Key, History, Users, UserCog, Shield, Bug, AlertTriangle, Globe, Boxes, Layout, Wand2 } from 'lucide-react'
 import { useApp } from '@/contexts/AppContext'
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select'
 import { cn } from '@/lib/utils'
@@ -18,6 +18,7 @@ const baseNavigation = [
   { name: 'Domains', href: '/domains', icon: Book },
   { name: 'Skills', href: '/skills', icon: Layers },
   { name: 'Questions', href: '/questions', icon: FileText },
+  { name: 'AI Generator', href: '/ai-questions', icon: Wand2 },
   { name: 'Publish', href: '/publish', icon: Upload },
   { name: 'Version History', href: '/versions', icon: History },
   { name: 'Error Logs', href: '/error-logs', icon: AlertTriangle },

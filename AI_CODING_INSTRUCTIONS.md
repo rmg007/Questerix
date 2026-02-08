@@ -1,5 +1,7 @@
 # AI Coding Instructions
 
+> **New agent?** Start with [`AGENT_QUICKSTART.md`](AGENT_QUICKSTART.md) for fast knowledge discovery, then return here for the full rules.
+
 This repository is contract-driven. Use the repo’s contracts (Makefile, CI workflows, validation scripts, migrations/RLS checks) as the primary source of truth for “how to work here.”
 
 ## Authority order (highest to lowest)

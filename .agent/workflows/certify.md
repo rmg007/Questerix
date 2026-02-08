@@ -231,7 +231,10 @@ description: Independent post-implementation audit and certification
 
 - [ ] **README Updated**
   - If APIs changed: README must reflect new endpoints/methods
-  - **Proof**: Git diff of README OR "No changes needed"
+- [ ] **Runbook Validation**
+  - Execute steps exactly as written in the guides (e.g., "Run X to do Y")
+  - Verify: Commands work, outputs match descriptions, no missing prerequisites
+  - **Proof**: Terminal output of the executed documented steps OR "No runbook steps to verify"
 
 **Exit Gate**: Documentation is complete and accurate.
 

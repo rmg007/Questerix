@@ -377,7 +377,7 @@ export function ErrorLogsPage() {
                   <div className="flex items-center gap-1">
                     <p className="font-mono text-xs">{selectedError.user_id || 'Anonymous'}</p>
                     {selectedError.user_id && (
-                      <Button variant="ghost" size="sm" className="h-5 w-5 p-0" onClick={() => copyToClipboard(selectedError.user_id!)}>
+                      <Button variant="ghost" size="sm" className="h-5 w-5 p-0" onClick={() => copyToClipboard(selectedError.user_id ?? '')}>
                         <Copy className="w-3 h-3" />
                       </Button>
                     )}
@@ -422,7 +422,7 @@ export function ErrorLogsPage() {
                       variant="ghost" 
                       size="sm" 
                       className="h-6 text-xs"
-                      onClick={() => copyToClipboard(selectedError.stack_trace!)}
+                      onClick={() => copyToClipboard(selectedError.stack_trace ?? '')}
                     >
                       <Copy className="w-3 h-3 mr-1" /> Copy
                     </Button>

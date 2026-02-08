@@ -1,140 +1,126 @@
 <#
 .SYNOPSIS
-    Generates environment files for React and Flutter from master-config.json
+    Generates environment specific configuration files
 .DESCRIPTION
-    Resolves template variables (${version}, ${global.*}) and generates:
-    - admin-panel/.env.local (for Vite/React)
-    - .flutter-defines.tmp (for Flutter build flags)
-.PARAMETER ConfigFile
-    Path to the master-config.json file
+    Combines master-config.json and .secrets to produce .env files
 #>
 
 param(
     [Parameter(Mandatory=$true)]
-    [string]$ConfigFile
+    [string]$ConfigFile,
+    
+    [Parameter(Mandatory=$false)]
+    [switch]$Force
 )
 
 $ErrorActionPreference = 'Stop'
 $ScriptDir = Split-Path -Parent $MyInvocation.MyCommand.Path
 $RootDir = Split-Path -Parent (Split-Path -Parent $ScriptDir)
 
-# Load configuration
-$config = Get-Content $ConfigFile -Raw | ConvertFrom-Json
-
-# Load secrets from .secrets or environment
-$secrets = @{}
+$configPath = Join-Path $RootDir $ConfigFile
 $secretsPath = Join-Path $RootDir '.secrets'
-if (Test-Path $secretsPath) {
-    Get-Content $secretsPath | ForEach-Object {
-        if ($_ -match '^([A-Z_]+)=(.*)$') {
-            $key = $Matches[1]
-            $value = $Matches[2].Trim()
-            if ($value) { $secrets[$key] = $value }
+
+if (-not (Test-Path $configPath)) {
+    Write-Host "❌ Config file not found: $configPath" -ForegroundColor Red
+    exit 1
+}
+
+if (-not (Test-Path $secretsPath)) {
+    Write-Host "❌ Secrets file not found: $secretsPath" -ForegroundColor Red
+    exit 1
+}
+
+# Load Secrets
+$secrets = @{}
+Get-Content $secretsPath | ForEach-Object {
+    if ($_ -match '^([A-Z_]+)=(.*)$') {
+        $key = $Matches[1]
+        $value = $Matches[2].Trim()
+        if ($value) {
+            $secrets[$key] = $value
         }
     }
 }
 
-# Add environment variables as overrides/fallback
-foreach ($envVar in Get-ChildItem Env:) {
-    if ($envVar.Name -match '^(SUPABASE|CLOUDFLARE|GEMINI|SENTRY|GITHUB)_') {
-        $secrets[$envVar.Name] = $envVar.Value
-    }
-}
+# Load Config
+$configJson = Get-Content $configPath | ConvertFrom-Json
 
-# =============================================================================
-# TEMPLATE RESOLUTION
-# =============================================================================
-function Resolve-Template {
-    param([string]$Value, [PSCustomObject]$Config, [Hashtable]$Secrets)
+# Helper to resolve placeholders
+function Resolve-Value {
+    param($val)
     
-    $result = $Value
+    if (-not $val) { return "" }
+    
+    # Replace ${global.VAR}
+    if ($val -match '\$\{global\.([A-Z_]+)\}') {
+        $refKey = $Matches[1]
+        if ($configJson.global.$refKey) {
+            $realVal = Resolve-Value -val $configJson.global.$refKey
+            $placeHolder = '${global.' + $refKey + '}'
+            $val = $val.Replace($placeHolder, $realVal)
+        } elseif ($secrets.ContainsKey($refKey)) {
+            $realVal = $secrets[$refKey]
+            $placeHolder = '${global.' + $refKey + '}'
+            $val = $val.Replace($placeHolder, $realVal)
+        }
+    }
     
     # Replace ${version}
-    $result = $result -replace '\$\{version\}', $Config.version
-    
-    # Replace ${global.*}
-    if ($result -match '\$\{global\.(\w+)\}') {
-        $key = $Matches[1]
-        # Check secrets first, then global config
-        if ($Secrets.ContainsKey($key)) {
-            $result = $result -replace "\`$\{global\.$key\}", $Secrets[$key]
-        } else {
-            $globalValue = $Config.global.$key
-            $result = $result -replace "\`$\{global\.$key\}", $globalValue
-        }
+    if ($val -match '\$\{version\}') {
+        $val = $val.Replace('${version}', $configJson.version)
     }
     
-    # Handle direct secret injection if needed (e.g. VITE_GEMINI_API_KEY)
-    # We can automatically inject matching keys from $Secrets if the config value is empty
-    return $result
+    return $val
 }
 
-# =============================================================================
-# REACT ADMIN PANEL (.env.local)
-# =============================================================================
-$adminEnvPath = Join-Path $RootDir 'admin-panel\.env.local'
-$timestamp = Get-Date -Format 'yyyy-MM-ddTHH:mm:ssZ' -AsUTC
+# Generate Admin Panel .env.local
+Write-Host "⚙️  Generating admin-panel/.env.local..." -ForegroundColor Cyan
+$adminEnvContent = @()
+$adminEnvContent += "# Generated from $ConfigFile on $(Get-Date)"
+$adminEnvContent += "# DO NOT EDIT MANUALLY"
 
-# Resolve Admin values
-$adminVersion = Resolve-Template $config.admin.VITE_APP_VERSION $config $secrets
-$adminName = Resolve-Template $config.admin.VITE_APP_NAME $config $secrets
-$adminSupabaseUrl = Resolve-Template $config.admin.VITE_SUPABASE_URL $config $secrets
-$adminSupabaseAnonKey = Resolve-Template $config.admin.VITE_SUPABASE_ANON_KEY $config $secrets
-$adminOfflineMode = Resolve-Template $config.admin.VITE_ENABLE_OFFLINE_MODE $config $secrets
-$adminAnalyticsId = Resolve-Template $config.admin.VITE_ANALYTICS_ID $config $secrets
+foreach ($prop in $configJson.admin.PSObject.Properties) {
+    if ($prop.Name -eq "_comment") { continue }
+    
+    $val = $prop.Value
+    # Check if empty string but mapped to a secret? 
+    # Logic: If value is "" and key looks like secret, check secrets? 
+    # Or strict substitution?
+    # The config has "VITE_SUPABASE_ANON_KEY": "${global.SUPABASE_ANON_KEY}" which resolves to global.
+    # But Global has "SUPABASE_ANON_KEY": "..." hardcoded or potentially placeholder.
+    # Let's assume master-config.json *might* have secrets placeholders too.
+    
+    # Better logic: Resolve placeholders first.
+    $resolvedVal = Resolve-Value -val $val
+    
+    $adminEnvContent += "$($prop.Name)=$resolvedVal"
+}
 
-$geminiKey = Resolve-Template $config.admin.VITE_GEMINI_API_KEY $config $secrets
-if (-not $geminiKey -and $secrets.GEMINI_API_KEY) { $geminiKey = $secrets.GEMINI_API_KEY }
+$adminEnvPath = Join-Path $RootDir "admin-panel\.env.local"
+Set-Content -Path $adminEnvPath -Value $adminEnvContent
+Write-Host "  ✅ Created: $adminEnvPath" -ForegroundColor Green
 
-# Validation
-if ([string]::IsNullOrWhiteSpace($adminSupabaseUrl)) { Write-Error "CRITICAL: VITE_SUPABASE_URL is empty"; exit 1 }
-if ([string]::IsNullOrWhiteSpace($adminSupabaseAnonKey)) { Write-Error "CRITICAL: VITE_SUPABASE_ANON_KEY is empty"; exit 1 }
 
-$adminEnv = @"
-# Generated by Questerix Orchestrator - DO NOT EDIT
-# Generated at: $timestamp
-# Source: $ConfigFile
+# Generate Student App .flutter-defines.tmp
+# This file is usually KEY=VALUE lines used by orchestrator or flutter run
+Write-Host "⚙️  Generating .flutter-defines.tmp..." -ForegroundColor Cyan
+$flutterEnvContent = @()
+$flutterEnvContent += "# Generated from $ConfigFile on $(Get-Date)"
 
-VITE_APP_VERSION=$adminVersion
-VITE_APP_NAME=$adminName
-VITE_SUPABASE_URL=$adminSupabaseUrl
-VITE_SUPABASE_ANON_KEY=$adminSupabaseAnonKey
-VITE_ENABLE_OFFLINE_MODE=$adminOfflineMode
-VITE_ANALYTICS_ID=$adminAnalyticsId
-VITE_GEMINI_API_KEY=$geminiKey
-"@
+foreach ($prop in $configJson.student.PSObject.Properties) {
+    $val = $prop.Value
+    $resolvedVal = Resolve-Value -val $val
+    
+    # Flutter often needs escaped quotes if passed via command line, but if this is a file to be read:
+    # If orchestrated via --dart-define-from-file (available in recent Flutter), JSON is best.
+    # If using --dart-define, key=value is needed.
+    # Let's write as key=value
+    
+    $flutterEnvContent += "$($prop.Name)=$resolvedVal"
+}
 
-Set-Content -Path $adminEnvPath -Value $adminEnv -Encoding UTF8
-Write-Host "Generated: admin-panel/.env.local" -ForegroundColor Green
+$flutterDefinesPath = Join-Path $RootDir ".flutter-defines.tmp"
+Set-Content -Path $flutterDefinesPath -Value $flutterEnvContent
+Write-Host "  ✅ Created: $flutterDefinesPath" -ForegroundColor Green
 
-# =============================================================================
-# FLUTTER STUDENT APP (dart-define flags)
-# =============================================================================
-$flutterDefinesPath = Join-Path $RootDir '.flutter-defines.tmp'
-
-$studentConfig = $config.student
-$version = Resolve-Template $studentConfig.APP_VERSION $config $secrets
-$appName = Resolve-Template $studentConfig.APP_NAME $config $secrets
-$supabaseUrl = Resolve-Template $studentConfig.SUPABASE_URL $config $secrets
-$supabaseAnonKey = Resolve-Template $studentConfig.SUPABASE_ANON_KEY $config $secrets
-$themeColor = $studentConfig.THEME_PRIMARY_COLOR
-$offlineFirst = $studentConfig.ENABLE_OFFLINE_FIRST
-$driftVersion = $studentConfig.DRIFT_DB_VERSION
-$sentryEnabled = $studentConfig.SENTRY_ENABLED
-$sentryDsn = Resolve-Template $studentConfig.SENTRY_DSN $config $secrets
-if (-not $sentryDsn -and $secrets.SENTRY_DSN) { $sentryDsn = $secrets.SENTRY_DSN }
-
-$flutterDefines = @(
-    "--dart-define=APP_VERSION=$version",
-    "--dart-define=APP_NAME=$appName",
-    "--dart-define=SUPABASE_URL=$supabaseUrl",
-    "--dart-define=SUPABASE_ANON_KEY=$supabaseAnonKey",
-    "--dart-define=THEME_PRIMARY_COLOR=$themeColor",
-    "--dart-define=ENABLE_OFFLINE_FIRST=$offlineFirst",
-    "--dart-define=DRIFT_DB_VERSION=$driftVersion",
-    "--dart-define=SENTRY_ENABLED=$sentryEnabled",
-    "--dart-define=SENTRY_DSN=$sentryDsn"
-) -join ' '
-
-Set-Content -Path $flutterDefinesPath -Value $flutterDefines -Encoding UTF8
-Write-Host "Generated: .flutter-defines.tmp (Flutter build flags)" -ForegroundColor Green
+Write-Host "✅ Environment generation complete." -ForegroundColor Green

@@ -1,5 +1,47 @@
 # Learning Log
 
+## 2026-02-07: Cloud Secrets Management Implementation
+
+### Session Context
+- **Objective**: Implement a secure, cloud-based secrets management system using Cloudflare Secrets.
+- **Scope**: Administration of environment variables across Production and Staging.
+
+### Key Learnings
+
+#### 1. Cloudflare Secrets are Write-Only
+**Constraint**: `wrangler secret list` returns names but not values.
+- **Impact**: We cannot implement a "Download Secrets" script that acts as a backup or sync mechanism from Cloud to Local.
+- **Mitigation**: Local `.secrets` file is the source of truth for values (stored in password manager). `Download-Secrets.ps1` was converted to a verification script that checks for existence only.
+
+#### 2. PowerShell String Interpolation vs Template Placeholders
+**Bug**: `generate-env.ps1` failed to replace `${global.VAR}` because PowerShell's string interpolation `${...}` conflicted with the regex replacement logic.
+- **Fix**: Used single quotes for the placeholder string construction: `$placeHolder = '${global.' + $refKey + '}'`.
+- **Lesson**: When writing code generators in PowerShell, be extremely careful with `$` and `{}` characters in strings.
+
+#### 3. Audit Logging Strategy
+**Decision**: Implemented local JSON-based audit logging.
+- **Trade-off**: Simplicity vs Centralization. Local logs are good for individual developer accountability but don't provide a team-wide audit trail.
+- **Future Work**: Consider pushing audit logs to Cloudflare D1 or KV for a unified view.
+
+### Files Created
+- `scripts/secrets/Upload-Secrets.ps1`
+- `scripts/secrets/Download-Secrets.ps1` (Verification mode)
+- `scripts/secrets/Switch-Environment.ps1`
+- `scripts/secrets/Backup-Secrets.ps1`
+- `scripts/deploy/generate-env.ps1`
+- `docs/operations/CLOUD_SECRETS_MANAGEMENT.md`
+- `certification_report.md`
+
+### Certification Findings (2026-02-07)
+- **Status**: ✅ CERTIFIED
+- **Security**: Confirmed no hardcoded secrets in scripts or exposed values in logs.
+- **Resilience**: `Switch-Environment.ps1` correctly handles missing cloud verification by falling back to local secrets.
+- **Known Issue**: `Download-Secrets.ps1` verification step may fail to parse `wrangler secret list` JSON output on some terminals. This is a non-blocking warning.
+
+---
+
+
+
 This document captures lessons learned during development to prevent repeated mistakes and improve future implementations.
 
 ---

@@ -1,6 +1,115 @@
 # Learning Log
 
+## 2026-02-07: Cloud Secrets Management Implementation
+
+### Session Context
+- **Objective**: Implement a secure, cloud-based secrets management system using Cloudflare Secrets.
+- **Scope**: Administration of environment variables across Production and Staging.
+
+### Key Learnings
+
+#### 1. Cloudflare Secrets are Write-Only
+**Constraint**: `wrangler secret list` returns names but not values.
+- **Impact**: We cannot implement a "Download Secrets" script that acts as a backup or sync mechanism from Cloud to Local.
+- **Mitigation**: Local `.secrets` file is the source of truth for values (stored in password manager). `Download-Secrets.ps1` was converted to a verification script that checks for existence only.
+
+#### 2. PowerShell String Interpolation vs Template Placeholders
+**Bug**: `generate-env.ps1` failed to replace `${global.VAR}` because PowerShell's string interpolation `${...}` conflicted with the regex replacement logic.
+- **Fix**: Used single quotes for the placeholder string construction: `$placeHolder = '${global.' + $refKey + '}'`.
+- **Lesson**: When writing code generators in PowerShell, be extremely careful with `$` and `{}` characters in strings.
+
+#### 3. Audit Logging Strategy
+**Decision**: Implemented local JSON-based audit logging.
+- **Trade-off**: Simplicity vs Centralization. Local logs are good for individual developer accountability but don't provide a team-wide audit trail.
+- **Future Work**: Consider pushing audit logs to Cloudflare D1 or KV for a unified view.
+
+### Files Created
+- `scripts/secrets/Upload-Secrets.ps1`
+- `scripts/secrets/Download-Secrets.ps1` (Verification mode)
+- `scripts/secrets/Switch-Environment.ps1`
+- `scripts/secrets/Backup-Secrets.ps1`
+- `scripts/deploy/generate-env.ps1`
+- `docs/operations/CLOUD_SECRETS_MANAGEMENT.md`
+- `certification_report.md`
+
+### Certification Findings (2026-02-07)
+- **Status**: ✅ CERTIFIED
+- **Security**: Confirmed no hardcoded secrets in scripts or exposed values in logs.
+- **Resilience**: `Switch-Environment.ps1` correctly handles missing cloud verification by falling back to local secrets.
+- **Known Issue**: `Download-Secrets.ps1` verification step may fail to parse `wrangler secret list` JSON output on some terminals. This is a non-blocking warning.
+
+---
+
+
+
 This document captures lessons learned during development to prevent repeated mistakes and improve future implementations.
+
+---
+
+## 2026-02-07: Advanced UI Refinement and Error Debuggability
+
+### Session Context
+- **Objective**: Refactor Version History UI into a structured table and improve error logging for PostgREST failures.
+- **Scope**: `VersionHistoryPage.tsx`, `use-publish.ts`, and project-wide error logging patterns.
+
+---
+
+### Key Learnings
+
+#### 1. PostgREST Error Serialization in Console
+**What Happened**: Logging raw Supabase error objects (`console.warn(error)`) resulted in `[object Object]` in the browser console, hiding critical debugging info like "column not found".
+- **Fix**: Always use `error.message || error` when logging to ensure the human-readable description is visible.
+- **Improved Pattern**: 
+  ```typescript
+  if (error) {
+    console.warn('Contextual message:', error.message || error);
+    throw error;
+  }
+  ```
+
+#### 2. Scalable History UI with Tables
+**Insight**: Vertical list layouts for history items (versions, logs) degrade in usability as data grows. 
+- **Solution**: Migrated to a structured table using `SortableHeader` and `Pagination`.
+- **Benefit**: Allows users to quickly find specific versions by sorting by number or date, and prevents page bloat through pagination.
+- **Implementation Tip**: Reusing the `SortableHeader` and `Pagination` components across all lists (Domains, Skills, Versions) maintains a premium "Chameleon" design consistency.
+
+---
+
+## 2026-02-07: Multi-Tenant Schema Drift and Publishing Reliability
+
+### Session Context
+- **Objective**: Fix 400 error on Publish page and implement tenant-aware curriculum versioning.
+- **Scope**: Database schema (`curriculum_meta`, `curriculum_snapshots`), RPC functions, and frontend scoping.
+
+---
+
+### Key Learnings
+
+#### 1. PostgREST 400 Error: Ghost Columns
+**What Happened**: The frontend was sending `.eq('app_id', app_id)` to the `curriculum_meta` table, but the table lacked the `app_id` column.
+- **Impact**: The server responded with a 400 Bad Request, breaking the page load.
+- **Lesson**: When implementing multi-tenancy, verify that the schema migration has reached *all* feature-related tables before deploying frontend filtering.
+- **Detection**: Always check the "Network" tab for 400 errors; Supabase/PostgREST usually provides a clear error message about the unknown column.
+
+#### 2. Singleton-to-Tenant Pattern Transition
+**The Challenge**: Converting a "Global Singleton" table (e.g., `curriculum_meta` with `id='singleton'`) to support multiple apps.
+- **Solution**: Use a composite primary key `(id, app_id)`.
+- **Constraint Change**: `ALTER TABLE public.curriculum_meta DROP CONSTRAINT curriculum_meta_pkey; ALTER TABLE public.curriculum_meta ADD PRIMARY KEY (id, app_id);`
+- **Benefit**: Retains the "one record per app" logic while allowing data isolation.
+
+#### 3. RPC Function Consolidation
+**Problem**: Multiple overloads of `publish_curriculum()` existed with conflicting logic (singleton-based vs. argument-based).
+- **Strategy**: consolidate into a single `SECURITY DEFINER` function that:
+    1. Validates `p_app_id`.
+    2. Enforces `is_admin()` and tenant ownership.
+    3. Handles status transitions (`draft`/`published` -> `live`).
+    4. Creates a JSONB content snapshot.
+    5. Increments versioning in `curriculum_meta`.
+- **Lesson**: Tenant-aware RPCs should be high-level "atomic transactions" to ensure the `meta`, `snapshots`, and `content` tables stay in sync.
+
+#### 4. Unique Constraint Scoping
+**Insight**: A unique constraint on `version` in a `snapshots` table only works for single-tenant apps. For multi-tenancy, the constraint must be `UNIQUE (app_id, version)`.
+- **Fix**: `ALTER TABLE curriculum_snapshots ADD CONSTRAINT curriculum_snapshots_app_id_version_key UNIQUE (app_id, version);`
 
 ---
 
@@ -1573,4 +1682,44 @@ Get-ChildItem -Path admin-panel\src -Recurse -Include *.ts,*.tsx |
 2. **Refactoring Sprints**: Schedule dedicated sessions for 800+ line files
 3. **Feature Isolation**: Monitor `feature-to-feature-isolation` warnings as codebase grows
 4. **Monthly Reports**: Run code health analysis monthly and track trends
+
+
+## 2026-02-07: CodeScene Integration & GitHub CLI Authentication
+
+### Session Context
+- **Objective**: Trigger an initial CodeScene analysis by creating a new branch and PR.
+- **Scope**: `codescene-init` branch, trivial `README.md` change, GitHub CLI (`gh`) usage.
+
+---
+
+### Key Learnings
+
+#### 1. GitHub CLI Authentication in Automated Environments
+**Issue**: The `gh` CLI was installed (v2.86.0) but not authenticated in the current shell environment, preventing PR creation.
+**Symptoms**: 
+```
+To get started with GitHub CLI, please run:  gh auth login
+Alternatively, populate the GH_TOKEN environment variable...
+```
+**Resolution**:
+1.  **Token Generation**: User provided a Personal Access Token (PAT).
+2.  **Secret Management**: Saved the token to `.secrets` file as `GITHUB_TOKEN`.
+3.  **Authentication**: Executed `gh auth login --with-token < .secrets` (or manual login with `$env:GITHUB_TOKEN`).
+
+**Best Practice**: Ensure `gh` authentication status (`gh auth status`) is checked before attempting strictly automated git operations. Store tokens securely in `.secrets` (which is git-ignored) rather than hardcoding in scripts.
+
+#### 2. PR Creation Traceability
+**Action**: Created branch `codescene-init` with a trivial commit ("chore: trigger initial codescene analysis").
+**Outcome**: PR #13 created successfully.
+**Purpose**: CodeScene (and similar tools) often require an active Pull Request to trigger their specific "Code Review" or "Delta Analysis" features, beyond just analyzing the main branch history.
+
+---
+
+### Files Modified/Created
+
+| File | Action | Purpose |
+|------|--------|---------|
+| `.secrets` | Modified | Added `GITHUB_TOKEN` |
+| `README.md` | Modified | Trivial change to create file diff |
+| `docs/LEARNING_LOG.md` | Updated | Documented this process |
 
